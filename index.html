@@ -210,6 +210,24 @@
       color: #999;
     }
 
+    .progress-steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .step {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f5e8d8;
+      transition: background 0.3s;
+    }
+
+    .step.active { background: #d4a017; }
+    .step.done { background: #b8860b; }
+
     .result-card {
       display: none;
       background: white;
@@ -308,8 +326,13 @@
 
     <div class="status-card" id="status-card">
       <div class="spinner"></div>
-      <h3>Video hazırlanıyor...</h3>
-      <p>Bu işlem 3-5 dakika sürebilir.<br>Lütfen bu sayfayı kapatmayın.</p>
+      <h3 id="status-title">Hazırlanıyor...</h3>
+      <p id="status-desc">Lütfen bu sayfayı kapatmayın.</p>
+      <div class="progress-steps">
+        <div class="step" id="step-1"></div>
+        <div class="step" id="step-2"></div>
+        <div class="step" id="step-3"></div>
+      </div>
     </div>
 
     <div class="result-card" id="result-card">
@@ -329,9 +352,14 @@
   <footer>Aysa Moda &mdash; Nejla Candan</footer>
 
   <script>
-    const WEBHOOK_URL = 'https://nubeth60.rpcl.app/webhook/aysamoda-gelinlik';
+    const WEBHOOK = 'https://nubeth60.rpcl.app/webhook/aysamoda-gelinlik';
 
     let selectedFile = null;
+    let pollTimer = null;
+    let phase = 'idle'; // idle | flux | kling
+    let fluxTaskId = null;
+    let imgbbUrl = null;
+    let klingTaskId = null;
 
     document.getElementById('file-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -357,6 +385,14 @@
       document.getElementById('file-input').value = '';
     }
 
+    function setStatus(title, desc, step) {
+      document.getElementById('status-title').textContent = title;
+      document.getElementById('status-desc').textContent = desc;
+      document.getElementById('step-1').className = 'step' + (step >= 1 ? (step > 1 ? ' done' : ' active') : '');
+      document.getElementById('step-2').className = 'step' + (step >= 2 ? (step > 2 ? ' done' : ' active') : '');
+      document.getElementById('step-3').className = 'step' + (step >= 3 ? ' active' : '');
+    }
+
     async function generateVideo() {
       if (!selectedFile) return;
 
@@ -364,40 +400,94 @@
       document.getElementById('status-card').classList.add('visible');
       document.getElementById('result-card').classList.remove('visible');
       document.getElementById('error-card').classList.remove('visible');
+      setStatus('Fotoğraf yükleniyor...', 'Lütfen bekleyin.', 1);
 
       try {
         const base64 = await toBase64(selectedFile);
 
-        const res = await fetch(WEBHOOK_URL, {
+        const startRes = await fetch(WEBHOOK, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image: base64,
-            filename: selectedFile.name,
-            type: selectedFile.type
-          })
+          body: JSON.stringify({ action: 'start', image: base64, filename: selectedFile.name })
         });
 
-        const data = await res.json();
-        const videoUrl = data.url || data.video_url || data.response;
+        const startData = await startRes.json();
+        fluxTaskId = startData.flux_task_id;
+        imgbbUrl = startData.imgbb_url;
 
-        document.getElementById('status-card').classList.remove('visible');
+        if (!fluxTaskId) throw new Error('flux_task_id yok');
 
-        if (videoUrl) {
-          document.getElementById('video-link').href = videoUrl;
-          document.getElementById('result-card').classList.add('visible');
-        } else {
-          document.getElementById('error-card').classList.add('visible');
-          document.getElementById('generate-btn').disabled = false;
-        }
-      } catch (e) {
-        document.getElementById('status-card').classList.remove('visible');
-        document.getElementById('error-card').classList.add('visible');
-        document.getElementById('generate-btn').disabled = false;
+        phase = 'flux';
+        setStatus('Görsel işleniyor...', 'Yapay zeka modeli uygulanıyor. (1-2 dk)', 2);
+
+        // Poll every 20 seconds
+        pollTimer = setInterval(poll, 20000);
+        setTimeout(poll, 10000); // first check after 10s
+
+      } catch(e) {
+        showError();
       }
     }
 
+    async function poll() {
+      try {
+        if (phase === 'flux') {
+          const res = await fetch(WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'check_flux', flux_task_id: fluxTaskId, imgbb_url: imgbbUrl })
+          });
+          const data = await res.json();
+
+          if (data.status === 'kling_started') {
+            klingTaskId = data.kling_task_id;
+            phase = 'kling';
+            setStatus('Video oluşturuluyor...', 'AI video hazırlanıyor. (3-5 dk)', 3);
+          } else if (data.status === 'error') {
+            clearInterval(pollTimer);
+            showError();
+          }
+          // if processing, continue polling
+
+        } else if (phase === 'kling') {
+          const res = await fetch(WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'check_kling', kling_task_id: klingTaskId })
+          });
+          const data = await res.json();
+
+          if (data.status === 'done' && data.url) {
+            clearInterval(pollTimer);
+            showResult(data.url);
+          } else if (data.status === 'error') {
+            clearInterval(pollTimer);
+            showError();
+          }
+        }
+      } catch(e) {
+        // Network error during poll - keep trying
+      }
+    }
+
+    function showResult(url) {
+      document.getElementById('status-card').classList.remove('visible');
+      document.getElementById('video-link').href = url;
+      document.getElementById('result-card').classList.add('visible');
+    }
+
+    function showError() {
+      document.getElementById('status-card').classList.remove('visible');
+      document.getElementById('error-card').classList.add('visible');
+      document.getElementById('generate-btn').disabled = false;
+    }
+
     function resetForm() {
+      clearInterval(pollTimer);
+      phase = 'idle';
+      fluxTaskId = null;
+      imgbbUrl = null;
+      klingTaskId = null;
       removeImage();
       document.getElementById('result-card').classList.remove('visible');
       document.getElementById('error-card').classList.remove('visible');
