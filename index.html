@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Aysa Moda - Gelinlik Video</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fff5f8 0%, #fef0f8 50%, #f8f0ff 100%);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background: white;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 20px rgba(180, 140, 80, 0.15);
+      border-bottom: 2px solid #f0e0c8;
+    }
+
+    .logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 16px rgba(180, 140, 80, 0.3);
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #b8860b, #d4a017, #b8860b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: #999;
+      font-style: italic;
+    }
+
+    .container {
+      flex: 1;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(180, 140, 80, 0.1);
+      border: 1px solid #f5e8d8;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .upload-area {
+      border: 2px dashed #d4a017;
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: linear-gradient(135deg, #fffdf5, #fff8f0);
+      position: relative;
+    }
+
+    .upload-area:active { background: #fff3e0; }
+    .upload-area.has-image { border-style: solid; border-color: #b8860b; }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .upload-area p {
+      color: #888;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .upload-area strong {
+      color: #b8860b;
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    #file-input { display: none; }
+
+    #preview-container {
+      display: none;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    #preview-img {
+      width: 100%;
+      border-radius: 12px;
+      max-height: 280px;
+      object-fit: cover;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #b8860b, #d4a017, #b8860b);
+      background-size: 200% 200%;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 20px rgba(180, 140, 80, 0.4);
+      transition: all 0.3s;
+    }
+
+    .generate-btn:disabled {
+      background: #ccc;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .generate-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .status-card {
+      display: none;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(180, 140, 80, 0.1);
+      border: 1px solid #f5e8d8;
+      text-align: center;
+    }
+
+    .status-card.visible { display: block; }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #f5e8d8;
+      border-top-color: #d4a017;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-card h3 {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .status-card p {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .result-card {
+      display: none;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(180, 140, 80, 0.15);
+      border: 2px solid #d4a017;
+    }
+
+    .result-card.visible { display: block; }
+
+    .result-card h3 {
+      font-size: 16px;
+      color: #b8860b;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .video-link {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #b8860b, #d4a017);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 4px 16px rgba(180, 140, 80, 0.4);
+      margin-bottom: 12px;
+    }
+
+    .new-btn {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #b8860b;
+      border: 2px solid #d4a017;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .error-card {
+      display: none;
+      background: #fff5f5;
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid #ffcccc;
+      text-align: center;
+      color: #cc0000;
+      font-size: 14px;
+    }
+
+    .error-card.visible { display: block; }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #ccc;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="aysamoda-logo.png" alt="Aysa Moda" class="logo">
+    <h1>AYSA MODA</h1>
+    <p>Gelinlik Video Üretici</p>
+  </header>
+
+  <div class="container">
+
+    <div class="card" id="upload-card">
+      <h2>Gelinlik Fotoğrafı Yükle</h2>
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+        <span class="upload-icon">👗</span>
+        <strong>Fotoğraf Seç</strong>
+        <p>Gelinlik fotoğrafını yükle,<br>yapay zeka video oluştursun</p>
+      </div>
+      <input type="file" id="file-input" accept="image/*" capture="environment">
+      <div id="preview-container">
+        <img id="preview-img" src="" alt="Önizleme">
+        <button class="remove-btn" onclick="removeImage()">✕</button>
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generate-btn" disabled onclick="generateVideo()">
+      Video Oluştur
+    </button>
+
+    <div class="status-card" id="status-card">
+      <div class="spinner"></div>
+      <h3>Video hazırlanıyor...</h3>
+      <p>Bu işlem 3-5 dakika sürebilir.<br>Lütfen bu sayfayı kapatmayın.</p>
+    </div>
+
+    <div class="result-card" id="result-card">
+      <h3>✨ Videonuz Hazır!</h3>
+      <a id="video-link" href="#" target="_blank" class="video-link">
+        Videoyu İndir / İzle
+      </a>
+      <button class="new-btn" onclick="resetForm()">Yeni Video Oluştur</button>
+    </div>
+
+    <div class="error-card" id="error-card">
+      ❌ Bir hata oluştu. Lütfen tekrar deneyin.
+    </div>
+
+  </div>
+
+  <footer>Aysa Moda &mdash; Nejla Candan</footer>
+
+  <script>
+    const WEBHOOK_URL = 'https://nubeth60.rpcl.app/webhook/aysamoda-gelinlik';
+
+    let selectedFile = null;
+
+    document.getElementById('file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById('preview-img').src = ev.target.result;
+        document.getElementById('preview-container').style.display = 'block';
+        document.getElementById('upload-area').classList.add('has-image');
+        document.getElementById('generate-btn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function removeImage() {
+      selectedFile = null;
+      document.getElementById('preview-img').src = '';
+      document.getElementById('preview-container').style.display = 'none';
+      document.getElementById('upload-area').classList.remove('has-image');
+      document.getElementById('generate-btn').disabled = true;
+      document.getElementById('file-input').value = '';
+    }
+
+    async function generateVideo() {
+      if (!selectedFile) return;
+
+      document.getElementById('generate-btn').disabled = true;
+      document.getElementById('status-card').classList.add('visible');
+      document.getElementById('result-card').classList.remove('visible');
+      document.getElementById('error-card').classList.remove('visible');
+
+      try {
+        const base64 = await toBase64(selectedFile);
+
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: base64,
+            filename: selectedFile.name,
+            type: selectedFile.type
+          })
+        });
+
+        const data = await res.json();
+        const videoUrl = data.url || data.video_url || data.response;
+
+        document.getElementById('status-card').classList.remove('visible');
+
+        if (videoUrl) {
+          document.getElementById('video-link').href = videoUrl;
+          document.getElementById('result-card').classList.add('visible');
+        } else {
+          document.getElementById('error-card').classList.add('visible');
+          document.getElementById('generate-btn').disabled = false;
+        }
+      } catch (e) {
+        document.getElementById('status-card').classList.remove('visible');
+        document.getElementById('error-card').classList.add('visible');
+        document.getElementById('generate-btn').disabled = false;
+      }
+    }
+
+    function resetForm() {
+      removeImage();
+      document.getElementById('result-card').classList.remove('visible');
+      document.getElementById('error-card').classList.remove('visible');
+      document.getElementById('status-card').classList.remove('visible');
+      document.getElementById('generate-btn').disabled = true;
+    }
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+
+</body>
+</html>
