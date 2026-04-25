@@ -1,0 +1,24 @@
+{
+  "name": "Aysa Moda",
+  "short_name": "Aysa Moda",
+  "description": "Gelinlik Video Üretici",
+  "start_url": "/aysa-moda/",
+  "display": "standalone",
+  "background_color": "#fff5f8",
+  "theme_color": "#b8860b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "aysamoda-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "aysamoda-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
