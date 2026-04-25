@@ -360,6 +360,7 @@
     let fluxTaskId = null;
     let imgbbUrl = null;
     let klingTaskId = null;
+    let isPolling = false;
 
     document.getElementById('file-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -420,9 +421,9 @@
         phase = 'flux';
         setStatus('Görsel işleniyor...', 'Yapay zeka modeli uygulanıyor. (1-2 dk)', 2);
 
-        // Poll every 20 seconds
-        pollTimer = setInterval(poll, 20000);
-        setTimeout(poll, 10000); // first check after 10s
+        // Poll every 30 seconds
+        pollTimer = setInterval(poll, 30000);
+        setTimeout(poll, 15000); // first check after 15s
 
       } catch(e) {
         showError();
@@ -430,6 +431,8 @@
     }
 
     async function poll() {
+      if (isPolling) return;
+      isPolling = true;
       try {
         if (phase === 'flux') {
           const res = await fetch(WEBHOOK, {
@@ -467,6 +470,8 @@
         }
       } catch(e) {
         // Network error during poll - keep trying
+      } finally {
+        isPolling = false;
       }
     }
 
@@ -488,6 +493,7 @@
       fluxTaskId = null;
       imgbbUrl = null;
       klingTaskId = null;
+      isPolling = false;
       removeImage();
       document.getElementById('result-card').classList.remove('visible');
       document.getElementById('error-card').classList.remove('visible');
