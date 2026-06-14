@@ -1,167 +1,172 @@
 /**
- * Kling AI — Image-to-Video API Client
+ * Kling AI (via Kie AI or Replicate) — Image-to-Video API Client
  * 
- * Kıyafet fotoğraflarını AI manken videolarına dönüştürür.
- * Prompt mühendisliği ile kıyafet stilinin korunması garanti altına alınır.
- * 
- * Desteklenen platformlar:
- * - Kling AI Direct API (klingai.com)
- * - Replicate (replicate.com)
- * - fal.ai
- * 
- * TODO: Samed API key sağladığında platforma göre implementasyon aktifleştirilecek.
+ * Giydirilmiş manken fotoğraflarını (ön ve arka) 360° dönüş videosuna dönüştürür.
  */
 
-const KLING_API_KEY = process.env.KLING_API_KEY;
+const KIE_API_KEY = process.env.KLING_API_KEY || process.env.KIE_API_KEY;
 const KLING_ACCESS_KEY = process.env.KLING_ACCESS_KEY;
 const KLING_SECRET_KEY = process.env.KLING_SECRET_KEY;
 
-// Kategori bazlı prompt mühendisliği
-const CATEGORY_PROMPTS = {
+// Kategori bazlı ön tanımlı promptlar (kullanıcı bunu düzenleyebilir)
+export const DEFAULT_PROMPTS = {
   gelinlik: 
-    "A professional fashion runway video. Gentle breeze softly animates the bridal dress fabric. " +
-    "Slow cinematic camera orbit around the dress. " +
-    "CRITICAL RULES: Preserve the EXACT original clothing design, cut, fabric texture, and style. " +
-    "Do NOT modify, add, or remove ANY clothing element. Keep the dress EXACTLY as shown in the photo.",
+    "A professional fashion runway video of the model wearing the bridal dress. Gentle breeze animation on the dress. " +
+    "Slow camera orbit turnaround, showing the front view and then the back view of the dress. " +
+    "High-end lighting, photorealistic 4k fashion presentation, smooth 360 degree rotation.",
 
-  tesettur:
-    "A professional modest fashion showcase video. Gentle wind softly animates the fabric. " +
-    "Slow cinematic camera orbit around the outfit. " +
-    "ABSOLUTE REQUIREMENTS: Preserve ALL clothing EXACTLY as shown — headscarf, hijab, long sleeves, " +
-    "full body coverage MUST remain COMPLETELY unchanged. Do NOT reveal any skin that is covered in the original. " +
-    "Do NOT remove, shorten, or modify the headscarf or any covering. The modesty level MUST be identical to the source image.",
+  abiye:
+    "A professional haute couture fashion showcase video. The model slowly rotates 360 degrees. " +
+    "Cinematic camera orbit revealing the dress details from the front and back views. " +
+    "Luxury boutique background, studio lighting, smooth fabric animation.",
 
-  gunluk:
-    "A professional fashion showcase video. Natural gentle movement animates the outfit. " +
-    "Slow cinematic camera orbit around the clothing. " +
-    "CRITICAL: Preserve the EXACT original clothing style, design, colors, and coverage level. " +
-    "Do NOT modify or change any clothing element from the source photo.",
+  ceket:
+    "A stylish clothing showcase of the jacket. The model rotates slowly. " +
+    "Camera orbits around the model showing the jacket cut, buttons, and fit from front to back views. " +
+    "Modern clean background, professional product commercial style.",
+
+  tisort:
+    "A clean streetwear product video. The model does a slow turnaround rotation. " +
+    "Showcasing the t-shirt print and design on both the front and back views. " +
+    "Studio lighting, natural motion, sharp details.",
+
+  pantolon:
+    "A fashion presentation of the trousers. The model does a slow orbit rotation. " +
+    "Highlighting the fabric, fit, and style of the pants from the front and back views. " +
+    "Neutral studio background, smooth camera movement."
 };
 
 /**
- * Kling AI ile video oluşturma başlat
- * @param {string} imageUrl - Public erişilebilir görsel URL'i
- * @param {string} category - gelinlik | tesettur | gunluk
+ * Kling AI ile video oluşturma başlatır
+ * @param {string|string[]} imageUrls - Tekil görsel veya [ön, arka] görsel URL'leri dizisi
+ * @param {string} category - gelinlik | abiye | ceket | tisort | pantolon
+ * @param {string} [customPrompt] - Kullanıcının düzenlediği prompt
  * @returns {Promise<{taskId: string}>}
  */
-export async function createVideo(imageUrl, category) {
-  const prompt = CATEGORY_PROMPTS[category] || CATEGORY_PROMPTS.gunluk;
+export async function createVideo(imageUrls, category, customPrompt) {
+  const prompt = customPrompt || DEFAULT_PROMPTS[category] || DEFAULT_PROMPTS.tisort;
+  const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
 
-  // --- Kling Direct API Implementation ---
+  // 1. Kie AI (Primary)
+  if (KIE_API_KEY && !KIE_API_KEY.startsWith('r8_')) {
+    return await kieVideoAPI(urls, prompt);
+  }
+
+  // 2. Replicate (Fallback)
+  if (KIE_API_KEY && KIE_API_KEY.startsWith('r8_')) {
+    return await replicateAPI(urls[0], prompt);
+  }
+
+  // 3. Direct Kling API (Fallback)
   if (KLING_ACCESS_KEY && KLING_SECRET_KEY) {
-    return await klingDirectAPI(imageUrl, prompt);
+    return await klingDirectAPI(urls[0], prompt);
   }
 
-  // --- Replicate Implementation ---
-  if (KLING_API_KEY && KLING_API_KEY.startsWith('r8_')) {
-    return await replicateAPI(imageUrl, prompt);
-  }
-
-  // --- Generic / Placeholder ---
-  if (KLING_API_KEY) {
-    return await klingDirectAPI(imageUrl, prompt);
-  }
-
-  throw new Error('API anahtarı yapılandırılmamış. .env.local dosyasını kontrol edin.');
+  throw new Error('Video API anahtarı (KLING_API_KEY veya KIE_API_KEY) yapılandırılmamış.');
 }
 
 /**
- * Video oluşturma durumunu sorgula
+ * Video oluşturma durumunu sorgular
  * @param {string} taskId
  * @returns {Promise<{status: string, videoUrl?: string, error?: string}>}
  */
 export async function checkVideoStatus(taskId) {
-  // --- Kling Direct API ---
+  // 1. Kie AI Task Check
+  if (KIE_API_KEY && !KIE_API_KEY.startsWith('r8_')) {
+    return await kieVideoStatus(taskId);
+  }
+
+  // 2. Replicate
+  if (KIE_API_KEY && KIE_API_KEY.startsWith('r8_')) {
+    return await replicateStatus(taskId);
+  }
+
+  // 3. Direct Kling API
   if (KLING_ACCESS_KEY && KLING_SECRET_KEY) {
     return await klingDirectStatus(taskId);
   }
 
-  // --- Replicate ---
-  if (KLING_API_KEY && KLING_API_KEY.startsWith('r8_')) {
-    return await replicateStatus(taskId);
-  }
-
-  // --- Generic ---
-  if (KLING_API_KEY) {
-    return await klingDirectStatus(taskId);
-  }
-
-  throw new Error('API anahtarı yapılandırılmamış.');
+  throw new Error('Video API anahtarı bulunamadı.');
 }
 
-
 // ========================
-// Kling Direct API
+// Kie AI API Implementation
 // ========================
-async function klingDirectAPI(imageUrl, prompt) {
-  const apiBase = 'https://api.klingai.com/v1';
+async function kieVideoAPI(imageUrls, prompt) {
+  console.log('[Kie AI] Creating Kling 3.0 video task. Images:', imageUrls);
   
-  const res = await fetch(`${apiBase}/videos/image2video`, {
+  const res = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${KLING_API_KEY || KLING_ACCESS_KEY}`,
+      'Authorization': `Bearer ${KIE_API_KEY}`,
     },
     body: JSON.stringify({
-      model_name: 'kling-v1',
-      image: imageUrl,
-      prompt: prompt,
-      negative_prompt: 'nudity, revealing clothing, changed outfit, different dress, modified clothing, removed headscarf',
-      duration: '5',
-      mode: 'std',
+      model: 'kling-3.0/video',
+      input: {
+        image_urls: imageUrls,
+        prompt: prompt,
+        duration: '5', // 5 seconds duration
+        mode: 'pro',
+        multi_shots: false,
+      },
     }),
   });
 
   const data = await res.json();
-
-  if (data.code !== 0 && !data.data?.task_id) {
-    throw new Error(data.message || 'Kling API hatası');
+  if (data.code !== 200 || !data.data?.taskId) {
+    throw new Error(data.message || 'Kie AI video görevi başlatılamadı.');
   }
 
-  return { taskId: data.data?.task_id || data.task_id };
+  return { taskId: data.data.taskId };
 }
 
-async function klingDirectStatus(taskId) {
-  const apiBase = 'https://api.klingai.com/v1';
-
-  const res = await fetch(`${apiBase}/videos/image2video/${taskId}`, {
+async function kieVideoStatus(taskId) {
+  const res = await fetch(`https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${taskId}`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${KLING_API_KEY || KLING_ACCESS_KEY}`,
+      'Authorization': `Bearer ${KIE_API_KEY}`,
     },
   });
 
   const data = await res.json();
-  const task = data.data;
-
-  if (!task) {
+  
+  if (data.code !== 200 || !data.data) {
     return { status: 'processing' };
   }
 
-  if (task.task_status === 'succeed' && task.task_result?.videos?.[0]?.url) {
-    return { status: 'done', videoUrl: task.task_result.videos[0].url };
+  const record = data.data;
+
+  if (record.state === 'success' && record.resultJson) {
+    try {
+      const result = JSON.parse(record.resultJson);
+      if (result.resultUrls && result.resultUrls.length > 0) {
+        return { status: 'done', videoUrl: result.resultUrls[0] };
+      }
+    } catch (e) {
+      console.error('Kie AI result parsing error:', e);
+    }
   }
 
-  if (task.task_status === 'failed') {
-    return { status: 'error', error: task.task_status_msg || 'Video oluşturulamadı.' };
+  if (record.state === 'failed' || record.state === 'fail') {
+    return { status: 'error', error: record.failMsg || 'Kie AI video üretimi başarısız oldu.' };
   }
 
   return { status: 'processing' };
 }
 
-
 // ========================
-// Replicate API
+// Replicate Fallback (Single Image)
 // ========================
 async function replicateAPI(imageUrl, prompt) {
   const res = await fetch('https://api.replicate.com/v1/predictions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${KLING_API_KEY}`,
+      'Authorization': `Bearer ${KIE_API_KEY}`,
     },
     body: JSON.stringify({
-      version: 'kwaivgi/kling-v1-5-image2video',  // Kling on Replicate
+      version: 'kwaivgi/kling-v1-5-image2video',
       input: {
         image: imageUrl,
         prompt: prompt,
@@ -172,7 +177,6 @@ async function replicateAPI(imageUrl, prompt) {
   });
 
   const data = await res.json();
-
   if (!data.id) {
     throw new Error(data.detail || 'Replicate API hatası');
   }
@@ -184,7 +188,7 @@ async function replicateStatus(taskId) {
   const res = await fetch(`https://api.replicate.com/v1/predictions/${taskId}`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${KLING_API_KEY}`,
+      'Authorization': `Bearer ${KIE_API_KEY}`,
     },
   });
 
@@ -197,6 +201,56 @@ async function replicateStatus(taskId) {
 
   if (data.status === 'failed') {
     return { status: 'error', error: data.error || 'Video oluşturulamadı.' };
+  }
+
+  return { status: 'processing' };
+}
+
+// ========================
+// Kling Direct API Fallback
+// ========================
+async function klingDirectAPI(imageUrl, prompt) {
+  const res = await fetch('https://api.klingai.com/v1/videos/image2video', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${KLING_ACCESS_KEY}`, // Or Token
+    },
+    body: JSON.stringify({
+      model_name: 'kling-v1',
+      image: imageUrl,
+      prompt: prompt,
+      negative_prompt: 'nudity, revealing clothing',
+      duration: '5',
+      mode: 'std',
+    }),
+  });
+
+  const data = await res.json();
+  if (data.code !== 0 || !data.data?.task_id) {
+    throw new Error(data.message || 'Kling Direct API hatası');
+  }
+
+  return { taskId: data.data.task_id };
+}
+
+async function klingDirectStatus(taskId) {
+  const res = await fetch(`https://api.klingai.com/v1/videos/image2video/${taskId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${KLING_ACCESS_KEY}`,
+    },
+  });
+
+  const data = await res.json();
+  const task = data.data;
+
+  if (task && task.task_status === 'succeed' && task.task_result?.videos?.[0]?.url) {
+    return { status: 'done', videoUrl: task.task_result.videos[0].url };
+  }
+
+  if (task && task.task_status === 'failed') {
+    return { status: 'error', error: task.task_status_msg || 'Kling Direct video üretimi başarısız.' };
   }
 
   return { status: 'processing' };

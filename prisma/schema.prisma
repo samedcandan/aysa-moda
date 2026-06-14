@@ -1,0 +1,392 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id              Int             @id @default(autoincrement())
+  name            String
+  isActive        Boolean         @default(true)
+  address         String?
+  phone           String?
+  taxId           String?
+  taxOffice       String?
+  onboardingStep  Int             @default(0)
+  tourCompleted   Boolean         @default(false)
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUser        String?
+  smtpPass        String?
+  waPhoneId       String?
+  waToken         String?
+  waWebhookVerify String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  automationLogs  AutomationLog[]
+  customers       Customer[]
+  efaturaLogs     EFaturaLog[]
+  products        Product[]
+  subscription    Subscription?
+  tasks           Task[]
+  transactions    Transaction[]
+  users           User[]
+  accounts        Account[]
+}
+
+model Account {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String   @default("CASH")
+  balance     Float    @default(0.0)
+  companyId   Int
+  userId      Int?     @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  company     Company  @relation(fields: [companyId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+  taskCollections Task[] @relation("TaskCollection")
+
+  @@index([companyId])
+}
+
+model User {
+  id              Int             @id @default(autoincrement())
+  name            String
+  phone           String          @unique
+  password        String
+  role            String          @default("TECHNICIAN")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  companyId       Int?
+  logs            AutomationLog[]
+  tasks           Task[]          @relation("AssignedTasks")
+  company         Company?        @relation(fields: [companyId], references: [id])
+  personalAccount Account?
+  pushTokens      PushToken[]
+  notifyOnTaskComplete  Boolean         @default(true)
+  notifyOnDuePayments   Boolean         @default(true)
+  notifyOnFilterOverdue Boolean         @default(true)
+  notifyOnTaskAssigned  Boolean         @default(true)
+
+  @@index([companyId])
+}
+
+model Customer {
+  id                    Int             @id @default(autoincrement())
+  name                  String
+  phone                 String
+  email                 String?
+  address               String?
+  city                  String?
+  district              String?
+  deviceType            String?
+  lastServiceDate       DateTime?
+  nextServiceDate       DateTime?
+  serviceIntervalMonths Int             @default(6)
+  balance               Float           @default(0.0)
+  debtDueDate           DateTime?
+  taxId                 String?
+  nationalId            String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  companyId             Int
+  notes                 String?
+  logs                  AutomationLog[]
+  company               Company         @relation(fields: [companyId], references: [id])
+  efaturaLogs           EFaturaLog[]
+  tasks                 Task[]
+  transactions          Transaction[]
+
+  @@index([companyId])
+  @@index([companyId, nextServiceDate])
+  @@index([companyId, createdAt])
+  @@index([companyId, name])
+  @@index([companyId, balance, debtDueDate])
+}
+
+model Task {
+  id                  Int       @id @default(autoincrement())
+  date                DateTime
+  time                String?
+  status              String    @default("Bekliyor")
+  type                String
+  price               Float?
+  photoUrl            String?
+  photoUrl2           String?
+  completedAt         DateTime?
+  collectionAmount    Float?
+  collectionMethod    String?
+  collectionAccountId Int?
+  customerId          Int
+  companyId           Int
+  assignedToId        Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  notes               String?
+  assignedTo          User?     @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  company             Company   @relation(fields: [companyId], references: [id])
+  customer            Customer  @relation(fields: [customerId], references: [id])
+  collectionAccount   Account?  @relation("TaskCollection", fields: [collectionAccountId], references: [id])
+  prevLastServiceDate DateTime?
+  prevNextServiceDate DateTime?
+  prevDebtDueDate     DateTime?
+  transactions        Transaction[]
+
+  @@index([companyId])
+  @@index([customerId])
+  @@index([assignedToId])
+  @@index([companyId, date])
+  @@index([companyId, status, date])
+  @@index([assignedToId, status, date])
+}
+
+model Transaction {
+  id         Int       @id @default(autoincrement())
+  amount     Float
+  type       String
+  method     String?
+  date       DateTime  @default(now())
+  customerId Int?
+  companyId  Int
+  productId  Int?
+  accountId  Int?
+  quantity   Int       @default(1)
+  description String?
+  company    Company   @relation(fields: [companyId], references: [id])
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  product    Product?  @relation(fields: [productId], references: [id])
+  account    Account?  @relation(fields: [accountId], references: [id])
+  taskId     Int?
+  task       Task?     @relation(fields: [taskId], references: [id])
+
+  @@index([companyId])
+  @@index([customerId])
+  @@index([accountId])
+  @@index([companyId, date])
+  @@index([customerId, date])
+  @@index([taskId])
+  @@index([productId])
+}
+
+model AutomationLog {
+  id          Int      @id @default(autoincrement())
+  messageType String
+  status      String   @default("Bekliyor")
+  sentAt      DateTime @default(now())
+  customerId  Int
+  userId      Int?
+  userName    String?
+  companyId   Int
+  company     Company  @relation(fields: [companyId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([companyId])
+  @@index([customerId])
+}
+
+model Subscription {
+  id            Int          @id @default(autoincrement())
+  planType      String       @default("DENEME")
+  billingPeriod String       @default("MONTHLY")
+  trialEndsAt   DateTime?
+  monthlyLimit  Int          @default(20)
+  priceExKdv    Float        @default(750)
+  kdvRate       Float        @default(0.20)
+  renewalDate   DateTime?
+  isActive      Boolean      @default(true)
+  apiProvider   String?
+  apiKey        String?
+  apiSecret     String?
+  companyId     Int          @unique
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  efaturaLogs   EFaturaLog[]
+  company       Company      @relation(fields: [companyId], references: [id])
+}
+
+model EFaturaLog {
+  id             Int          @id @default(autoincrement())
+  subscriptionId Int
+  customerId     Int
+  companyId      Int
+  invoiceNo      String
+  invoiceType    String       @default("e-Arşiv")
+  amount         Float
+  currency       String       @default("TRY")
+  status         String       @default("Taslak")
+  createdAt      DateTime     @default(now())
+  company        Company      @relation(fields: [companyId], references: [id])
+  customer       Customer     @relation(fields: [customerId], references: [id])
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([companyId])
+  @@index([customerId])
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String
+  sku           String?
+  category      String?
+  unit          String        @default("Adet")
+  salePrice     Float         @default(0)
+  purchasePrice Float         @default(0)
+  stockQuantity Int           @default(0)
+  minStockLevel Int           @default(5)
+  isActive      Boolean       @default(true)
+  companyId     Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  company       Company       @relation(fields: [companyId], references: [id])
+  transactions  Transaction[]
+
+  @@index([companyId])
+}
+
+model assistant_buffer_locks {
+  buffer_key String    @id
+  locked_at  DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model assistant_conversations {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id          String?              @db.Uuid
+  contact_id         String
+  platform           String
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  assistant_tenants  assistant_tenants?   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  assistant_messages assistant_messages[]
+
+  @@unique([tenant_id, contact_id])
+  @@index([tenant_id, contact_id], map: "idx_ast_conversations")
+}
+
+model assistant_knowledge_files {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String?            @db.Uuid
+  file_type         String
+  content           String             @default("")
+  updated_at        DateTime?          @default(now()) @db.Timestamptz(6)
+  assistant_tenants assistant_tenants? @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tenant_id, file_type])
+}
+
+model assistant_message_buffer {
+  id            Int       @id @default(autoincrement())
+  buffer_key    String
+  message_text  String
+  created_at_ms BigInt
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  message_mid   String?   @unique
+
+  @@index([buffer_key], map: "idx_ast_buffer_key")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model assistant_messages {
+  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversation_id         String?                  @db.Uuid
+  role                    String
+  content                 String
+  created_at              DateTime?                @default(now()) @db.Timestamptz(6)
+  assistant_conversations assistant_conversations? @relation(fields: [conversation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([conversation_id, created_at], map: "idx_ast_messages")
+}
+
+model assistant_tenants {
+  id                        String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                      String
+  meta_page_id              String?                     @unique
+  meta_access_token         String?
+  platform                  String?                     @default("instagram")
+  system_prompt             String                      @default("")
+  is_active                 Boolean?                    @default(true)
+  created_at                DateTime?                   @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime?                   @default(now()) @db.Timestamptz(6)
+  instagram_page_id         String?
+  whatsapp_phone_id         String?                     @db.VarChar(255)
+  email                     String?                     @unique @db.VarChar(255)
+  password_hash             String?                     @db.VarChar(255)
+  is_facebook_active        Boolean?                    @default(true)
+  is_instagram_active       Boolean?                    @default(true)
+  is_whatsapp_active        Boolean?                    @default(true)
+  whatsapp_access_token     String?
+  plan_type                 String?                     @default("trial")
+  message_quota             Int?                        @default(50)
+  subscription_status       String?                     @default("active")
+  subscription_end_date     DateTime?                   @default(dbgenerated("(now() + '14 days'::interval)")) @db.Timestamptz(6)
+  iyzico_customer_id        String?
+  assistant_conversations   assistant_conversations[]
+  assistant_knowledge_files assistant_knowledge_files[]
+  assistant_tickets         assistant_tickets[]
+
+  @@index([meta_page_id], map: "idx_ast_tenants_page")
+}
+
+model assistant_tickets {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String?            @db.Uuid
+  message           String
+  is_resolved       Boolean?           @default(false)
+  created_at        DateTime?          @default(now()) @db.Timestamptz(6)
+  assistant_tenants assistant_tenants? @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model RateLimit {
+  id           Int       @id @default(autoincrement())
+  ip           String    @unique
+  attempts     Int       @default(1)
+  blockedUntil DateTime?
+  updatedAt    DateTime  @updatedAt
+}
+
+model PushToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model ModaUser {
+  id             Int              @id @default(autoincrement())
+  email          String           @unique
+  password       String
+  credits        Int              @default(10) // Bronze default 10 credits
+  plan           String           @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
+  subscriptionId String?
+  watermarkUrl   String?          // Opsiyonel butik logosu filigranı
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  generations    ModaGeneration[]
+}
+
+model ModaGeneration {
+  id           String    @id @default(uuid())
+  userId       Int
+  category     String
+  frontGarmUrl String
+  backGarmUrl  String
+  modelId      String
+  bodySize     String    @default("STANDARD") // STANDARD or PLUS_SIZE
+  backgroundId String
+  videoUrl     String?
+  status       String    @default("PROCESSING") // PROCESSING, SUCCESS, FAILED
+  error        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         ModaUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
