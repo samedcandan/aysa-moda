@@ -13,6 +13,8 @@ const MODELS = [
   { id: 'melisa', name: 'Melisa (Sarışın)', gender: 'Kayıtlı Kadın' },
   { id: 'derin', name: 'Derin (Esmer)', gender: 'Kayıtlı Kadın' },
   { id: 'can', name: 'Can (Kumral)', gender: 'Kayıtlı Erkek' },
+  { id: 'ayaz', name: 'Ayaz (Sarışın)', gender: 'Kayıtlı Erkek' },
+  { id: 'cem', name: 'Cem (Esmer)', gender: 'Kayıtlı Erkek' },
 ];
 
 const BACKGROUNDS = [
@@ -629,14 +631,14 @@ export default function HomePage() {
                           onClick={() => setBodySize('STANDARD')}
                           style={{ borderColor: bodySize === 'STANDARD' ? 'var(--gold-400)' : 'var(--glass-border)', padding: '10px' }}
                         >
-                          Standart Beden (36-38)
+                          {MODELS.find(m => m.id === modelId)?.gender.includes('Erkek') ? 'Standart Beden (M / 48-50)' : 'Standart Beden (36-38)'}
                         </button>
                         <button
                           className={`btn-outline ${bodySize === 'PLUS_SIZE' ? 'selected' : ''}`}
                           onClick={() => setBodySize('PLUS_SIZE')}
                           style={{ borderColor: bodySize === 'PLUS_SIZE' ? 'var(--gold-400)' : 'var(--glass-border)', padding: '10px' }}
                         >
-                          Büyük Beden (42-44)
+                          {MODELS.find(m => m.id === modelId)?.gender.includes('Erkek') ? 'Büyük Beden (XL / 54-56)' : 'Büyük Beden (42-44)'}
                         </button>
                       </div>
                     </div>
