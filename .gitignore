@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scripts containing API keys or user seeding/management
+scripts/setup-vercel-env.js
+scripts/manage-users.js
+scripts/test-tryon.js
+
