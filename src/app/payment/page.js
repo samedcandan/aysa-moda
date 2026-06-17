@@ -1,8 +1,8 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function PaymentPage() {
+function PaymentPageContent() {
   const [loading, setLoading] = useState(true);
   const [formHtml, setFormHtml] = useState('');
   const [error, setError] = useState('');
@@ -182,5 +182,17 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary, #0a0e1a)', color: 'white' }}>
+        <div className="spinner" />
+      </div>
+    }>
+      <PaymentPageContent />
+    </Suspense>
   );
 }
