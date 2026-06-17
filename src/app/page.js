@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const CATEGORIES = [
   { id: 'gelinlik', icon: '👗', label: 'Gelinlik' },
@@ -32,6 +33,9 @@ const PROMPT_TAGS = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   // Auth states
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState('login'); // login | register
@@ -88,6 +92,23 @@ export default function HomePage() {
   useEffect(() => {
     fetchUserSession();
   }, []);
+
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus === 'success') {
+      const plan = searchParams.get('plan');
+      const added = searchParams.get('added');
+      alert(`Ödemeniz başarıyla tamamlandı! ${plan} planı tanımlandı ve hesabınıza ${added} video kredisi eklendi.`);
+      setActiveTab('settings');
+      fetchUserSession();
+      router.replace('/');
+    } else if (paymentStatus === 'error') {
+      const msg = searchParams.get('msg') || 'Ödeme işlemi gerçekleştirilemedi.';
+      alert(`Ödeme Hatası: ${msg}`);
+      setActiveTab('settings');
+      router.replace('/');
+    }
+  }, [searchParams, router]);
 
   // Set default prompt when category changes
   useEffect(() => {
@@ -370,22 +391,9 @@ export default function HomePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleBuyCredits = async (planName) => {
+  const handleBuyCredits = (planName) => {
     if (!user) return;
-    try {
-      const res = await fetch('/api/auth/me', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'upgrade_plan', plan: planName }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setUser(data.user);
-        alert(`Paket başarıyla yüklendi! Yeni bakiyeniz: ${data.user.credits} Kredi`);
-      }
-    } catch {
-      alert('Paket yüklenemedi.');
-    }
+    router.push(`/payment?plan=${planName}`);
   };
 
   const appendTagToPrompt = (tagText) => {
