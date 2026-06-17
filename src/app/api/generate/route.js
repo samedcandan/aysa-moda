@@ -63,13 +63,11 @@ export async function POST(request) {
         humanUrl: humanFrontUrl,
         garmentUrl: garmentFrontUrl,
         category,
-        garmentDes: `${category} front view`,
       }),
       runVirtualTryOn({
         humanUrl: humanBackUrl,
         garmentUrl: garmentBackUrl,
         category,
-        garmentDes: `${category} back view`,
       }),
     ]);
 

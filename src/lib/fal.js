@@ -4,33 +4,35 @@
  * Kıyafet fotoğraflarını mankenler üzerine giydirir.
  */
 
-export async function runVirtualTryOn({ humanUrl, garmentUrl, category, garmentDes }) {
+export async function runVirtualTryOn({ humanUrl, garmentUrl, category }) {
   const FAL_API_KEY = process.env.FAL_API_KEY;
   if (!FAL_API_KEY) {
     throw new Error('FAL_API_KEY ortam değişkeni tanımlı değil. Lütfen .env.local dosyasını güncelleyin.');
   }
 
-  // Map our UI categories to Fal VTON categories
-  let falCategory = 'dresses'; // default
+  // Map our UI categories to Fashn VTON categories (one-pieces, tops, bottoms, auto)
+  let falCategory = 'auto'; // default to auto
   if (category === 'pantolon') {
-    falCategory = 'lower_body';
+    falCategory = 'bottoms';
   } else if (category === 'tisort' || category === 'ceket') {
-    falCategory = 'upper_body';
+    falCategory = 'tops';
+  } else if (category === 'gelinlik' || category === 'abiye') {
+    falCategory = 'one-pieces';
   }
 
-  console.log(`[Fal VTON] Starting try-on. Category: ${falCategory}, Model: ${humanUrl}`);
+  console.log(`[Fal VTON] Starting try-on with Fashn v1.6. Category: ${falCategory}, Model: ${humanUrl}`);
 
-  const response = await fetch('https://queue.fal.run/fal-ai/idm-vton', {
+  const response = await fetch('https://queue.fal.run/fal-ai/fashn/tryon/v1.6', {
     method: 'POST',
     headers: {
       'Authorization': `Key ${FAL_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      human_image: humanUrl,
-      garm_image: garmentUrl,
-      garment_des: garmentDes || 'fashion apparel',
+      model_image: humanUrl,
+      garment_image: garmentUrl,
       category: falCategory,
+      garment_photo_type: 'auto',
     }),
   });
 
