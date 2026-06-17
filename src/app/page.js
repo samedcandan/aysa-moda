@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const CATEGORIES = [
@@ -32,7 +32,7 @@ const PROMPT_TAGS = [
   { label: 'Yüksek Kalite 🌟', text: 'Highly detailed textures, photorealistic 8k.' },
 ];
 
-export default function HomePage() {
+function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -901,5 +901,17 @@ export default function HomePage() {
       </footer>
 
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary, #0a0e1a)', color: 'white' }}>
+        <div className="spinner" />
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
   );
 }
