@@ -109,6 +109,7 @@ async function kieVideoAPI(imageUrls, prompt) {
         duration: '5', // 5 seconds duration
         mode: 'pro',
         multi_shots: false,
+        sound: false,
       },
     }),
   });
