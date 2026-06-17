@@ -60,7 +60,20 @@ export async function runVirtualTryOn({ humanUrl, garmentUrl, category }) {
 
     if (statusData.status === 'COMPLETED') {
       console.log(`[Fal VTON] Success after ${attempts} attempts.`);
-      return statusData.outputs?.image?.url;
+      let result = statusData.outputs;
+      if (!result && statusData.response_url) {
+        const responseRes = await fetch(statusData.response_url, {
+          headers: {
+            'Authorization': `Key ${FAL_API_KEY}`,
+          },
+        });
+        result = await responseRes.json();
+      }
+      if (result) {
+        const imageUrl = result.image?.url || result.images?.[0]?.url;
+        if (imageUrl) return imageUrl;
+      }
+      throw new Error('Fal.ai try-on çıktısı alınamadı.');
     } else if (statusData.status === 'FAILED') {
       throw new Error(`Fal.ai try-on işlemi başarısız oldu: ${statusData.error || 'Bilinmeyen hata'}`);
     }

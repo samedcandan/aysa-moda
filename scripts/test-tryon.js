@@ -81,7 +81,17 @@ async function test() {
 
       if (statusData.status === 'COMPLETED') {
         console.log('\n✅ Success!');
-        console.log('Result Image URL:', statusData.outputs?.image?.url);
+        let result = statusData.outputs;
+        if (!result && statusData.response_url) {
+          const responseRes = await fetch(statusData.response_url, {
+            headers: {
+              'Authorization': `Key ${FAL_API_KEY}`,
+            },
+          });
+          result = await responseRes.json();
+        }
+        const imageUrl = result?.image?.url || result?.images?.[0]?.url;
+        console.log('Result Image URL:', imageUrl);
         return;
       } else if (statusData.status === 'FAILED') {
         throw new Error(`Fal.ai processing failed: ${statusData.error || 'Unknown error'}`);
