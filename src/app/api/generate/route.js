@@ -82,37 +82,59 @@ export async function POST(request) {
       bodySize,
       backgroundId,
       customPrompt,
+      motionType,   // rotation | walk | pose | breeze
     } = await request.json();
 
-    if (!humanFront || !humanBack || !garmentFront || !garmentBack || !category) {
+    const isRotation = motionType === 'rotation';
+
+    if (!humanFront || !garmentFront || !category) {
       return NextResponse.json({ error: 'Gerekli görsel parametreleri eksik.' }, { status: 400 });
     }
+    if (isRotation && (!humanBack || !garmentBack)) {
+      return NextResponse.json({ error: '360° dönüş için arka görünüm görselleri gereklidir.' }, { status: 400 });
+    }
 
-    console.log(`[Generate Route] Starting generation for user: ${user.email}`);
+    console.log(`[Generate Route] Starting generation for user: ${user.email}, motion: ${motionType}`);
 
     // 3. Upload images to ImgBB
     console.log('[Generate Route] Uploading source images to ImgBB...');
-    const [humanFrontUrl, humanBackUrl, garmentFrontUrl, garmentBackUrl] = await Promise.all([
+    const uploadPromises = [
       uploadToImgBB(humanFront),
-      uploadToImgBB(humanBack),
+      isRotation ? uploadToImgBB(humanBack) : Promise.resolve(null),
       uploadToImgBB(garmentFront),
-      uploadToImgBB(garmentBack),
-    ]);
+      garmentBack ? uploadToImgBB(garmentBack) : Promise.resolve(null),
+    ];
 
-    // 4. Run Fal.ai VTON try-on in parallel
-    console.log('[Generate Route] Triggering Fal.ai try-on for Front & Back...');
-    const [frontDressedUrl, backDressedUrl] = await Promise.all([
-      runVirtualTryOn({
+    const [humanFrontUrl, humanBackUrl, garmentFrontUrl, garmentBackUrl] = await Promise.all(uploadPromises);
+
+    // 4. Run Fal.ai VTON try-on (conditionally for front & back, or just front)
+    let frontDressedUrl;
+    let backDressedUrl = null;
+
+    if (isRotation) {
+      console.log('[Generate Route] Triggering Fal.ai try-on for Front & Back (rotation)...');
+      const [frontRes, backRes] = await Promise.all([
+        runVirtualTryOn({
+          humanUrl: humanFrontUrl,
+          garmentUrl: garmentFrontUrl,
+          category,
+        }),
+        runVirtualTryOn({
+          humanUrl: humanBackUrl,
+          garmentUrl: garmentBackUrl || garmentFrontUrl,
+          category,
+        }),
+      ]);
+      frontDressedUrl = frontRes;
+      backDressedUrl = backRes;
+    } else {
+      console.log('[Generate Route] Triggering Fal.ai try-on for Front only (non-rotation)...');
+      frontDressedUrl = await runVirtualTryOn({
         humanUrl: humanFrontUrl,
         garmentUrl: garmentFrontUrl,
         category,
-      }),
-      runVirtualTryOn({
-        humanUrl: humanBackUrl,
-        garmentUrl: garmentBackUrl,
-        category,
-      }),
-    ]);
+      });
+    }
 
     console.log('[Generate Route] VTON complete. Dressed URLs:', { frontDressedUrl, backDressedUrl });
 
@@ -120,13 +142,14 @@ export async function POST(request) {
     console.log('[Generate Route] Translating custom prompt to English if needed...');
     const translatedPrompt = await translateToEnglish(customPrompt);
 
-    // 6. Trigger Kling video generation with start & end frames
+    // 6. Trigger Kling video generation with start (and optional end) frames
     console.log('[Generate Route] Triggering Kling AI video generation...');
-    const { taskId } = await createVideo([frontDressedUrl, backDressedUrl], category, translatedPrompt);
+    const imagesToPass = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
+    const { taskId } = await createVideo(imagesToPass, category, translatedPrompt);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);
 
-    // 6. Deduct 1 credit & Save generation record in database
+    // 7. Deduct 1 credit & Save generation record in database
     await prisma.$transaction(async (tx) => {
       // Deduct credit
       await tx.modaUser.update({
@@ -141,7 +164,7 @@ export async function POST(request) {
           userId: user.id,
           category,
           frontGarmUrl: garmentFrontUrl,
-          backGarmUrl: garmentBackUrl,
+          backGarmUrl: garmentBackUrl || garmentFrontUrl, // DB constraint check
           modelId,
           bodySize,
           backgroundId,

@@ -138,7 +138,7 @@ function HomePageContent() {
   // Set default prompt when category, background or motionType changes (in Turkish)
   useEffect(() => {
     const trCategoryPrompts = {
-      gelinlik: "Gelinlik giyen bayan mankenin profesyonel moda podyumu tanıtım videosu. Gelinliğin tüm ince detayları, dantelleri ve zarif dökümü ön planda.",
+      gelinlik: "Gelinlik giyen bayan mankenin profesyonel moda tanıtım videosu. Gelinliğin tüm ince detayları, dantelleri ve zarif dökümü ön planda.",
       abiye: "Abiye giyen bayan mankenin lüks moda tanıtım videosu. Kumaş kalitesi, drapeleri ve şık detayları ön planda.",
       elbise: "Günlük elbise giyen bayan mankenin modern ve hareketli tanıtım videosu. Elbisenin kalıbı ve şık tasarımı ön planda.",
       gomlek: "Gömlek giyen bayan mankenin profesyonel ürün tanıtım videosu. Yakası, düğmeleri, manşetleri ve kalıbı ön planda.",
@@ -164,7 +164,7 @@ function HomePageContent() {
 
     const trMotionPrompts = {
       rotation: "Manken yavaşça 360 derece kendi etrafında dönerek kıyafetin ön, yan ve arka duruşunu sergiliyor.",
-      walk: "Manken podyumda zarif adımlarla öne doğru yürüyor, kıyafetin kumaş hareketini ve akışını gösteriyor.",
+      walk: "Manken zarif adımlarla kameraya doğru yürüyor, kıyafetin kumaş hareketini ve akışını gösteriyor.",
       pose: "Manken yavaş ve zarif moda pozları vererek kıyafetin tüm detaylarını farklı açılardan sergiliyor.",
       breeze: "Manken sabit dururken hafif bir rüzgar kıyafetin eteklerini ve kumaşını uçuruyor."
     };
@@ -365,6 +365,7 @@ function HomePageContent() {
           bodySize,
           backgroundId,
           customPrompt,
+          motionType,
         }),
       });
 
