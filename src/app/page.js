@@ -414,45 +414,47 @@ function HomePageContent() {
   if (!user) {
     return (
       <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
-        <div className="glass-panel animate-in" style={{ width: '100%', maxWidth: '400px', padding: '32px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
-          <h1 className="font-display" style={{ fontSize: '28px', color: 'var(--text-gold)', fontWeight: 700, marginBottom: '8px' }}>
+        <div className="glass-panel animate-in" style={{ width: '100%', maxWidth: '400px', padding: '36px 28px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px', filter: 'drop-shadow(0 0 15px rgba(232, 203, 245, 0.4))' }}>✨</div>
+          <h1 className="font-display" style={{ fontSize: '32px', background: 'var(--gradient-lavender-gold)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: 700, marginBottom: '8px', letterSpacing: '-0.5px' }}>
             AI Moda Stüdyosu
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '28px', letterSpacing: '0.2px' }}>
             Butiğinizi yapay zeka ile canlandırın
           </p>
 
-          <form onSubmit={authMode === 'login' ? handleLogin : handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+          <form onSubmit={authMode === 'login' ? handleLogin : handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' }}>
             <div>
-              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>E-Posta</label>
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block', fontWeight: 500 }}>E-Posta Adresi</label>
               <input
                 type="email"
                 required
+                className="glass-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '8px', color: 'var(--text-primary)' }}
+                placeholder="ornek@butik.com"
               />
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Şifre</label>
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block', fontWeight: 500 }}>Şifre</label>
               <input
                 type="password"
                 required
+                className="glass-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '8px', color: 'var(--text-primary)' }}
+                placeholder="••••••"
               />
             </div>
 
-            {authError && <div style={{ color: '#ff6b6b', fontSize: '13px', textAlign: 'center' }}>{authError}</div>}
+            {authError && <div style={{ color: '#ff6b6b', fontSize: '13px', textAlign: 'center', background: 'rgba(220, 53, 69, 0.08)', padding: '8px', borderRadius: '8px', border: '1px solid rgba(220, 53, 69, 0.15)' }}>{authError}</div>}
 
             <button type="submit" className="btn-gold" style={{ marginTop: '8px' }}>
               {authMode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
             </button>
           </form>
 
-          <div style={{ marginTop: '20px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+          <div style={{ marginTop: '24px', fontSize: '13px', color: 'var(--text-secondary)' }}>
             {authMode === 'login' ? (
               <>Hesabınız yok mu? <span onClick={() => setAuthMode('register')} style={{ color: 'var(--text-gold)', cursor: 'pointer', fontWeight: 600 }}>Kayıt Olun</span></>
             ) : (
@@ -470,42 +472,44 @@ function HomePageContent() {
       
       {/* Header */}
       <header style={{
-        width: '100%', padding: '20px 24px', borderBottom: '1px solid var(--glass-border)',
-        background: 'linear-gradient(180deg, rgba(212,160,23,0.06) 0%, transparent 100%)',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+        width: '100%', padding: '16px 24px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        background: 'linear-gradient(180deg, rgba(232, 203, 245, 0.03) 0%, rgba(212, 174, 120, 0.01) 50%, transparent 100%)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        position: 'sticky', top: 0, zIndex: 100
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/icons/logo.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} onError={(e) => e.target.style.display = 'none'} />
-          <h1 className="font-display" style={{ fontSize: '20px', fontWeight: 700, background: 'var(--gradient-gold)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <h1 className="font-display" style={{ fontSize: '22px', fontWeight: 700, background: 'var(--gradient-lavender-gold)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.3px' }}>
             AI Moda Stüdyosu
           </h1>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="glass-panel" style={{ padding: '6px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold-400)' }}>
-            <span>⚡ Kredi:</span>
+          <div style={{ padding: '6px 14px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, rgba(212, 174, 120, 0.1) 0%, rgba(232, 203, 245, 0.1) 100%)', border: '1px solid rgba(232, 203, 245, 0.25)', borderRadius: '30px', boxShadow: '0 0 10px rgba(232, 203, 245, 0.05)' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>⚡ Kredi:</span>
             <strong style={{ color: 'var(--text-gold)' }}>{user.credits}</strong>
           </div>
-          <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '13px' }}>
+          <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = 'var(--text-primary)'} onMouseLeave={(e) => e.target.style.color = 'var(--text-secondary)'}>
             Çıkış ✕
           </button>
         </div>
       </header>
 
       {/* Tabs */}
-      <nav style={{ display: 'flex', gap: '12px', margin: '20px 0 10px' }}>
-        <button className={`btn-outline ${activeTab === 'generate' ? 'selected' : ''}`} onClick={() => setActiveTab('generate')} style={{ width: 'auto', padding: '8px 16px', borderColor: activeTab === 'generate' ? 'var(--gold-400)' : 'var(--glass-border)' }}>
+      <nav style={{ display: 'flex', gap: '4px', margin: '24px 0 12px', background: 'rgba(255, 255, 255, 0.02)', padding: '4px', borderRadius: '30px', border: '1px solid rgba(255, 255, 255, 0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+        <button className={`btn-outline ${activeTab === 'generate' ? 'selected' : ''}`} onClick={() => setActiveTab('generate')} style={{ width: 'auto', padding: '8px 16px', borderRadius: '30px', border: 'none', background: activeTab === 'generate' ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.15) 0%, rgba(232, 203, 245, 0.12) 100%)' : 'transparent', color: activeTab === 'generate' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === 'generate' ? '0 4px 15px rgba(232, 203, 245, 0.05)' : 'none', fontSize: '13px', fontWeight: 600 }}>
           🎬 Video Üret
         </button>
-        <button className={`btn-outline ${activeTab === 'history' ? 'selected' : ''}`} onClick={() => setActiveTab('history')} style={{ width: 'auto', padding: '8px 16px', borderColor: activeTab === 'history' ? 'var(--gold-400)' : 'var(--glass-border)' }}>
+        <button className={`btn-outline ${activeTab === 'history' ? 'selected' : ''}`} onClick={() => setActiveTab('history')} style={{ width: 'auto', padding: '8px 16px', borderRadius: '30px', border: 'none', background: activeTab === 'history' ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.15) 0%, rgba(232, 203, 245, 0.12) 100%)' : 'transparent', color: activeTab === 'history' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === 'history' ? '0 4px 15px rgba(232, 203, 245, 0.05)' : 'none', fontSize: '13px', fontWeight: 600 }}>
           📜 Geçmiş
         </button>
-        <button className={`btn-outline ${activeTab === 'settings' ? 'selected' : ''}`} onClick={() => setActiveTab('settings')} style={{ width: 'auto', padding: '8px 16px', borderColor: activeTab === 'settings' ? 'var(--gold-400)' : 'var(--glass-border)' }}>
+        <button className={`btn-outline ${activeTab === 'settings' ? 'selected' : ''}`} onClick={() => setActiveTab('settings')} style={{ width: 'auto', padding: '8px 16px', borderRadius: '30px', border: 'none', background: activeTab === 'settings' ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.15) 0%, rgba(232, 203, 245, 0.12) 100%)' : 'transparent', color: activeTab === 'settings' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === 'settings' ? '0 4px 15px rgba(232, 203, 245, 0.05)' : 'none', fontSize: '13px', fontWeight: 600 }}>
           ⚙️ Ayarlar / Paketler
         </button>
       </nav>
 
-      <main style={{ flex: 1, width: '100%', maxWidth: '500px', padding: '12px 20px 48px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <main style={{ flex: 1, width: '100%', maxWidth: '540px', padding: '12px 20px 48px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* TAB 1: GENERATE */}
         {activeTab === 'generate' && (
@@ -513,11 +517,11 @@ function HomePageContent() {
             {phase === 'idle' && (
               <>
                 {/* Step indicators */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-secondary)', padding: '0 8px' }}>
-                  <span style={{ color: step >= 1 ? 'var(--text-gold)' : '' }}>1. Kategori</span>
-                  <span style={{ color: step >= 2 ? 'var(--text-gold)' : '' }}>2. Görseller</span>
-                  <span style={{ color: step >= 3 ? 'var(--text-gold)' : '' }}>3. Manken</span>
-                  <span style={{ color: step >= 4 ? 'var(--text-gold)' : '' }}>4. Arka Plan</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-secondary)', padding: '0 8px', marginBottom: '8px' }}>
+                  <span style={{ color: step >= 1 ? 'var(--text-gold)' : '', fontWeight: step === 1 ? '700' : '400', transition: 'color 0.3s' }}>1. Kategori</span>
+                  <span style={{ color: step >= 2 ? 'var(--text-gold)' : '', fontWeight: step === 2 ? '700' : '400', transition: 'color 0.3s' }}>2. Görseller</span>
+                  <span style={{ color: step >= 3 ? 'var(--text-gold)' : '', fontWeight: step === 3 ? '700' : '400', transition: 'color 0.3s' }}>3. Manken</span>
+                  <span style={{ color: step >= 4 ? 'var(--text-gold)' : '', fontWeight: step === 4 ? '700' : '400', transition: 'color 0.3s' }}>4. Arka Plan</span>
                 </div>
 
                 {/* Step 1: Category */}
@@ -532,7 +536,6 @@ function HomePageContent() {
                           key={cat.id}
                           className={`category-card ${category === cat.id ? 'selected' : ''}`}
                           onClick={() => setCategory(cat.id)}
-                          style={{ padding: '16px 8px' }}
                         >
                           <span className="icon" style={{ fontSize: '24px' }}>{cat.icon}</span>
                           <span className="label" style={{ fontSize: '12px' }}>{cat.label}</span>
@@ -552,7 +555,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Ürün Fotoğrafları Yükleyin
                       </h2>
-                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px' }}> geri</button>
+                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
                     </div>
 
                     <input type="file" ref={fileInputFrontRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setGarmentFront)} />
@@ -560,10 +563,10 @@ function HomePageContent() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       {/* Front Upload */}
-                      <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={() => triggerImageUpload(fileInputFrontRef)} style={{ padding: '24px 12px', minHeight: '180px' }}>
+                      <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={() => triggerImageUpload(fileInputFrontRef)} style={{ minHeight: '180px' }}>
                         {!garmentFront ? (
                           <>
-                            <span style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>📸</span>
+                            <span className="upload-icon" style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>📸</span>
                             <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-gold)' }}>Ön Görünüm</div>
                             {renderOutlineOverlay()}
                           </>
@@ -576,10 +579,10 @@ function HomePageContent() {
                       </div>
 
                       {/* Back Upload */}
-                      <div className={`upload-area ${garmentBack ? 'has-image' : ''}`} onClick={() => triggerImageUpload(fileInputBackRef)} style={{ padding: '24px 12px', minHeight: '180px' }}>
+                      <div className={`upload-area ${garmentBack ? 'has-image' : ''}`} onClick={() => triggerImageUpload(fileInputBackRef)} style={{ minHeight: '180px' }}>
                         {!garmentBack ? (
                           <>
-                            <span style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>📸</span>
+                            <span className="upload-icon" style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>📸</span>
                             <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-gold)' }}>Arka Görünüm</div>
                             {renderOutlineOverlay()}
                           </>
@@ -605,7 +608,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Manken ve Beden Seçimi
                       </h2>
-                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px' }}> geri</button>
+                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
                     </div>
 
                     {/* Model Grid */}
@@ -616,35 +619,37 @@ function HomePageContent() {
                           onClick={() => setModelId(model.id)}
                           style={{
                             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            padding: '16px', background: 'rgba(255,255,255,0.03)',
-                            border: `2px solid ${modelId === model.id ? 'var(--gold-400)' : 'var(--glass-border)'}`,
-                            borderRadius: '12px', cursor: 'pointer'
+                            padding: '16px', background: modelId === model.id ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.1) 0%, rgba(232, 203, 245, 0.08) 100%)' : 'rgba(255,255,255,0.02)',
+                            border: `1.5px solid ${modelId === model.id ? 'var(--gold-400)' : 'rgba(255, 255, 255, 0.06)'}`,
+                            borderRadius: '16px', cursor: 'pointer',
+                            boxShadow: modelId === model.id ? '0 4px 15px rgba(232, 203, 245, 0.08)' : 'none',
+                            transition: 'all 0.3s ease'
                           }}
                         >
                           <div>
-                            <div style={{ fontWeight: 600, fontSize: '14px', color: modelId === model.id ? 'var(--text-gold)' : 'var(--text-primary)' }}>{model.name}</div>
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: modelId === model.id ? 'var(--text-gold)' : 'var(--text-primary)', transition: 'color 0.3s' }}>{model.name}</div>
                             <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{model.gender}</div>
                           </div>
-                          <div style={{ fontSize: '20px' }}>👤</div>
+                          <div style={{ fontSize: '20px', filter: modelId === model.id ? 'drop-shadow(0 0 8px rgba(212, 174, 120, 0.4))' : 'none' }}>👤</div>
                         </div>
                       ))}
                     </div>
 
                     {/* Size selector */}
                     <div style={{ marginTop: '20px' }}>
-                      <label style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Manken Bedeni</label>
+                      <label style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block', fontWeight: 500 }}>Manken Bedeni</label>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <button
                           className={`btn-outline ${bodySize === 'STANDARD' ? 'selected' : ''}`}
                           onClick={() => setBodySize('STANDARD')}
-                          style={{ borderColor: bodySize === 'STANDARD' ? 'var(--gold-400)' : 'var(--glass-border)', padding: '10px' }}
+                          style={{ padding: '12px' }}
                         >
                           {MODELS.find(m => m.id === modelId)?.gender.includes('Erkek') ? 'Standart Beden (M / 48-50)' : 'Standart Beden (36-38)'}
                         </button>
                         <button
                           className={`btn-outline ${bodySize === 'PLUS_SIZE' ? 'selected' : ''}`}
                           onClick={() => setBodySize('PLUS_SIZE')}
-                          style={{ borderColor: bodySize === 'PLUS_SIZE' ? 'var(--gold-400)' : 'var(--glass-border)', padding: '10px' }}
+                          style={{ padding: '12px' }}
                         >
                           {MODELS.find(m => m.id === modelId)?.gender.includes('Erkek') ? 'Büyük Beden (XL / 54-56)' : 'Büyük Beden (42-44)'}
                         </button>
@@ -664,7 +669,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Stüdyo Arka Planı & Prompt
                       </h2>
-                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px' }}> geri</button>
+                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
                     </div>
 
                     {/* Background selector */}
@@ -674,7 +679,7 @@ function HomePageContent() {
                           key={bg.id}
                           className={`btn-outline ${backgroundId === bg.id ? 'selected' : ''}`}
                           onClick={() => setBackgroundId(bg.id)}
-                          style={{ fontSize: '12px', padding: '10px 4px', borderColor: backgroundId === bg.id ? 'var(--gold-400)' : 'var(--glass-border)' }}
+                          style={{ fontSize: '12px', padding: '12px 4px' }}
                         >
                           {bg.label}
                         </button>
@@ -683,17 +688,17 @@ function HomePageContent() {
 
                     {/* Custom Background Upload */}
                     {backgroundId === 'custom' && (
-                      <div className="glass-panel" style={{ padding: '16px', borderStyle: 'dashed', textAlign: 'center', marginBottom: '16px', cursor: 'pointer' }} onClick={() => triggerImageUpload(fileInputBgRef)}>
+                      <div className="glass-panel" style={{ padding: '20px', borderStyle: 'dashed', borderColor: 'rgba(232, 203, 245, 0.3)', textAlign: 'center', marginBottom: '16px', cursor: 'pointer' }} onClick={() => triggerImageUpload(fileInputBgRef)}>
                         <input type="file" ref={fileInputBgRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setCustomBg)} />
                         {!customBg ? (
                           <>
-                            <span style={{ fontSize: '20px' }}>📸</span>
-                            <div style={{ fontSize: '12px', color: 'var(--text-gold)', marginTop: '4px' }}>Mağaza Fotoğrafı Yükle</div>
+                            <span style={{ fontSize: '24px', display: 'block', marginBottom: '6px' }}>📸</span>
+                            <div style={{ fontSize: '13px', color: 'var(--text-gold)', fontWeight: 600 }}>Mağaza Fotoğrafı Yükle</div>
                           </>
                         ) : (
                           <div className="preview-container" style={{ margin: 0 }}>
-                            <img src={customBg} alt="Custom BG" className="preview-img" style={{ maxHeight: '100px' }} />
-                            <button className="remove-btn" onClick={(e) => { e.stopPropagation(); setCustomBg(null); }} style={{ width: '24px', height: '24px', fontSize: '11px' }}>✕</button>
+                            <img src={customBg} alt="Custom BG" className="preview-img" style={{ maxHeight: '120px' }} />
+                            <button className="remove-btn" onClick={(e) => { e.stopPropagation(); setCustomBg(null); }} style={{ width: '24px', height: '24px', fontSize: '11px', top: '8px', right: '8px' }}>✕</button>
                           </div>
                         )}
                       </div>
@@ -701,25 +706,24 @@ function HomePageContent() {
 
                     {/* Editable Prompt */}
                     <div>
-                      <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Video Açıklaması (Prompt)</label>
+                      <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block', fontWeight: 500 }}>Video Açıklaması (Prompt)</label>
                       <textarea
                         value={customPrompt}
                         onChange={(e) => setCustomPrompt(e.target.value)}
-                        style={{
-                          width: '100%', minHeight: '80px', padding: '10px',
-                          background: 'rgba(255,255,255,0.04)', border: '1px solid var(--glass-border)',
-                          borderRadius: '8px', color: 'var(--text-primary)', fontSize: '12px', lineHeight: 1.5
-                        }}
+                        className="glass-input"
+                        style={{ minHeight: '90px', fontSize: '12px', lineHeight: 1.5, marginBottom: '8px' }}
                       />
                     </div>
 
                     {/* Prompt tags */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px', marginBottom: '20px' }}>
                       {PROMPT_TAGS.map((tag) => (
                         <span
                           key={tag.label}
                           onClick={() => appendTagToPrompt(tag.text)}
-                          style={{ fontSize: '11px', background: 'rgba(212,160,23,0.1)', color: 'var(--text-gold)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
+                          style={{ fontSize: '11px', background: 'rgba(232, 203, 245, 0.1)', border: '1px solid rgba(232, 203, 245, 0.15)', color: 'var(--text-lavender)', padding: '5px 10px', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s' }}
+                          onMouseEnter={(e) => { e.target.style.background = 'rgba(232, 203, 245, 0.18)'; e.target.style.borderColor = 'rgba(232, 203, 245, 0.3)'; }}
+                          onMouseLeave={(e) => { e.target.style.background = 'rgba(232, 203, 245, 0.1)'; e.target.style.borderColor = 'rgba(232, 203, 245, 0.15)'; }}
                         >
                           {tag.label}
                         </span>
@@ -826,11 +830,11 @@ function HomePageContent() {
         {activeTab === 'settings' && (
           <>
             {/* Watermark Section */}
-            <div className="glass-panel animate-in" style={{ padding: '20px' }}>
+            <div className="glass-panel animate-in" style={{ padding: '24px' }}>
               <h2 style={{ fontSize: '15px', color: 'var(--text-gold)', marginBottom: '12px', fontWeight: 600 }}>
                 Filigran (Logo) Ayarı
               </h2>
-              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.6 }}>
                 Videolarınızın sağ alt köşesine otomatik olarak eklenecek yarı-şeffaf butik logonuzu yükleyin.
               </p>
 
@@ -842,49 +846,49 @@ function HomePageContent() {
                 </button>
                 {watermarkUrl && (
                   <div style={{ position: 'relative' }}>
-                    <img src={watermarkUrl} alt="Logo preview" style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', padding: '2px' }} />
-                    <button onClick={() => saveWatermark(null)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justify: 'center' }}>✕</button>
+                    <img src={watermarkUrl} alt="Logo preview" style={{ width: '44px', height: '44px', objectFit: 'contain', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', padding: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+                    <button onClick={() => saveWatermark(null)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>✕</button>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Credit packages */}
-            <div className="glass-panel animate-in" style={{ padding: '20px' }}>
-              <h2 style={{ fontSize: '15px', color: 'var(--text-gold)', marginBottom: '16px', fontWeight: 600 }}>
+            <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+              <h2 style={{ fontSize: '15px', color: 'var(--text-gold)', marginBottom: '18px', fontWeight: 600 }}>
                 Kredi Yükleme Paketleri (SaaS)
               </h2>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {/* Silver */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '16px', transition: 'all 0.3s ease' }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 700 }}>Silver Paket (30 Kredi)</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Her gün 1 video hakkı</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Silver Paket (30 Kredi)</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Her gün 1 video hakkı</div>
                   </div>
-                  <button className="btn-outline" onClick={() => handleBuyCredits('SILVER')} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px', color: 'black', background: 'var(--gradient-gold)' }}>
+                  <button className="btn-outline" onClick={() => handleBuyCredits('SILVER')} style={{ width: 'auto', fontSize: '13px', padding: '8px 16px', color: '#17120a', background: 'var(--gradient-gold)', border: 'none', borderRadius: '12px', fontWeight: 700 }}>
                     499 TL
                   </button>
                 </div>
 
                 {/* Gold */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--gold-400)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'linear-gradient(135deg, rgba(212, 174, 120, 0.12) 0%, rgba(232, 203, 245, 0.06) 100%)', border: '1.5px solid var(--gold-400)', borderRadius: '16px', boxShadow: '0 0 15px rgba(212, 174, 120, 0.08)', transition: 'all 0.3s ease' }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-gold)' }}>Gold Paket (60 Kredi) 🌟</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Her gün 2 video hakkı</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-gold)' }}>Gold Paket (60 Kredi) 🌟</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Her gün 2 video hakkı</div>
                   </div>
-                  <button className="btn-outline" onClick={() => handleBuyCredits('GOLD')} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px', color: 'black', background: 'var(--gradient-gold)' }}>
+                  <button className="btn-outline" onClick={() => handleBuyCredits('GOLD')} style={{ width: 'auto', fontSize: '13px', padding: '8px 16px', color: '#17120a', background: 'var(--gradient-gold)', border: 'none', borderRadius: '12px', fontWeight: 700, boxShadow: '0 4px 15px rgba(212, 174, 120, 0.2)' }}>
                     899 TL
                   </button>
                 </div>
 
                 {/* Platinum */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '16px', transition: 'all 0.3s ease' }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 700 }}>Platinum Paket (150 Kredi)</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Her gün 5 video hakkı</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Platinum Paket (150 Kredi)</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Her gün 5 video hakkı</div>
                   </div>
-                  <button className="btn-outline" onClick={() => handleBuyCredits('PLATINUM')} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px', color: 'black', background: 'var(--gradient-gold)' }}>
+                  <button className="btn-outline" onClick={() => handleBuyCredits('PLATINUM')} style={{ width: 'auto', fontSize: '13px', padding: '8px 16px', color: '#17120a', background: 'var(--gradient-gold)', border: 'none', borderRadius: '12px', fontWeight: 700 }}>
                     1.999 TL
                   </button>
                 </div>
