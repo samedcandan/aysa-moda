@@ -301,7 +301,10 @@ function HomePageContent() {
 
   // Start Pipeline
   const handleGenerate = async () => {
-    if (!garmentFront || !garmentBack) return;
+    if (!garmentFront && !garmentBack) return;
+
+    const activeGarmentFront = garmentFront || garmentBack;
+    const activeGarmentBack = garmentBack || garmentFront;
 
     setPhase('uploading');
     setProgressStep(1);
@@ -339,8 +342,8 @@ function HomePageContent() {
         body: JSON.stringify({
           humanFront: humanFrontComposed,
           humanBack: humanBackComposed,
-          garmentFront,
-          garmentBack,
+          garmentFront: activeGarmentFront,
+          garmentBack: activeGarmentBack,
           category,
           modelId,
           bodySize,
@@ -656,7 +659,7 @@ function HomePageContent() {
                       </div>
                     </div>
 
-                    <button className="btn-gold" style={{ marginTop: '24px' }} disabled={!garmentFront || !garmentBack} onClick={() => setStep(3)}>
+                    <button className="btn-gold" style={{ marginTop: '24px' }} disabled={!garmentFront && !garmentBack} onClick={() => setStep(3)}>
                       Devam Et ➔
                     </button>
                   </div>
