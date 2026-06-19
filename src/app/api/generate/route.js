@@ -7,6 +7,49 @@ import { createVideo } from '@/lib/kling';
 
 export const maxDuration = 60; // Set Vercel execution limit to 60 seconds
 
+// Helper to translate Turkish fashion prompts to English using OpenAI
+async function translateToEnglish(text) {
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_API_KEY) {
+    console.warn('[Translate] OPENAI_API_KEY missing, using original prompt');
+    return text;
+  }
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Output ONLY the English translation, no other text or explanation.'
+          },
+          {
+            role: 'user',
+            content: text
+          }
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    const data = await res.json();
+    const translated = data.choices?.[0]?.message?.content?.trim();
+    if (translated) {
+      console.log('[Translate] Translated prompt:', { original: text, translated });
+      return translated;
+    }
+  } catch (err) {
+    console.error('[Translate] Translation failed:', err);
+  }
+  return text;
+}
+
 export async function POST(request) {
   try {
     // 1. Session verification
@@ -73,9 +116,13 @@ export async function POST(request) {
 
     console.log('[Generate Route] VTON complete. Dressed URLs:', { frontDressedUrl, backDressedUrl });
 
-    // 5. Trigger Kling video generation with start & end frames
+    // 5. Translate Turkish prompt to English for Kling AI
+    console.log('[Generate Route] Translating custom prompt to English if needed...');
+    const translatedPrompt = await translateToEnglish(customPrompt);
+
+    // 6. Trigger Kling video generation with start & end frames
     console.log('[Generate Route] Triggering Kling AI video generation...');
-    const { taskId } = await createVideo([frontDressedUrl, backDressedUrl], category, customPrompt);
+    const { taskId } = await createVideo([frontDressedUrl, backDressedUrl], category, translatedPrompt);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);
 

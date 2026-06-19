@@ -135,31 +135,47 @@ function HomePageContent() {
     }
   }, [searchParams, router]);
 
-  // Set default prompt when category or motionType changes
+  // Set default prompt when category, background or motionType changes (in Turkish)
   useEffect(() => {
-    const basePrompts = {
-      gelinlik: "A professional fashion runway video of the female model wearing the bridal dress. High-end lighting, photorealistic 4k fashion presentation.",
-      abiye: "A professional haute couture fashion showcase video of the female model wearing the evening gown. Luxury boutique background, studio lighting, smooth fabric details.",
-      elbise: "A gorgeous fashion showcase of the female model wearing the dress. Elegant design and styling, soft volumetric studio lighting.",
-      gomlek: "A professional fashion showcase of the female model wearing the shirt. Highlighting the collar, buttons, and fit. Soft studio lighting.",
-      straplez: "A stunning fashion presentation of the female model wearing the strapless outfit. High-end studio lighting, showing the silhouette and cut.",
-      askili: "A beautiful fashion presentation of the female model wearing the strap top. Highlighting the neckline and straps, soft studio lighting.",
-      ceket: "A stylish clothing showcase of the female model wearing the jacket. Modern clean background, professional product commercial style, sharp details.",
-      trenckot: "A professional fashion showcase of the female model wearing the trenchcoat/cardigan. Clean modern background, soft cinematic lighting, beautiful fit.",
-      mont: "A high-quality fashion presentation of the female model wearing the winter coat. Showcasing the volume, details, and zippers. Professional lighting.",
-      pelus: "A cozy fashion showcase of the female model wearing the plush jacket. Highlighting the soft texture and warm fit. Soft studio lighting.",
-      kurk: "A luxury fashion showcase of the female model wearing the fur coat. Highlighting the rich fur texture and elegance. High-end lighting.",
-      tisort: "A clean fashion product showcase of the female model wearing the t-shirt/blouse. Studio lighting, natural fabric texture, sharp details.",
-      kazak: "A cozy fashion presentation of the female model wearing the sweater. Warm cinematic lighting, highlighting the knit details.",
-      pantolon: "A fashion presentation of the female model wearing the trousers. Highlighting the fabric, fit, and style. Neutral studio background, professional lighting.",
-      etek: "A beautiful fashion presentation of the female model wearing the skirt. Elegant clean background, professional commercial lighting."
+    const trCategoryPrompts = {
+      gelinlik: "Gelinlik giyen bayan mankenin profesyonel moda podyumu tanıtım videosu. Gelinliğin tüm ince detayları, dantelleri ve zarif dökümü ön planda.",
+      abiye: "Abiye giyen bayan mankenin lüks moda tanıtım videosu. Kumaş kalitesi, drapeleri ve şık detayları ön planda.",
+      elbise: "Günlük elbise giyen bayan mankenin modern ve hareketli tanıtım videosu. Elbisenin kalıbı ve şık tasarımı ön planda.",
+      gomlek: "Gömlek giyen bayan mankenin profesyonel ürün tanıtım videosu. Yakası, düğmeleri, manşetleri ve kalıbı ön planda.",
+      straplez: "Straplez kıyafet giyen bayan mankenin zarif tanıtım videosu. Boyun çizgisi, omuz dekoltesi ve silüeti ön planda.",
+      askili: "Askılı bluz giyen bayan mankenin yazlık ve şık moda videosu. Askı detayları, yaka kesimi ve kumaş dokusu ön planda.",
+      ceket: "Ceket giyen bayan mankenin modern ürün tanıtım videosu. Ceketin kesimi, düğmeleri, omuz yapısı ve kalıbı ön planda.",
+      trenckot: "Trençkot/hırka giyen bayan mankenin sonbahar modası tanıtım videosu. Kemer, yaka detayları ve kumaş kalitesi ön planda.",
+      mont: "Mont giyen bayan mankenin kışlık ürün tanıtım videosu. Montun dolgunluğu, fermuar detayları ve modern kalıbı ön planda.",
+      pelus: "Peluş ceket giyen bayan mankenin yumuşak kış modası videosu. Peluşun yumuşak dokusu, sıcaklığı ve duruşu ön planda.",
+      kurk: "Kürk giyen bayan mankenin lüks kış modası tanıtım videosu. Kürkün hacmi, kalitesi ve zengin dokusu ön planda.",
+      tisort: "Tişört/bluz giyen bayan mankenin spor/sokak modası tanıtım videosu. Kumaş yapısı, kalıbı ve baskı detayları ön planda.",
+      kazak: "Kazak giyen bayan mankenin sıcak kış modası tanıtım videosu. Örgü detayları, yaka kesimi ve dokusu ön planda.",
+      pantolon: "Pantolon/jean giyen bayan mankenin ürün tanıtım videosu. Kesimi, kalıbı ve cepleri ön planda.",
+      etek: "Etek giyen bayan mankenin hareketli ve şık tanıtım videosu. Eteğin pilileri, boyu ve uçuşması ön planda."
     };
-    
-    const base = basePrompts[category] || basePrompts.tisort;
-    const motion = MOTION_TYPES.find(m => m.id === motionType)?.prompt || MOTION_TYPES[0].prompt;
-    
-    setCustomPrompt(`${base} ${motion}`);
-  }, [category, motionType]);
+
+    const trBackgroundPrompts = {
+      boutique: "Lüks ve şık butik mağaza arka planında.",
+      runway: "Moda podyumunda, profesyonel podyum ışıkları altında.",
+      street: "Şık ve hareketli bir şehir caddesinde, dış mekan sokak arka planında.",
+      custom: "Butiğin kendi mağaza dekoru arka planında."
+    };
+
+    const trMotionPrompts = {
+      rotation: "Manken yavaşça 360 derece kendi etrafında dönerek kıyafetin ön, yan ve arka duruşunu sergiliyor.",
+      walk: "Manken podyumda zarif adımlarla öne doğru yürüyor, kıyafetin kumaş hareketini ve akışını gösteriyor.",
+      pose: "Manken yavaş ve zarif moda pozları vererek kıyafetin tüm detaylarını farklı açılardan sergiliyor.",
+      breeze: "Manken sabit dururken hafif bir rüzgar kıyafetin eteklerini ve kumaşını uçuruyor."
+    };
+
+    const catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
+    const bgText = trBackgroundPrompts[backgroundId] || trBackgroundPrompts.boutique;
+    const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
+
+    // Combine with clean spacing
+    setCustomPrompt(`${catText} ${bgText} ${motionText}`);
+  }, [category, backgroundId, motionType]);
 
   // Handle Login
   const handleLogin = async (e) => {
