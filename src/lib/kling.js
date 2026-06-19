@@ -25,6 +25,21 @@ export const DEFAULT_PROMPTS = {
     "Cinematic lighting, showcasing the style, draping, and flow of the dress from the front and back views. " +
     "Luxury background, professional product presentation.",
 
+  gomlek:
+    "A professional fashion showcase of the shirt. The model moves gracefully. " +
+    "Showcasing the collar, buttons, cuffs, and clean fabric texture from the front and back views. " +
+    "Soft studio lighting, modern boutique style.",
+
+  straplez:
+    "A stunning fashion presentation of the strapless outfit. The model rotates gracefully. " +
+    "Revealing the neckline, silhouette, and drape from the front and back views. " +
+    "High-end studio lighting, elegant background.",
+
+  askili:
+    "A beautiful fashion presentation of the strap top. The model moves naturally. " +
+    "Highlighting the shoulder straps, neckline, and fit from the front and back views. " +
+    "Clean studio background, professional lighting.",
+
   ceket:
     "A stylish clothing showcase of the jacket. The model rotates slowly. " +
     "Camera orbits around the model showing the jacket cut, buttons, and fit from front to back views. " +
@@ -34,6 +49,21 @@ export const DEFAULT_PROMPTS = {
     "A professional fashion showcase of the trenchcoat/cardigan. The model moves gracefully. " +
     "Showcasing the buttons, collar, fabric, and fit from the front and back views. " +
     "Clean studio background, soft cinematic lighting.",
+
+  mont:
+    "A high-quality fashion presentation of the winter coat. The model turns slowly. " +
+    "Showcasing the zippers, hood, texture, and volume of the coat from the front and back views. " +
+    "Modern outdoor lighting, clean background.",
+
+  pelus:
+    "A cozy fashion showcase of the plush jacket. The model rotates gracefully. " +
+    "Revealing the soft plush texture, collar, and warm fit from the front and back views. " +
+    "Cozy warm studio lighting.",
+
+  kurk:
+    "A luxury fashion showcase of the faux fur coat. The model rotates slowly. " +
+    "Highlighting the rich fur texture, volume, and elegance from the front and back views. " +
+    "Luxury background, soft studio lighting.",
 
   tisort:
     "A clean streetwear product video. The model does a slow turnaround rotation. " +

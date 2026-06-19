@@ -729,15 +729,16 @@ body {
 
 .accordion-category-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
 .accordion-category-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 12px;
   background: rgba(255, 255, 255, 0.01);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
@@ -756,21 +757,12 @@ body {
   box-shadow: 0 0 15px rgba(232, 203, 245, 0.12);
 }
 
-.accordion-category-card .icon {
-  font-size: 20px;
-  filter: drop-shadow(0 2px 4px rgba(212, 174, 120, 0.2));
-  transition: transform 0.3s ease;
-}
-
-.accordion-category-card:hover .icon {
-  transform: scale(1.1) rotate(2deg);
-}
-
 .accordion-category-card .label {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   transition: color 0.3s;
+  word-break: break-word;
 }
 
 .accordion-category-card.selected .label {
@@ -820,7 +812,7 @@ body {
 
 @media (max-width: 480px) {
   .accordion-category-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
   .segment-wrapper {

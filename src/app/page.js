@@ -4,45 +4,33 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 const CATEGORY_GROUPS = [
   {
-    id: 'one_pieces',
-    title: 'Tek Parça & Özel Gün 👗',
+    id: 'all_categories',
+    title: 'Kıyafet Kategorisi',
     categories: [
-      { id: 'gelinlik', icon: '👗', label: 'Gelinlik' },
-      { id: 'abiye', icon: '💃', label: 'Abiye' },
-      { id: 'elbise', icon: '👗', label: 'Günlük Elbise / Tulum' },
-    ]
-  },
-  {
-    id: 'outerwear',
-    title: 'Dış Giyim 🧥',
-    categories: [
-      { id: 'ceket', icon: '🧥', label: 'Ceket / Kaban' },
-      { id: 'trenckot', icon: '🧥', label: 'Trençkot / Hırka' },
-    ]
-  },
-  {
-    id: 'tops',
-    title: 'Üst Giyim 👕',
-    categories: [
-      { id: 'tisort', icon: '👕', label: 'Tişört / Bluz' },
-      { id: 'kazak', icon: '🧶', label: 'Kazak / Süveter' },
-    ]
-  },
-  {
-    id: 'bottoms',
-    title: 'Alt Giyim 👖',
-    categories: [
-      { id: 'pantolon', icon: '👖', label: 'Pantolon / Jean' },
-      { id: 'etek', icon: '👗', label: 'Etek' },
+      { id: 'gelinlik', label: 'Gelinlik' },
+      { id: 'abiye', label: 'Abiye' },
+      { id: 'elbise', label: 'Günlük Elbise / Tulum' },
+      { id: 'gomlek', label: 'Gömlek' },
+      { id: 'straplez', label: 'Straplez' },
+      { id: 'askili', label: 'Askılı' },
+      { id: 'tisort', label: 'Tişört / Bluz' },
+      { id: 'kazak', label: 'Kazak / Süveter' },
+      { id: 'ceket', label: 'Ceket / Kaban' },
+      { id: 'trenckot', label: 'Trençkot / Hırka' },
+      { id: 'mont', label: 'Mont' },
+      { id: 'pelus', label: 'Peluş' },
+      { id: 'kurk', label: 'Kürk' },
+      { id: 'pantolon', label: 'Pantolon / Jean' },
+      { id: 'etek', label: 'Etek' }
     ]
   }
 ];
 
 const MOTION_TYPES = [
-  { id: 'rotation', label: '🔄 360° Dönüş', prompt: 'Slow, majestic 360 degree turntable rotation showcasing the outfit from front, side, and back views.' },
-  { id: 'walk', label: '🚶 Podyum Yürüyüşü', prompt: 'The model elegantly walks forward on a fashion runway, showing off the clothing movement, flow, and texture. Slow motion, professional presentation.' },
-  { id: 'pose', label: '💃 Zarif Pozlar', prompt: 'The model strikes slow, elegant fashion poses, turning slightly to showcase the outfit details, fabric texture, and fit from different angles.' },
-  { id: 'breeze', label: '💨 Rüzgar Duruşu', prompt: 'The model stands elegantly as a gentle breeze blows through the fabric, creating natural, flowing movement in the dress/outfit.' },
+  { id: 'rotation', label: '360° Dönüş', prompt: 'Slow, majestic 360 degree turntable rotation showcasing the outfit from front, side, and back views.' },
+  { id: 'walk', label: 'Podyum Yürüyüşü', prompt: 'The model elegantly walks forward on a fashion runway, showing off the clothing movement, flow, and texture. Slow motion, professional presentation.' },
+  { id: 'pose', label: 'Zarif Pozlar', prompt: 'The model strikes slow, elegant fashion poses, turning slightly to showcase the outfit details, fabric texture, and fit from different angles.' },
+  { id: 'breeze', label: 'Rüzgar Duruşu', prompt: 'The model stands elegantly as a gentle breeze blows through the fabric, creating natural, flowing movement in the dress/outfit.' },
 ];
 
 const MODELS = [
@@ -93,7 +81,7 @@ function HomePageContent() {
   const [backgroundId, setBackgroundId] = useState('boutique');
   const [customBg, setCustomBg] = useState(null);
   const [customPrompt, setCustomPrompt] = useState('');
-  const [activeAccordion, setActiveAccordion] = useState('one_pieces');
+  const [activeAccordion, setActiveAccordion] = useState('all_categories');
   const [motionType, setMotionType] = useState('rotation');
 
   // Generation status
@@ -153,8 +141,14 @@ function HomePageContent() {
       gelinlik: "A professional fashion runway video of the female model wearing the bridal dress. High-end lighting, photorealistic 4k fashion presentation.",
       abiye: "A professional haute couture fashion showcase video of the female model wearing the evening gown. Luxury boutique background, studio lighting, smooth fabric details.",
       elbise: "A gorgeous fashion showcase of the female model wearing the dress. Elegant design and styling, soft volumetric studio lighting.",
+      gomlek: "A professional fashion showcase of the female model wearing the shirt. Highlighting the collar, buttons, and fit. Soft studio lighting.",
+      straplez: "A stunning fashion presentation of the female model wearing the strapless outfit. High-end studio lighting, showing the silhouette and cut.",
+      askili: "A beautiful fashion presentation of the female model wearing the strap top. Highlighting the neckline and straps, soft studio lighting.",
       ceket: "A stylish clothing showcase of the female model wearing the jacket. Modern clean background, professional product commercial style, sharp details.",
       trenckot: "A professional fashion showcase of the female model wearing the trenchcoat/cardigan. Clean modern background, soft cinematic lighting, beautiful fit.",
+      mont: "A high-quality fashion presentation of the female model wearing the winter coat. Showcasing the volume, details, and zippers. Professional lighting.",
+      pelus: "A cozy fashion showcase of the female model wearing the plush jacket. Highlighting the soft texture and warm fit. Soft studio lighting.",
+      kurk: "A luxury fashion showcase of the female model wearing the fur coat. Highlighting the rich fur texture and elegance. High-end lighting.",
       tisort: "A clean fashion product showcase of the female model wearing the t-shirt/blouse. Studio lighting, natural fabric texture, sharp details.",
       kazak: "A cozy fashion presentation of the female model wearing the sweater. Warm cinematic lighting, highlighting the knit details.",
       pantolon: "A fashion presentation of the female model wearing the trousers. Highlighting the fabric, fit, and style. Neutral studio background, professional lighting.",
@@ -233,7 +227,7 @@ function HomePageContent() {
         </svg>
       );
     }
-    if (category === 'gelinlik' || category === 'abiye' || category === 'elbise') {
+    if (category === 'gelinlik' || category === 'abiye' || category === 'elbise' || category === 'straplez') {
       return (
         <svg viewBox="0 0 100 150" style={{ position: 'absolute', top: '10%', left: '25%', width: '50%', height: '80%', opacity: 0.25, pointerEvents: 'none' }}>
           <path d="M45 20 L55 20 L60 40 L85 140 L15 140 L40 40 Z M45 20 L50 35 L55 20" fill="none" stroke="var(--text-gold)" strokeWidth="2" strokeDasharray="3 3"/>
@@ -550,13 +544,13 @@ function HomePageContent() {
       {/* Tabs */}
       <nav style={{ display: 'flex', gap: '4px', margin: '24px 0 12px', background: 'rgba(255, 255, 255, 0.02)', padding: '4px', borderRadius: '30px', border: '1px solid rgba(255, 255, 255, 0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
         <button className={`btn-outline ${activeTab === 'generate' ? 'selected' : ''}`} onClick={() => setActiveTab('generate')} style={{ width: 'auto', padding: '8px 16px', borderRadius: '30px', border: 'none', background: activeTab === 'generate' ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.15) 0%, rgba(232, 203, 245, 0.12) 100%)' : 'transparent', color: activeTab === 'generate' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === 'generate' ? '0 4px 15px rgba(232, 203, 245, 0.05)' : 'none', fontSize: '13px', fontWeight: 600 }}>
-          🎬 Video Üret
+          Video Üret
         </button>
         <button className={`btn-outline ${activeTab === 'history' ? 'selected' : ''}`} onClick={() => setActiveTab('history')} style={{ width: 'auto', padding: '8px 16px', borderRadius: '30px', border: 'none', background: activeTab === 'history' ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.15) 0%, rgba(232, 203, 245, 0.12) 100%)' : 'transparent', color: activeTab === 'history' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === 'history' ? '0 4px 15px rgba(232, 203, 245, 0.05)' : 'none', fontSize: '13px', fontWeight: 600 }}>
-          📜 Geçmiş
+          Geçmiş
         </button>
         <button className={`btn-outline ${activeTab === 'settings' ? 'selected' : ''}`} onClick={() => setActiveTab('settings')} style={{ width: 'auto', padding: '8px 16px', borderRadius: '30px', border: 'none', background: activeTab === 'settings' ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.15) 0%, rgba(232, 203, 245, 0.12) 100%)' : 'transparent', color: activeTab === 'settings' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === 'settings' ? '0 4px 15px rgba(232, 203, 245, 0.05)' : 'none', fontSize: '13px', fontWeight: 600 }}>
-          ⚙️ Ayarlar / Paketler
+          Ayarlar / Paketler
         </button>
       </nav>
 
@@ -599,7 +593,6 @@ function HomePageContent() {
                                     className={`accordion-category-card ${category === cat.id ? 'selected' : ''}`}
                                     onClick={() => setCategory(cat.id)}
                                   >
-                                    <span className="icon">{cat.icon}</span>
                                     <span className="label">{cat.label}</span>
                                   </div>
                                 ))}

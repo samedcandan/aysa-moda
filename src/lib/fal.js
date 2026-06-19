@@ -14,9 +14,19 @@ export async function runVirtualTryOn({ humanUrl, garmentUrl, category }) {
   let falCategory = 'auto'; // default to auto
   if (category === 'pantolon' || category === 'etek') {
     falCategory = 'bottoms';
-  } else if (category === 'tisort' || category === 'ceket' || category === 'trenckot' || category === 'kazak') {
+  } else if (
+    category === 'tisort' ||
+    category === 'ceket' ||
+    category === 'trenckot' ||
+    category === 'kazak' ||
+    category === 'gomlek' ||
+    category === 'askili' ||
+    category === 'mont' ||
+    category === 'pelus' ||
+    category === 'kurk'
+  ) {
     falCategory = 'tops';
-  } else if (category === 'gelinlik' || category === 'abiye' || category === 'elbise') {
+  } else if (category === 'gelinlik' || category === 'abiye' || category === 'elbise' || category === 'straplez') {
     falCategory = 'one-pieces';
   }
 
