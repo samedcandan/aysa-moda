@@ -42,17 +42,17 @@ const MODELS = [
 ];
 
 const BACKGROUNDS = [
-  { id: 'boutique', label: 'Lüks Butik 🏢', url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800' },
-  { id: 'runway', label: 'Moda Podyumu 💃', url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800' },
-  { id: 'street', label: 'Şehir Caddesi 🏙️', url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800' },
-  { id: 'custom', label: 'Kendi Mağazam 📸', url: null },
+  { id: 'boutique', label: 'Lüks Butik', url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800' },
+  { id: 'runway', label: 'Moda Podyumu', url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800' },
+  { id: 'street', label: 'Şehir Caddesi', url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800' },
+  { id: 'custom', label: 'Kendi Mağazam', url: null },
 ];
 
 const PROMPT_TAGS = [
-  { label: 'Rüzgarlı Hava 💨', text: 'Gentle wind blowing fabric, natural motion.' },
-  { label: 'Stüdyo Işığı 💡', text: 'Cinematic studio lighting, volumetric haze.' },
-  { label: 'Yavaş Dönüş 🔄', text: 'Slow, majestic 360 degree turntable rotation.' },
-  { label: 'Yüksek Kalite 🌟', text: 'Highly detailed textures, photorealistic 8k.' },
+  { label: 'Rüzgarlı Hava', text: 'Rüzgarlı hava, kumaşta doğal uçuşma hareketi.' },
+  { label: 'Stüdyo Işığı', text: 'Stüdyo ışığı, sinematik aydınlatma.' },
+  { label: 'Yavaş Dönüş', text: 'Yavaş dönüş, manken kendi etrafında yavaşça döner.' },
+  { label: 'Yüksek Kalite', text: 'Yüksek kalite, ultra gerçekçi detaylar, 4k çözünürlük.' },
 ];
 
 function HomePageContent() {
