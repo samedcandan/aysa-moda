@@ -674,7 +674,7 @@ function HomePageContent() {
 
                     {/* Model Grid */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {MODELS.map((model) => (
+                      {MODELS.filter(m => m.gender.includes('Kadın')).map((model) => (
                         <div
                           key={model.id}
                           onClick={() => setModelId(model.id)}
