@@ -12,11 +12,11 @@ export async function runVirtualTryOn({ humanUrl, garmentUrl, category }) {
 
   // Map our UI categories to Fashn VTON categories (one-pieces, tops, bottoms, auto)
   let falCategory = 'auto'; // default to auto
-  if (category === 'pantolon') {
+  if (category === 'pantolon' || category === 'etek') {
     falCategory = 'bottoms';
-  } else if (category === 'tisort' || category === 'ceket') {
+  } else if (category === 'tisort' || category === 'ceket' || category === 'trenckot' || category === 'kazak') {
     falCategory = 'tops';
-  } else if (category === 'gelinlik' || category === 'abiye') {
+  } else if (category === 'gelinlik' || category === 'abiye' || category === 'elbise') {
     falCategory = 'one-pieces';
   }
 

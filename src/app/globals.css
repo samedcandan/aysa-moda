@@ -653,3 +653,179 @@ body {
   box-shadow: 0 0 15px rgba(212, 174, 120, 0.15);
 }
 
+/* ============================================
+   Kategori Akordeon Yapısı (Category Accordion)
+   ============================================ */
+.accordion-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.accordion-item {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.accordion-item:hover {
+  border-color: rgba(232, 203, 245, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.accordion-item.active {
+  border-color: rgba(232, 203, 245, 0.25);
+  background: rgba(14, 16, 26, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s;
+}
+
+.accordion-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.2px;
+}
+
+.accordion-arrow {
+  font-size: 11px;
+  color: var(--text-secondary);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-item.active .accordion-arrow {
+  transform: rotate(180deg);
+  color: var(--text-gold);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+  padding: 0 20px;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 400px;
+  padding: 8px 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.accordion-category-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.accordion-category-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.accordion-category-card:hover {
+  background: rgba(232, 203, 245, 0.04);
+  border-color: rgba(232, 203, 245, 0.2);
+}
+
+.accordion-category-card.selected {
+  background: linear-gradient(135deg, rgba(212, 174, 120, 0.12) 0%, rgba(232, 203, 245, 0.06) 100%);
+  border-color: var(--gold-400);
+  box-shadow: 0 0 15px rgba(232, 203, 245, 0.12);
+}
+
+.accordion-category-card .icon {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(212, 174, 120, 0.2));
+  transition: transform 0.3s ease;
+}
+
+.accordion-category-card:hover .icon {
+  transform: scale(1.1) rotate(2deg);
+}
+
+.accordion-category-card .label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.3s;
+}
+
+.accordion-category-card.selected .label {
+  color: var(--text-gold);
+}
+
+/* ============================================
+   Segment Seçici (Segmented Control / Pose Selector)
+   ============================================ */
+.segment-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 20px;
+}
+
+.segment-btn {
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.segment-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.segment-btn.selected {
+  background: linear-gradient(135deg, rgba(212, 174, 120, 0.18) 0%, rgba(232, 203, 245, 0.12) 100%);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 480px) {
+  .accordion-category-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .segment-wrapper {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+

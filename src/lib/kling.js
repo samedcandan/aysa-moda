@@ -20,20 +20,40 @@ export const DEFAULT_PROMPTS = {
     "Cinematic camera orbit revealing the dress details from the front and back views. " +
     "Luxury boutique background, studio lighting, smooth fabric animation.",
 
+  elbise:
+    "A gorgeous fashion showcase of the dress. The model moves gracefully. " +
+    "Cinematic lighting, showcasing the style, draping, and flow of the dress from the front and back views. " +
+    "Luxury background, professional product presentation.",
+
   ceket:
     "A stylish clothing showcase of the jacket. The model rotates slowly. " +
     "Camera orbits around the model showing the jacket cut, buttons, and fit from front to back views. " +
     "Modern clean background, professional product commercial style.",
 
+  trenckot:
+    "A professional fashion showcase of the trenchcoat/cardigan. The model moves gracefully. " +
+    "Showcasing the buttons, collar, fabric, and fit from the front and back views. " +
+    "Clean studio background, soft cinematic lighting.",
+
   tisort:
     "A clean streetwear product video. The model does a slow turnaround rotation. " +
-    "Showcasing the t-shirt print and design on both the front and back views. " +
+    "Showcasing the top/t-shirt print and design on both the front and back views. " +
     "Studio lighting, natural motion, sharp details.",
+
+  kazak:
+    "A cozy winter fashion presentation of the sweater. The model moves slowly. " +
+    "Highlighting the knit textures, patterns, and fit of the sweater from the front and back. " +
+    "Soft warm lighting, clean studio background.",
 
   pantolon:
     "A fashion presentation of the trousers. The model does a slow orbit rotation. " +
     "Highlighting the fabric, fit, and style of the pants from the front and back views. " +
-    "Neutral studio background, smooth camera movement."
+    "Neutral studio background, smooth camera movement.",
+
+  etek:
+    "A beautiful fashion presentation of the skirt. The model rotates gracefully. " +
+    "Showcasing the pleats, length, and movement of the skirt from the front and back views. " +
+    "Elegant clean background, professional commercial lighting."
 };
 
 /**

@@ -2,12 +2,47 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const CATEGORIES = [
-  { id: 'gelinlik', icon: '👗', label: 'Gelinlik' },
-  { id: 'abiye', icon: '💃', label: 'Abiye' },
-  { id: 'ceket', icon: '🧥', label: 'Ceket/Kaban' },
-  { id: 'tisort', icon: '👕', label: 'Tişört/Gömlek' },
-  { id: 'pantolon', icon: '👖', label: 'Pantolon' },
+const CATEGORY_GROUPS = [
+  {
+    id: 'one_pieces',
+    title: 'Tek Parça & Özel Gün 👗',
+    categories: [
+      { id: 'gelinlik', icon: '👗', label: 'Gelinlik' },
+      { id: 'abiye', icon: '💃', label: 'Abiye' },
+      { id: 'elbise', icon: '👗', label: 'Günlük Elbise / Tulum' },
+    ]
+  },
+  {
+    id: 'outerwear',
+    title: 'Dış Giyim 🧥',
+    categories: [
+      { id: 'ceket', icon: '🧥', label: 'Ceket / Kaban' },
+      { id: 'trenckot', icon: '🧥', label: 'Trençkot / Hırka' },
+    ]
+  },
+  {
+    id: 'tops',
+    title: 'Üst Giyim 👕',
+    categories: [
+      { id: 'tisort', icon: '👕', label: 'Tişört / Bluz' },
+      { id: 'kazak', icon: '🧶', label: 'Kazak / Süveter' },
+    ]
+  },
+  {
+    id: 'bottoms',
+    title: 'Alt Giyim 👖',
+    categories: [
+      { id: 'pantolon', icon: '👖', label: 'Pantolon / Jean' },
+      { id: 'etek', icon: '👗', label: 'Etek' },
+    ]
+  }
+];
+
+const MOTION_TYPES = [
+  { id: 'rotation', label: '🔄 360° Dönüş', prompt: 'Slow, majestic 360 degree turntable rotation showcasing the outfit from front, side, and back views.' },
+  { id: 'walk', label: '🚶 Podyum Yürüyüşü', prompt: 'The model elegantly walks forward on a fashion runway, showing off the clothing movement, flow, and texture. Slow motion, professional presentation.' },
+  { id: 'pose', label: '💃 Zarif Pozlar', prompt: 'The model strikes slow, elegant fashion poses, turning slightly to showcase the outfit details, fabric texture, and fit from different angles.' },
+  { id: 'breeze', label: '💨 Rüzgar Duruşu', prompt: 'The model stands elegantly as a gentle breeze blows through the fabric, creating natural, flowing movement in the dress/outfit.' },
 ];
 
 const MODELS = [
@@ -58,6 +93,8 @@ function HomePageContent() {
   const [backgroundId, setBackgroundId] = useState('boutique');
   const [customBg, setCustomBg] = useState(null);
   const [customPrompt, setCustomPrompt] = useState('');
+  const [activeAccordion, setActiveAccordion] = useState('one_pieces');
+  const [motionType, setMotionType] = useState('rotation');
 
   // Generation status
   const [phase, setPhase] = useState('idle'); // idle | uploading | VTON | generating | done | error
@@ -110,17 +147,25 @@ function HomePageContent() {
     }
   }, [searchParams, router]);
 
-  // Set default prompt when category changes
+  // Set default prompt when category or motionType changes
   useEffect(() => {
-    const defaultPrompts = {
-      gelinlik: "A professional fashion runway video of the model wearing the bridal dress. Gentle breeze animation on the dress. Slow camera orbit turnaround, showing the front view and then the back view of the dress. High-end lighting, photorealistic 4k fashion presentation, smooth 360 degree rotation.",
-      abiye: "A professional haute couture fashion showcase video. The model slowly rotates 360 degrees. Cinematic camera orbit revealing the dress details from the front and back views. Luxury boutique background, studio lighting, smooth fabric animation.",
-      ceket: "A stylish clothing showcase of the jacket. The model rotates slowly. Camera orbits around the model showing the jacket cut, buttons, and fit from front to back views. Modern clean background, professional product commercial style.",
-      tisort: "A clean streetwear product video. The model does a slow turnaround rotation. Showcasing the t-shirt print and design on both the front and back views. Studio lighting, natural motion, sharp details.",
-      pantolon: "A fashion presentation of the trousers. The model does a slow orbit rotation. Highlighting the fabric, fit, and style of the pants from the front and back views. Neutral studio background, smooth camera movement."
+    const basePrompts = {
+      gelinlik: "A professional fashion runway video of the female model wearing the bridal dress. High-end lighting, photorealistic 4k fashion presentation.",
+      abiye: "A professional haute couture fashion showcase video of the female model wearing the evening gown. Luxury boutique background, studio lighting, smooth fabric details.",
+      elbise: "A gorgeous fashion showcase of the female model wearing the dress. Elegant design and styling, soft volumetric studio lighting.",
+      ceket: "A stylish clothing showcase of the female model wearing the jacket. Modern clean background, professional product commercial style, sharp details.",
+      trenckot: "A professional fashion showcase of the female model wearing the trenchcoat/cardigan. Clean modern background, soft cinematic lighting, beautiful fit.",
+      tisort: "A clean fashion product showcase of the female model wearing the t-shirt/blouse. Studio lighting, natural fabric texture, sharp details.",
+      kazak: "A cozy fashion presentation of the female model wearing the sweater. Warm cinematic lighting, highlighting the knit details.",
+      pantolon: "A fashion presentation of the female model wearing the trousers. Highlighting the fabric, fit, and style. Neutral studio background, professional lighting.",
+      etek: "A beautiful fashion presentation of the female model wearing the skirt. Elegant clean background, professional commercial lighting."
     };
-    setCustomPrompt(defaultPrompts[category] || defaultPrompts.tisort);
-  }, [category]);
+    
+    const base = basePrompts[category] || basePrompts.tisort;
+    const motion = MOTION_TYPES.find(m => m.id === motionType)?.prompt || MOTION_TYPES[0].prompt;
+    
+    setCustomPrompt(`${base} ${motion}`);
+  }, [category, motionType]);
 
   // Handle Login
   const handleLogin = async (e) => {
@@ -181,21 +226,21 @@ function HomePageContent() {
 
   // SVG Outlines based on Category
   const renderOutlineOverlay = () => {
-    if (category === 'pantolon') {
+    if (category === 'pantolon' || category === 'etek') {
       return (
         <svg viewBox="0 0 100 150" style={{ position: 'absolute', top: '15%', left: '30%', width: '40%', height: '70%', opacity: 0.25, pointerEvents: 'none' }}>
           <path d="M30 10 L70 10 L72 30 L60 140 L50 140 L50 60 L50 140 L40 140 L28 30 Z" fill="none" stroke="var(--text-gold)" strokeWidth="2" strokeDasharray="3 3"/>
         </svg>
       );
     }
-    if (category === 'gelinlik' || category === 'abiye') {
+    if (category === 'gelinlik' || category === 'abiye' || category === 'elbise') {
       return (
         <svg viewBox="0 0 100 150" style={{ position: 'absolute', top: '10%', left: '25%', width: '50%', height: '80%', opacity: 0.25, pointerEvents: 'none' }}>
           <path d="M45 20 L55 20 L60 40 L85 140 L15 140 L40 40 Z M45 20 L50 35 L55 20" fill="none" stroke="var(--text-gold)" strokeWidth="2" strokeDasharray="3 3"/>
         </svg>
       );
     }
-    // Default/T-shirt/Jacket
+    // Default/T-shirt/Jacket/Cardigan/Sweater/Trenchcoat
     return (
       <svg viewBox="0 0 100 150" style={{ position: 'absolute', top: '15%', left: '25%', width: '50%', height: '70%', opacity: 0.25, pointerEvents: 'none' }}>
           <path d="M30 20 L40 15 L50 22 L60 15 L70 20 L85 40 L75 50 L70 45 L70 130 L30 130 L30 45 L25 50 L15 40 Z" fill="none" stroke="var(--text-gold)" strokeWidth="2" strokeDasharray="3 3"/>
@@ -321,7 +366,8 @@ function HomePageContent() {
       // Poll Kling status
       setPhase('generating');
       setProgressStep(3);
-      setProgressText('360° video dönüşü canlandırılıyor (Kling AI)...');
+      const motionLabel = MOTION_TYPES.find(m => m.id === motionType)?.label || '360° video dönüşü';
+      setProgressText(`${motionLabel} canlandırılıyor (Kling AI)...`);
 
       const taskId = data.taskId;
       let attempts = 0;
@@ -404,6 +450,9 @@ function HomePageContent() {
     if (pollRef.current) clearInterval(pollRef.current);
     setPhase('idle');
     setStep(1);
+    setCategory('gelinlik');
+    setActiveAccordion('one_pieces');
+    setMotionType('rotation');
     setGarmentFront(null);
     setGarmentBack(null);
     setGeneratedVideo(null);
@@ -532,18 +581,35 @@ function HomePageContent() {
                     <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '16px', fontWeight: 600 }}>
                       Kıyafet Kategorisi Seçin
                     </h2>
-                    <div className="category-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                      {CATEGORIES.map((cat) => (
-                        <div
-                          key={cat.id}
-                          className={`category-card ${category === cat.id ? 'selected' : ''}`}
-                          onClick={() => setCategory(cat.id)}
-                        >
-                          <span className="icon" style={{ fontSize: '24px' }}>{cat.icon}</span>
-                          <span className="label" style={{ fontSize: '12px' }}>{cat.label}</span>
-                        </div>
-                      ))}
+                    
+                    <div className="accordion-wrapper">
+                      {CATEGORY_GROUPS.map((group) => {
+                        const isActive = activeAccordion === group.id;
+                        return (
+                          <div key={group.id} className={`accordion-item ${isActive ? 'active' : ''}`}>
+                            <div className="accordion-header" onClick={() => setActiveAccordion(isActive ? '' : group.id)}>
+                              <span className="accordion-title">{group.title}</span>
+                              <span className="accordion-arrow">▼</span>
+                            </div>
+                            <div className="accordion-content">
+                              <div className="accordion-category-list">
+                                {group.categories.map((cat) => (
+                                  <div
+                                    key={cat.id}
+                                    className={`accordion-category-card ${category === cat.id ? 'selected' : ''}`}
+                                    onClick={() => setCategory(cat.id)}
+                                  >
+                                    <span className="icon">{cat.icon}</span>
+                                    <span className="label">{cat.label}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
+
                     <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(2)}>
                       Devam Et ➔
                     </button>
@@ -686,6 +752,22 @@ function HomePageContent() {
                           {bg.label}
                         </button>
                       ))}
+                    </div>
+
+                    {/* Motion/Pose Selector */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block', fontWeight: 500 }}>Manken Hareket / Poz Tipi</label>
+                      <div className="segment-wrapper">
+                        {MOTION_TYPES.map((mot) => (
+                          <button
+                            key={mot.id}
+                            className={`segment-btn ${motionType === mot.id ? 'selected' : ''}`}
+                            onClick={() => setMotionType(mot.id)}
+                          >
+                            {mot.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Custom Background Upload */}
