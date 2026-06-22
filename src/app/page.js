@@ -169,12 +169,33 @@ function HomePageContent() {
       breeze: "Manken sabit dururken hafif bir rüzgar kıyafetin eteklerini ve kumaşını uçuruyor."
     };
 
+    const trFramingPrompts = {
+      gelinlik: "Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.",
+      abiye: "Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.",
+      elbise: "Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.",
+      gomlek: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      straplez: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      askili: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      tisort: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      kazak: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      ceket: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      trenckot: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      mont: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      pelus: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      kurk: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      pantolon: "Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
+      etek: "Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler."
+    };
+
     const catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
     const bgText = trBackgroundPrompts[backgroundId] || trBackgroundPrompts.boutique;
     const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
+    const framingText = trFramingPrompts[category] || "";
+    const fidelityText = "Kıyafetin tasarımı, orijinal renkleri, kumaş dokusu, desenleri ve tüm detayları video boyunca %100 birebir korunur, hiçbir bozulma veya değişiklik olmaz.";
+    const bgConsistencyText = "İlk kareden itibaren manken, seçilen arka plan ile tam uyumlu olarak konumlandırılır. Video, mankenin bu arka planın içinde doğal ve kusursuz bir şekilde entegre olmasıyla başlar, arka plan baştan sona tutarlıdır.";
 
     // Combine with clean spacing
-    setCustomPrompt(`${catText} ${bgText} ${motionText}`);
+    setCustomPrompt(`${catText} ${bgText} ${motionText} ${framingText} ${fidelityText} ${bgConsistencyText}`);
   }, [category, backgroundId, motionType]);
 
   // Handle Login
