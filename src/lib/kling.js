@@ -91,25 +91,33 @@ export const DEFAULT_PROMPTS = {
  * @param {string|string[]} imageUrls - Tekil görsel veya [ön, arka] görsel URL'leri dizisi
  * @param {string} category - gelinlik | abiye | ceket | tisort | pantolon
  * @param {string} [customPrompt] - Kullanıcının düzenlediği prompt
+ * @param {string} [modelId] - Manken kimliği
  * @returns {Promise<{taskId: string}>}
  */
-export async function createVideo(imageUrls, category, customPrompt) {
+export async function createVideo(imageUrls, category, customPrompt, modelId) {
   const prompt = customPrompt || DEFAULT_PROMPTS[category] || DEFAULT_PROMPTS.tisort;
   const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
 
+  // Dynamic negative prompt for Huma (hijab model) to prevent exposed skin/neck/hair/slits and outfit morphing
+  let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg';
+  const lowerPrompt = prompt.toLowerCase();
+  if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
+    negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck';
+  }
+
   // 1. Kie AI (Primary)
   if (KIE_API_KEY && !KIE_API_KEY.startsWith('r8_')) {
-    return await kieVideoAPI(urls, prompt);
+    return await kieVideoAPI(urls, prompt, negativePrompt);
   }
 
   // 2. Replicate (Fallback)
   if (KIE_API_KEY && KIE_API_KEY.startsWith('r8_')) {
-    return await replicateAPI(urls[0], prompt);
+    return await replicateAPI(urls[0], prompt, negativePrompt);
   }
 
   // 3. Direct Kling API (Fallback)
   if (KLING_ACCESS_KEY && KLING_SECRET_KEY) {
-    return await klingDirectAPI(urls[0], prompt);
+    return await klingDirectAPI(urls[0], prompt, negativePrompt);
   }
 
   throw new Error('Video API anahtarı (KLING_API_KEY veya KIE_API_KEY) yapılandırılmamış.');
@@ -142,7 +150,7 @@ export async function checkVideoStatus(taskId) {
 // ========================
 // Kie AI API Implementation
 // ========================
-async function kieVideoAPI(imageUrls, prompt) {
+async function kieVideoAPI(imageUrls, prompt, negativePrompt) {
   console.log('[Kie AI] Creating Kling 3.0 video task. Images:', imageUrls);
   
   const res = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
@@ -156,7 +164,7 @@ async function kieVideoAPI(imageUrls, prompt) {
       input: {
         image_urls: imageUrls,
         prompt: prompt,
-        negative_prompt: 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
+        negative_prompt: negativePrompt || 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
         duration: '5', // 5 seconds duration
         mode: 'pro',
         multi_shots: false,
@@ -210,7 +218,7 @@ async function kieVideoStatus(taskId) {
 // ========================
 // Replicate Fallback (Single Image)
 // ========================
-async function replicateAPI(imageUrl, prompt) {
+async function replicateAPI(imageUrl, prompt, negativePrompt) {
   const res = await fetch('https://api.replicate.com/v1/predictions', {
     method: 'POST',
     headers: {
@@ -222,7 +230,7 @@ async function replicateAPI(imageUrl, prompt) {
       input: {
         image: imageUrl,
         prompt: prompt,
-        negative_prompt: 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
+        negative_prompt: negativePrompt || 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
         duration: 5,
       },
     }),
@@ -261,7 +269,7 @@ async function replicateStatus(taskId) {
 // ========================
 // Kling Direct API Fallback
 // ========================
-async function klingDirectAPI(imageUrl, prompt) {
+async function klingDirectAPI(imageUrl, prompt, negativePrompt) {
   const res = await fetch('https://api.klingai.com/v1/videos/image2video', {
     method: 'POST',
     headers: {
@@ -272,7 +280,7 @@ async function klingDirectAPI(imageUrl, prompt) {
       model_name: 'kling-v1',
       image: imageUrl,
       prompt: prompt,
-      negative_prompt: 'nudity, revealing clothing, changed outfit, modified clothing, slit, leg slit, torn clothing, deformed leg',
+      negative_prompt: negativePrompt || 'nudity, revealing clothing, changed outfit, modified clothing, slit, leg slit, torn clothing, deformed leg',
       duration: '5',
       mode: 'std',
     }),

@@ -27,7 +27,7 @@ async function translateToEnglish(text) {
         messages: [
           {
             role: 'system',
-            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Output ONLY the English translation, no other text or explanation.'
+            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Pay special attention to modesty and hijab requirements: if the prompt describes a hijab (tesettür, başörtüsü), ensure the English translation clearly specifies that all hair, neck, shoulders, and arms must remain fully covered at all times and from all camera angles, without any exposure of skin or undergarments. Output ONLY the English translation, no other text or explanation.'
           },
           {
             role: 'user',
@@ -144,8 +144,10 @@ export async function POST(request) {
 
     // 6. Trigger Kling video generation with start (and optional end) frames
     console.log('[Generate Route] Triggering Kling AI video generation...');
-    const imagesToPass = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
-    const { taskId } = await createVideo(imagesToPass, category, translatedPrompt);
+    // For Huma (hijab model), we avoid passing the back view as an end frame because VTON often hallucinates
+    // bare skin / removes the hijab on the back view, causing Kling to morph and violate hijab rules.
+    const imagesToPass = (isRotation && modelId !== 'huma') ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
+    const { taskId } = await createVideo(imagesToPass, category, translatedPrompt, modelId);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);
 

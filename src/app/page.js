@@ -45,7 +45,7 @@ const MODELS = [
 const BACKGROUNDS = [
   { id: 'boutique', label: 'Lüks Butik', url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800' },
   { id: 'runway', label: 'Moda Podyumu', url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800' },
-  { id: 'street', label: 'Şehir Caddesi', url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800' },
+  { id: 'street', label: 'Şehir Caddesi', url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800' },
   { id: 'custom', label: 'Kendi Mağazam', url: null },
 ];
 
@@ -217,7 +217,7 @@ function HomePageContent() {
     let catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
     if (modelId === 'huma') {
       catText = catText.replaceAll("bayan mankenin", "tesettürlü bayan mankenin");
-      catText += " Manken şık ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır, boyun ve saçlar tamamen kapalıdır (model wears an elegant, modern hijab headscarf, covering all hair and neck perfectly).";
+      catText += " Manken şık ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır. Manken, İslami tesettür kurallarına %100 uygun şekilde giyinmiştir. Kollar tamamen uzun, yaka kapalıdır; boyun, saçlar, omuzlar ve kollar tüm video boyunca, her açıdan (ön, yan, arka) tamamen örtülüdür, kesinlikle ten görünmez, bacak yırtmacı veya açık dekolte yoktur. Başörtüsü, manken dönerken de her açıdan saçları ve boynu kusursuz şekilde kapatmaya devam eder (model wears an elegant, modern hijab headscarf. The model is dressed 100% in accordance with Islamic hijab rules. Long sleeves, high neck, no skin showing on arms, neck, shoulders or chest, and no leg/skirt slits. The hijab covers all hair and neck completely from the front, sides, and back views during the entire rotation).";
     }
     const bgText = trBackgroundPrompts[backgroundId] || trBackgroundPrompts.boutique;
     const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
