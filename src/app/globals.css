@@ -822,46 +822,57 @@ body {
 }
 
 /* ============================================
+   Temaya Özel Kapsayıcı Kuralları
+   ============================================ */
+.theme-women, .theme-men {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  width: 100%;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* ============================================
    Açık/Estetik Kadın Teması CSS Override'ları (.theme-women)
    ============================================ */
 .theme-women {
-  /* Semantik Renkler */
-  --bg-primary: #faf8f5;
-  --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.7);
+  /* Semantik Renkler - Premium Pembe / Rose Gold */
+  --bg-primary: #fff5f7;              /* Yumuşak toz pembe / gül beyazı */
+  --bg-secondary: #ffffff;            /* Saf beyaz */
+  --bg-card: rgba(255, 255, 255, 0.75); /* Cam panel */
   
-  --glass-border: rgba(212, 174, 120, 0.22);
-  --glass-border-active: rgba(192, 148, 221, 0.45);
+  --glass-border: rgba(212, 155, 163, 0.2);     /* Pembe altın cam sınırı */
+  --glass-border-active: rgba(192, 148, 221, 0.45); /* Lavanta cam sınırı */
   
-  --text-primary: #1f1b16;
-  --text-secondary: #6e675f;
-  --text-gold: #b38947;
-  --text-lavender: #8d5cba;
+  --text-primary: #2d1a1e;            /* Koyu mürdüm / erik tonlarında yumuşak siyah */
+  --text-secondary: #7d6368;          /* Küllü pembe / mürdüm gri */
+  --text-gold: #cc8c95;               /* Rose Gold / Pembe Altın */
+  --text-lavender: #9c68c2;           /* Lavanta */
 
   /* Efektler & Gölgeler */
-  --shadow-gold: 0 4px 20px rgba(179, 137, 71, 0.08);
-  --shadow-gold-lg: 0 8px 30px rgba(192, 148, 221, 0.1), 0 4px 15px rgba(179, 137, 71, 0.06);
-  --shadow-dark: 0 10px 30px rgba(23, 18, 10, 0.06);
-  --shadow-lavender-glow: 0 0 20px rgba(192, 148, 221, 0.15);
+  --shadow-gold: 0 4px 20px rgba(212, 155, 163, 0.08);
+  --shadow-gold-lg: 0 8px 30px rgba(192, 148, 221, 0.12), 0 4px 15px rgba(212, 155, 163, 0.08);
+  --shadow-dark: 0 10px 30px rgba(45, 26, 30, 0.04);
+  --shadow-lavender-glow: 0 0 20px rgba(192, 148, 221, 0.18);
   
-  --gradient-gold: linear-gradient(135deg, #ecdcc3 0%, #d4ae78 50%, #b38947 100%);
-  --gradient-lavender-gold: linear-gradient(135deg, #c094dd 0%, #b38947 100%);
-  --gradient-gold-subtle: linear-gradient(135deg, rgba(212, 174, 120, 0.04), rgba(232, 203, 245, 0.06));
-  --gradient-bg: radial-gradient(circle at center, #ffffff 0%, #faf8f5 100%);
+  --gradient-gold: linear-gradient(135deg, #ecd3d6 0%, #d49ba3 50%, #b3737b 100%); /* Rose Gold Gradiyent */
+  --gradient-lavender-gold: linear-gradient(135deg, #e8cbf5 0%, #d49ba3 100%);
+  --gradient-gold-subtle: linear-gradient(135deg, rgba(212, 155, 163, 0.04), rgba(232, 203, 245, 0.06));
+  --gradient-bg: radial-gradient(circle at center, #ffffff 0%, #fff5f7 100%);
 }
 
 /* Arka Plan Parıltı Küreleri - Kadın Teması */
 .theme-women .glow-container {
-  background: #faf8f5;
+  background: #fff5f7;
 }
 .theme-women .glow-blob-1 {
-  background: radial-gradient(circle, rgba(232, 203, 245, 0.3) 0%, rgba(232, 203, 245, 0) 70%);
+  background: radial-gradient(circle, rgba(255, 182, 193, 0.4) 0%, rgba(255, 182, 193, 0) 70%);
 }
 .theme-women .glow-blob-2 {
-  background: radial-gradient(circle, rgba(212, 174, 120, 0.2) 0%, rgba(212, 174, 120, 0) 70%);
+  background: radial-gradient(circle, rgba(232, 203, 245, 0.35) 0%, rgba(232, 203, 245, 0) 70%);
 }
 .theme-women .glow-blob-3 {
-  background: radial-gradient(circle, rgba(232, 203, 245, 0.25) 0%, rgba(232, 203, 245, 0) 70%);
+  background: radial-gradient(circle, rgba(255, 218, 224, 0.35) 0%, rgba(255, 218, 224, 0) 70%);
 }
 
 /* Cam Panel Üst Işık Yansıması */

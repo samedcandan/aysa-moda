@@ -531,7 +531,12 @@ function HomePageContent() {
   // Login view if not logged in
   if (!user) {
     return (
-      <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+      <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', position: 'relative' }}>
+        <div className="glow-container">
+          <div className="glow-blob-1"></div>
+          <div className="glow-blob-2"></div>
+          <div className="glow-blob-3"></div>
+        </div>
         <div className="glass-panel animate-in" style={{ width: '100%', maxWidth: '400px', padding: '36px 28px', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
             <img src="/icons/logo.png" alt="Aysa Moda Logo" style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 0 20px rgba(232, 203, 245, 0.2)' }} />
@@ -588,7 +593,12 @@ function HomePageContent() {
 
   // Dashboard layout
   return (
-    <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+      <div className="glow-container">
+        <div className="glow-blob-1"></div>
+        <div className="glow-blob-2"></div>
+        <div className="glow-blob-3"></div>
+      </div>
       
       {/* Header */}
       <header style={{

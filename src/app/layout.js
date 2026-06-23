@@ -25,11 +25,6 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body>
-        <div className="glow-container">
-          <div className="glow-blob-1"></div>
-          <div className="glow-blob-2"></div>
-          <div className="glow-blob-3"></div>
-        </div>
         {children}
       </body>
     </html>
