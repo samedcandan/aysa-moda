@@ -370,7 +370,7 @@ function HomePageContent() {
 
       // Call API
       setProgressStep(2);
-      setProgressText('Yapay zeka mankeni giydiriyor (Fal.ai try-on)...');
+      setProgressText('Yapay zeka mankeni giydiriyor...');
       setPhase('VTON');
 
       const res = await fetch('/api/generate', {
@@ -402,7 +402,7 @@ function HomePageContent() {
       setPhase('generating');
       setProgressStep(3);
       const motionLabel = MOTION_TYPES.find(m => m.id === motionType)?.label || '360° video dönüşü';
-      setProgressText(`${motionLabel} canlandırılıyor (Kling AI)...`);
+      setProgressText(`${motionLabel} canlandırılıyor...`);
 
       const taskId = data.taskId;
       let attempts = 0;
