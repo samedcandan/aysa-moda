@@ -36,6 +36,7 @@ const MOTION_TYPES = [
 const MODELS = [
   { id: 'melisa', name: 'Melisa (Sarışın)', gender: 'Kayıtlı Kadın' },
   { id: 'derin', name: 'Derin (Esmer)', gender: 'Kayıtlı Kadın' },
+  { id: 'huma', name: 'Hüma (Tesettürlü)', gender: 'Kayıtlı Kadın' },
   { id: 'can', name: 'Can (Kumral)', gender: 'Kayıtlı Erkek' },
   { id: 'ayaz', name: 'Ayaz (Sarışın)', gender: 'Kayıtlı Erkek' },
   { id: 'cem', name: 'Cem (Esmer)', gender: 'Kayıtlı Erkek' },
@@ -187,7 +188,11 @@ function HomePageContent() {
       etek: "Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler."
     };
 
-    const catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
+    let catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
+    if (modelId === 'huma') {
+      catText = catText.replaceAll("bayan mankenin", "tesettürlü bayan mankenin");
+      catText += " Manken şık ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır, boyun ve saçlar tamamen kapalıdır (model wears an elegant, modern hijab headscarf, covering all hair and neck perfectly).";
+    }
     const bgText = trBackgroundPrompts[backgroundId] || trBackgroundPrompts.boutique;
     const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
     const framingText = trFramingPrompts[category] || "";
@@ -196,7 +201,7 @@ function HomePageContent() {
 
     // Combine with clean spacing
     setCustomPrompt(`${catText} ${bgText} ${motionText} ${framingText} ${fidelityText} ${bgConsistencyText}`);
-  }, [category, backgroundId, motionType]);
+  }, [category, backgroundId, motionType, modelId]);
 
   // Handle Login
   const handleLogin = async (e) => {
