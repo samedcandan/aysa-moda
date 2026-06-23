@@ -42,7 +42,7 @@
   --glass-border-active: rgba(232, 203, 245, 0.35);
   
   --text-primary: #f6f3ed;
-  --text-secondary: #a19ba8;
+  --text-secondary: #b5aebd;
   --text-gold: #d4ae78;
   --text-lavender: #d8b2ec;
 
@@ -731,6 +731,20 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.accordion-category-list::-webkit-scrollbar {
+  width: 5px;
+}
+.accordion-category-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.accordion-category-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
 }
 
 .accordion-category-card {
@@ -738,17 +752,17 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 14px 12px;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .accordion-category-card:hover {
-  background: rgba(232, 203, 245, 0.04);
-  border-color: rgba(232, 203, 245, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--gold-300);
 }
 
 .accordion-category-card.selected {
@@ -767,6 +781,10 @@ body {
 
 .accordion-category-card.selected .label {
   color: var(--text-gold);
+}
+
+.accordion-category-card:hover .label {
+  color: var(--text-primary);
 }
 
 /* ============================================
@@ -845,7 +863,7 @@ body {
   --glass-border-active: rgba(192, 148, 221, 0.45); /* Lavanta cam sınırı */
   
   --text-primary: #2d1a1e;            /* Koyu mürdüm / erik tonlarında yumuşak siyah */
-  --text-secondary: #7d6368;          /* Küllü pembe / mürdüm gri */
+  --text-secondary: #5e484d;          /* Küllü pembe / mürdüm gri (Kontrast Artırıldı) */
   --text-gold: #cc8c95;               /* Rose Gold / Pembe Altın */
   --text-lavender: #9c68c2;           /* Lavanta */
 
@@ -908,17 +926,26 @@ body {
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(212, 174, 120, 0.3);
 }
+.theme-women .accordion-category-list::-webkit-scrollbar-thumb {
+  background: rgba(45, 26, 30, 0.15);
+}
 .theme-women .accordion-category-card {
-  background: rgba(255, 255, 255, 0.4);
-  border-color: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(212, 155, 163, 0.25);
+}
+.theme-women .accordion-category-card .label {
+  color: #524044;
 }
 .theme-women .accordion-category-card:hover {
-  background: rgba(232, 203, 245, 0.08);
-  border-color: rgba(232, 203, 245, 0.2);
+  background: #ffffff;
+  border-color: var(--text-gold);
+}
+.theme-women .accordion-category-card:hover .label {
+  color: var(--text-primary);
 }
 .theme-women .accordion-category-card.selected {
-  background: linear-gradient(135deg, rgba(212, 174, 120, 0.12) 0%, rgba(232, 203, 245, 0.06) 100%);
-  border-color: var(--gold-400);
+  background: linear-gradient(135deg, rgba(212, 155, 163, 0.15) 0%, rgba(232, 203, 245, 0.08) 100%);
+  border-color: var(--text-gold);
 }
 
 /* Görsel Yükleme Alanları */

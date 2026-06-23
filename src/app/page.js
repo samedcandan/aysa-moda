@@ -646,13 +646,12 @@ function HomePageContent() {
           <>
             {phase === 'idle' && (
               <>
-                {/* Step indicators */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)', padding: '0 4px', marginBottom: '12px', gap: '4px' }}>
-                  <span style={{ color: step >= 1 ? 'var(--text-gold)' : '', fontWeight: step === 1 ? '700' : '400', transition: 'color 0.3s' }}>1. Giyim Türü</span>
-                  <span style={{ color: step >= 2 ? 'var(--text-gold)' : '', fontWeight: step === 2 ? '700' : '400', transition: 'color 0.3s' }}>2. Kategori</span>
-                  <span style={{ color: step >= 3 ? 'var(--text-gold)' : '', fontWeight: step === 3 ? '700' : '400', transition: 'color 0.3s' }}>3. Görseller</span>
-                  <span style={{ color: step >= 4 ? 'var(--text-gold)' : '', fontWeight: step === 4 ? '700' : '400', transition: 'color 0.3s' }}>4. Manken</span>
-                  <span style={{ color: step >= 5 ? 'var(--text-gold)' : '', fontWeight: step === 5 ? '700' : '400', transition: 'color 0.3s' }}>5. Arka Plan</span>
+                  <span style={{ color: step === 1 ? 'var(--text-gold)' : (step > 1 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 1 ? '700' : '500', transition: 'color 0.3s' }}>1. Giyim Türü</span>
+                  <span style={{ color: step === 2 ? 'var(--text-gold)' : (step > 2 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 2 ? '700' : '500', transition: 'color 0.3s' }}>2. Kategori</span>
+                  <span style={{ color: step === 3 ? 'var(--text-gold)' : (step > 3 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 3 ? '700' : '500', transition: 'color 0.3s' }}>3. Görseller</span>
+                  <span style={{ color: step === 4 ? 'var(--text-gold)' : (step > 4 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 4 ? '700' : '500', transition: 'color 0.3s' }}>4. Manken</span>
+                  <span style={{ color: step === 5 ? 'var(--text-gold)' : (step > 5 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 5 ? '700' : '500', transition: 'color 0.3s' }}>5. Arka Plan</span>
                 </div>
 
                 {/* Step 1: Gender Selection */}
@@ -764,7 +763,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Kıyafet Kategorisi Seçin
                       </h2>
-                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>geri</button>
+                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
                     
                     <div className="accordion-wrapper">
@@ -807,7 +806,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Ürün Fotoğrafları Yükleyin
                       </h2>
-                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
+                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
 
                     <input type="file" ref={fileInputFrontRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setGarmentFront)} />
@@ -860,7 +859,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Manken ve Beden Seçimi
                       </h2>
-                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
+                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
 
                     {/* Model Grid */}
@@ -943,7 +942,7 @@ function HomePageContent() {
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Stüdyo Arka Planı & Prompt
                       </h2>
-                      <button onClick={() => setStep(4)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
+                      <button onClick={() => setStep(4)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
 
                     {/* Background selector */}
