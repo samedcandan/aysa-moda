@@ -156,6 +156,7 @@ async function kieVideoAPI(imageUrls, prompt) {
       input: {
         image_urls: imageUrls,
         prompt: prompt,
+        negative_prompt: 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
         duration: '5', // 5 seconds duration
         mode: 'pro',
         multi_shots: false,
@@ -221,7 +222,7 @@ async function replicateAPI(imageUrl, prompt) {
       input: {
         image: imageUrl,
         prompt: prompt,
-        negative_prompt: 'nudity, revealing, changed outfit, modified clothing, removed headscarf',
+        negative_prompt: 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
         duration: 5,
       },
     }),
@@ -271,7 +272,7 @@ async function klingDirectAPI(imageUrl, prompt) {
       model_name: 'kling-v1',
       image: imageUrl,
       prompt: prompt,
-      negative_prompt: 'nudity, revealing clothing',
+      negative_prompt: 'nudity, revealing clothing, changed outfit, modified clothing, slit, leg slit, torn clothing, deformed leg',
       duration: '5',
       mode: 'std',
     }),
