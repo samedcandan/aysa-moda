@@ -74,6 +74,7 @@ function HomePageContent() {
 
   // Wizard state
   const [step, setStep] = useState(1);
+  const [genderSelection, setGenderSelection] = useState(null); // WOMEN | MEN | null
   const [category, setCategory] = useState('gelinlik');
   const [garmentFront, setGarmentFront] = useState(null);
   const [garmentBack, setGarmentBack] = useState(null);
@@ -97,6 +98,31 @@ function HomePageContent() {
   const fileInputBgRef = useRef(null);
   const fileInputWatermarkRef = useRef(null);
   const pollRef = useRef(null);
+
+  // Helper logic for gender categories and styling
+  const getFilteredCategoryGroups = () => {
+    if (genderSelection === 'MEN') {
+      const menAllowedIds = ['gomlek', 'tisort', 'kazak', 'ceket', 'trenckot', 'mont', 'pantolon'];
+      return CATEGORY_GROUPS.map(group => ({
+        ...group,
+        categories: group.categories.filter(cat => menAllowedIds.includes(cat.id))
+      }));
+    }
+    // WOMEN has access to all categories
+    return CATEGORY_GROUPS;
+  };
+
+  const selectGender = (gender) => {
+    setGenderSelection(gender);
+    if (gender === 'MEN') {
+      setCategory('gomlek');
+      setModelId('can');
+    } else {
+      setCategory('gelinlik');
+      setModelId('melisa');
+    }
+    setStep(2);
+  };
 
   // Fetch session & user data
   const fetchUserSession = async () => {
@@ -490,8 +516,9 @@ function HomePageContent() {
     if (pollRef.current) clearInterval(pollRef.current);
     setPhase('idle');
     setStep(1);
+    setGenderSelection(null);
     setCategory('gelinlik');
-    setActiveAccordion('one_pieces');
+    setActiveAccordion('all_categories');
     setMotionType('rotation');
     setGarmentFront(null);
     setGarmentBack(null);
@@ -499,10 +526,12 @@ function HomePageContent() {
     setErrorMsg('');
   };
 
+  const themeClass = genderSelection === 'WOMEN' ? 'theme-women' : 'theme-men';
+
   // Login view if not logged in
   if (!user) {
     return (
-      <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+      <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
         <div className="glass-panel animate-in" style={{ width: '100%', maxWidth: '400px', padding: '36px 28px', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
             <img src="/icons/logo.png" alt="Aysa Moda Logo" style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 0 20px rgba(232, 203, 245, 0.2)' }} />
@@ -559,7 +588,7 @@ function HomePageContent() {
 
   // Dashboard layout
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       
       {/* Header */}
       <header style={{
@@ -608,22 +637,128 @@ function HomePageContent() {
             {phase === 'idle' && (
               <>
                 {/* Step indicators */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-secondary)', padding: '0 8px', marginBottom: '8px' }}>
-                  <span style={{ color: step >= 1 ? 'var(--text-gold)' : '', fontWeight: step === 1 ? '700' : '400', transition: 'color 0.3s' }}>1. Kategori</span>
-                  <span style={{ color: step >= 2 ? 'var(--text-gold)' : '', fontWeight: step === 2 ? '700' : '400', transition: 'color 0.3s' }}>2. Görseller</span>
-                  <span style={{ color: step >= 3 ? 'var(--text-gold)' : '', fontWeight: step === 3 ? '700' : '400', transition: 'color 0.3s' }}>3. Manken</span>
-                  <span style={{ color: step >= 4 ? 'var(--text-gold)' : '', fontWeight: step === 4 ? '700' : '400', transition: 'color 0.3s' }}>4. Arka Plan</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)', padding: '0 4px', marginBottom: '12px', gap: '4px' }}>
+                  <span style={{ color: step >= 1 ? 'var(--text-gold)' : '', fontWeight: step === 1 ? '700' : '400', transition: 'color 0.3s' }}>1. Giyim Türü</span>
+                  <span style={{ color: step >= 2 ? 'var(--text-gold)' : '', fontWeight: step === 2 ? '700' : '400', transition: 'color 0.3s' }}>2. Kategori</span>
+                  <span style={{ color: step >= 3 ? 'var(--text-gold)' : '', fontWeight: step === 3 ? '700' : '400', transition: 'color 0.3s' }}>3. Görseller</span>
+                  <span style={{ color: step >= 4 ? 'var(--text-gold)' : '', fontWeight: step === 4 ? '700' : '400', transition: 'color 0.3s' }}>4. Manken</span>
+                  <span style={{ color: step >= 5 ? 'var(--text-gold)' : '', fontWeight: step === 5 ? '700' : '400', transition: 'color 0.3s' }}>5. Arka Plan</span>
                 </div>
 
-                {/* Step 1: Category */}
+                {/* Step 1: Gender Selection */}
                 {step === 1 && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
-                    <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '16px', fontWeight: 600 }}>
-                      Kıyafet Kategorisi Seçin
+                  <div className="glass-panel animate-in" style={{ padding: '24px', textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '16px', color: 'var(--text-gold)', marginBottom: '8px', fontWeight: 700 }}>
+                      Giyim Türü Seçin
                     </h2>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                      Butiğinizin tasarım çizgisini ve canlandırmak istediğiniz giyim türünü seçin.
+                    </p>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '8px' }}>
+                      {/* Bayan Giyim Card */}
+                      <div 
+                        onClick={() => selectGender('WOMEN')}
+                        className="glass-panel"
+                        style={{
+                          padding: '24px 16px',
+                          cursor: 'pointer',
+                          border: '1.5px solid rgba(232, 203, 245, 0.15)',
+                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(232, 203, 245, 0.03) 100%)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '12px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-4px)';
+                          e.currentTarget.style.borderColor = 'rgba(232, 203, 245, 0.45)';
+                          e.currentTarget.style.boxShadow = '0 8px 24px rgba(232, 203, 245, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.borderColor = 'rgba(232, 203, 245, 0.15)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
+                        <div style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, rgba(232, 203, 245, 0.2) 0%, rgba(212, 174, 120, 0.1) 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '28px'
+                        }}>
+                          👗
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-lavender)' }}>Bayan Giyim</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>Zarif & Estetik Tema</div>
+                        </div>
+                      </div>
+
+                      {/* Erkek Giyim Card */}
+                      <div 
+                        onClick={() => selectGender('MEN')}
+                        className="glass-panel"
+                        style={{
+                          padding: '24px 16px',
+                          cursor: 'pointer',
+                          border: '1.5px solid rgba(212, 174, 120, 0.15)',
+                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(212, 174, 120, 0.03) 100%)',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '12px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-4px)';
+                          e.currentTarget.style.borderColor = 'rgba(212, 174, 120, 0.45)';
+                          e.currentTarget.style.boxShadow = '0 8px 24px rgba(212, 174, 120, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.borderColor = 'rgba(212, 174, 120, 0.15)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
+                        <div style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, rgba(212, 174, 120, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '28px'
+                        }}>
+                          👔
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-gold)' }}>Erkek Giyim</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>Karizmatik Koyu Tema</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Category */}
+                {step === 2 && (
+                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                        Kıyafet Kategorisi Seçin
+                      </h2>
+                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>geri</button>
+                    </div>
                     
                     <div className="accordion-wrapper">
-                      {CATEGORY_GROUPS.map((group) => {
+                      {getFilteredCategoryGroups().map((group) => {
                         const isActive = activeAccordion === group.id;
                         return (
                           <div key={group.id} className={`accordion-item ${isActive ? 'active' : ''}`}>
@@ -649,20 +784,20 @@ function HomePageContent() {
                       })}
                     </div>
 
-                    <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(2)}>
+                    <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(3)}>
                       Devam Et ➔
                     </button>
                   </div>
                 )}
 
-                {/* Step 2: Upload images */}
-                {step === 2 && (
+                {/* Step 3: Upload images */}
+                {step === 3 && (
                   <div className="glass-panel animate-in" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Ürün Fotoğrafları Yükleyin
                       </h2>
-                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
+                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
                     </div>
 
                     <input type="file" ref={fileInputFrontRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setGarmentFront)} />
@@ -702,31 +837,31 @@ function HomePageContent() {
                       </div>
                     </div>
 
-                    <button className="btn-gold" style={{ marginTop: '24px' }} disabled={!garmentFront && !garmentBack} onClick={() => setStep(3)}>
+                    <button className="btn-gold" style={{ marginTop: '24px' }} disabled={!garmentFront && !garmentBack} onClick={() => setStep(4)}>
                       Devam Et ➔
                     </button>
                   </div>
                 )}
 
-                {/* Step 3: Model & Size */}
-                {step === 3 && (
+                {/* Step 4: Model & Size */}
+                {step === 4 && (
                   <div className="glass-panel animate-in" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Manken ve Beden Seçimi
                       </h2>
-                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
+                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
                     </div>
 
                     {/* Model Grid */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {MODELS.filter(m => m.gender.includes('Kadın')).map((model) => (
+                      {MODELS.filter(m => m.gender.includes(genderSelection === 'MEN' ? 'Erkek' : 'Kadın')).map((model) => (
                         <div
                           key={model.id}
                           onClick={() => setModelId(model.id)}
                           style={{
                             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            padding: '16px', background: modelId === model.id ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.1) 0%, rgba(232, 203, 245, 0.08) 100%)' : 'rgba(255,255,255,0.02)',
+                            padding: '12px 16px', background: modelId === model.id ? 'linear-gradient(135deg, rgba(212, 174, 120, 0.1) 0%, rgba(232, 203, 245, 0.08) 100%)' : 'rgba(255,255,255,0.02)',
                             border: `1.5px solid ${modelId === model.id ? 'var(--gold-400)' : 'rgba(255, 255, 255, 0.06)'}`,
                             borderRadius: '16px', cursor: 'pointer',
                             boxShadow: modelId === model.id ? '0 4px 15px rgba(232, 203, 245, 0.08)' : 'none',
@@ -737,7 +872,29 @@ function HomePageContent() {
                             <div style={{ fontWeight: 600, fontSize: '14px', color: modelId === model.id ? 'var(--text-gold)' : 'var(--text-primary)', transition: 'color 0.3s' }}>{model.name}</div>
                             <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{model.gender}</div>
                           </div>
-                          <div style={{ fontSize: '20px', filter: modelId === model.id ? 'drop-shadow(0 0 8px rgba(212, 174, 120, 0.4))' : 'none' }}>👤</div>
+                          
+                          {/* Premium Omuz Hizası Gerçek Manken Önizleme */}
+                          <div style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: modelId === model.id ? '2px solid var(--text-gold)' : '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            boxShadow: modelId === model.id ? '0 0 10px rgba(212, 174, 120, 0.25)' : 'none',
+                            transition: 'all 0.3s ease'
+                          }}>
+                            <img 
+                              src={`/models/${model.id}_standard_front.png`} 
+                              alt={model.name} 
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                objectPosition: 'center 15%'
+                              }} 
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -763,20 +920,20 @@ function HomePageContent() {
                       </div>
                     </div>
 
-                    <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(4)}>
+                    <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(5)}>
                       Devam Et ➔
                     </button>
                   </div>
                 )}
 
-                {/* Step 4: Background & Prompt */}
-                {step === 4 && (
+                {/* Step 5: Background & Prompt */}
+                {step === 5 && (
                   <div className="glass-panel animate-in" style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         Stüdyo Arka Planı & Prompt
                       </h2>
-                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
+                      <button onClick={() => setStep(4)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}> geri</button>
                     </div>
 
                     {/* Background selector */}
