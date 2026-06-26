@@ -143,6 +143,7 @@ model Task {
   @@index([companyId, date])
   @@index([companyId, status, date])
   @@index([assignedToId, status, date])
+  @@index([customerId, date, type])
 }
 
 model Transaction {
@@ -188,6 +189,7 @@ model AutomationLog {
 
   @@index([companyId])
   @@index([customerId])
+  @@index([userId])
 }
 
 model Subscription {
@@ -227,6 +229,7 @@ model EFaturaLog {
 
   @@index([companyId])
   @@index([customerId])
+  @@index([subscriptionId])
 }
 
 model Product {
@@ -276,6 +279,7 @@ model assistant_knowledge_files {
   updated_at        DateTime?          @default(now()) @db.Timestamptz(6)
   assistant_tenants assistant_tenants? @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  @@index([tenant_id])
   @@unique([tenant_id, file_type])
 }
 
@@ -388,5 +392,7 @@ model ModaGeneration {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   user         ModaUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
 
+  @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
+}
