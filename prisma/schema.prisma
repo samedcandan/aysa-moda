@@ -250,6 +250,8 @@ model Product {
   transactions  Transaction[]
 
   @@index([companyId])
+  @@index([companyId, name])
+  @@index([companyId, category])
 }
 
 model assistant_buffer_locks {
