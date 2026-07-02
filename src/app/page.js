@@ -346,20 +346,70 @@ function HomePageContent() {
         modelImg.crossOrigin = 'anonymous';
         modelImg.src = modelSrc;
         modelImg.onload = () => {
-          const modelScale = 0.85;
-          const modelHeight = canvas.height * modelScale;
-          const modelWidth = (modelImg.width / modelImg.height) * modelHeight;
-          const modelX = (canvas.width - modelWidth) / 2;
-          const modelY = canvas.height - modelHeight;
+          // Analyze alpha channel to find the active model bounding box
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = modelImg.width;
+          tempCanvas.height = modelImg.height;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.drawImage(modelImg, 0, 0);
+          const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+          const data = imgData.data;
 
-          // Add drop shadow under feet
-          ctx.save();
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-          ctx.shadowBlur = 15;
-          ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 10;
-          ctx.drawImage(modelImg, modelX, modelY, modelWidth, modelHeight);
-          ctx.restore();
+          let minX = tempCanvas.width, maxX = 0, minY = tempCanvas.height, maxY = 0;
+          // Step by 4 to speed up search while maintaining accuracy
+          for (let y = 0; y < tempCanvas.height; y += 4) {
+            for (let x = 0; x < tempCanvas.width; x += 4) {
+              const alpha = data[(y * tempCanvas.width + x) * 4 + 3];
+              if (alpha > 10) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+              }
+            }
+          }
+
+          let activeW = maxX - minX + 1;
+          let activeH = maxY - minY + 1;
+          
+          let targetX, targetY, targetWidth, targetHeight;
+          
+          if (activeW <= 0 || activeH <= 0 || minX >= maxX || minY >= maxY) {
+            console.warn('[VTON Alignment] Bounding box empty, using fallback alignment.');
+            const modelScale = 0.85;
+            targetHeight = canvas.height * modelScale;
+            targetWidth = (modelImg.width / modelImg.height) * targetHeight;
+            targetX = (canvas.width - targetWidth) / 2;
+            targetY = canvas.height - targetHeight;
+            
+            ctx.save();
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 10;
+            ctx.drawImage(modelImg, targetX, targetY, targetWidth, targetHeight);
+            ctx.restore();
+          } else {
+            // Standardize model scaling relative to the canvas height
+            // We want the active height of the figure to be exactly 82% of the canvas height
+            const targetActiveH = canvas.height * 0.82; 
+            const targetActiveW = (activeW / activeH) * targetActiveH;
+            
+            // Standardize vertical position: align the bottom of the active model 25px above the bottom of the canvas
+            targetY = canvas.height - targetActiveH - 25;
+            targetX = (canvas.width - targetActiveW) / 2;
+            
+            targetWidth = targetActiveW;
+            targetHeight = targetActiveH;
+
+            ctx.save();
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 10;
+            ctx.drawImage(modelImg, minX, minY, activeW, activeH, targetX, targetY, targetWidth, targetHeight);
+            ctx.restore();
+          }
 
           resolve(canvas.toDataURL('image/jpeg', 0.9));
         };

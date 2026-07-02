@@ -4,8 +4,83 @@ import { getSession } from '@/lib/auth';
 import { uploadToImgBB } from '@/lib/imgbb';
 import { runVirtualTryOn } from '@/lib/fal';
 import { createVideo } from '@/lib/kling';
+import { Jimp } from 'jimp';
+import path from 'path';
+import fs from 'fs';
 
 export const maxDuration = 60; // Set Vercel execution limit to 60 seconds
+
+// Helper to overlay/mask original hijab on VTON dressed output to prevent bare neck/hair/skin hallucinations
+async function maskHijab({ originalComposedBase64, dressedImageUrl, modelId, bodySize, view }) {
+  try {
+    const sizeSuffix = bodySize.toLowerCase() === 'plus_size' ? 'plus' : 'standard';
+    const templatePath = path.join(process.cwd(), 'public', 'models', `${modelId}_${sizeSuffix}_${view}.png`);
+    
+    if (!fs.existsSync(templatePath)) {
+      console.warn(`[Hijab Masking] Template not found: ${templatePath}. Skipping masking.`);
+      return dressedImageUrl;
+    }
+
+    console.log(`[Hijab Masking] Processing ${view} view for model ${modelId}...`);
+
+    // Clean original base64 prefix
+    const cleanBase64 = originalComposedBase64.replace(/^data:image\/\w+;base64,/, '');
+    const origBuffer = Buffer.from(cleanBase64, 'base64');
+
+    const [templateImg, originalImg, dressedImg] = await Promise.all([
+      Jimp.read(templatePath),
+      Jimp.read(origBuffer),
+      Jimp.read(dressedImageUrl)
+    ]);
+
+    // Align dimensions (resize template and original to match dressed output)
+    const targetW = dressedImg.bitmap.width;
+    const targetH = dressedImg.bitmap.height;
+
+    templateImg.resize({ w: targetW, h: targetH });
+    originalImg.resize({ w: targetW, h: targetH });
+
+    // Define percentage bounding box for head/neck/chest area
+    const startX = Math.round(targetW * 0.25);
+    const width = Math.round(targetW * 0.50);
+    const startY = Math.round(targetH * 0.12);
+    const height = Math.round(targetH * 0.35); // covers from Y=12% to Y=47% of image height
+
+    console.log(`[Hijab Masking] Bounding Box: X[${startX}-${startX+width}], Y[${startY}-${startY+height}]`);
+
+    let maskedPixelsCount = 0;
+    for (let y = startY; y < startY + height; y++) {
+      if (y >= targetH) break;
+      for (let x = startX; x < startX + width; x++) {
+        if (x >= targetW) break;
+
+        const color = templateImg.getPixelColor(x, y);
+        const alpha = color & 0xff; // Extract alpha from 0xRRGGBBAA
+
+        // If template pixel is part of the model (opaque head/hijab/neck area)
+        if (alpha > 50) {
+          const origColor = originalImg.getPixelColor(x, y);
+          dressedImg.setPixelColor(origColor, x, y);
+          maskedPixelsCount++;
+        }
+      }
+    }
+
+    console.log(`[Hijab Masking] Overlay complete. Masked ${maskedPixelsCount} pixels.`);
+
+    // Get buffer and upload to ImgBB
+    const outBuffer = await dressedImg.getBuffer('image/jpeg');
+    const outBase64 = outBuffer.toString('base64');
+    const newUrl = await uploadToImgBB(outBase64);
+    
+    console.log(`[Hijab Masking] Successfully masked & uploaded: ${newUrl}`);
+    return newUrl;
+
+  } catch (error) {
+    console.error(`[Hijab Masking] Error during ${view} view masking:`, error);
+    return dressedImageUrl;
+  }
+}
 
 // Helper to translate Turkish fashion prompts to English using OpenAI
 async function translateToEnglish(text) {
@@ -138,15 +213,46 @@ export async function POST(request) {
 
     console.log('[Generate Route] VTON complete. Dressed URLs:', { frontDressedUrl, backDressedUrl });
 
+    // Apply Hijab Masking if model is Huma (tesettürlü)
+    if (modelId === 'huma') {
+      console.log('[Generate Route] Applying Hijab Masking for Huma model...');
+      const maskingPromises = [
+        maskHijab({
+          originalComposedBase64: humanFront,
+          dressedImageUrl: frontDressedUrl,
+          modelId,
+          bodySize,
+          view: 'front',
+        })
+      ];
+      if (isRotation && backDressedUrl) {
+        maskingPromises.push(
+          maskHijab({
+            originalComposedBase64: humanBack,
+            dressedImageUrl: backDressedUrl,
+            modelId,
+            bodySize,
+            view: 'back',
+          })
+        );
+      }
+
+      const maskedUrls = await Promise.all(maskingPromises);
+      frontDressedUrl = maskedUrls[0];
+      if (isRotation && backDressedUrl) {
+        backDressedUrl = maskedUrls[1];
+      }
+      console.log('[Generate Route] Hijab Masking complete. Masked URLs:', { frontDressedUrl, backDressedUrl });
+    }
+
     // 5. Translate Turkish prompt to English for Kling AI
     console.log('[Generate Route] Translating custom prompt to English if needed...');
     const translatedPrompt = await translateToEnglish(customPrompt);
 
     // 6. Trigger Kling video generation with start (and optional end) frames
     console.log('[Generate Route] Triggering Kling AI video generation...');
-    // For Huma (hijab model), we avoid passing the back view as an end frame because VTON often hallucinates
-    // bare skin / removes the hijab on the back view, causing Kling to morph and violate hijab rules.
-    const imagesToPass = (isRotation && modelId !== 'huma') ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
+    // Since we now mask the back view of Huma to preserve the hijab, we can safely pass both front and back views for rotation!
+    const imagesToPass = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
     const { taskId } = await createVideo(imagesToPass, category, translatedPrompt, modelId);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);
