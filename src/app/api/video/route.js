@@ -45,11 +45,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Oturum bulunamadı.' }, { status: 401 });
     }
 
-    const user = await prisma.modaUser.findUnique({ where: { id: session.userId } });
-    if (!user || !user.id) return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
-    // Kredi kontrolü sadece 1. run için
-    if (!isRetry && user.credits < 1) return NextResponse.json({ error: 'Yetersiz bakiye.' }, { status: 403 });
-
     const {
       frontDressedUrl,   // Giydirilmiş manken (ön) — VTON veya kullanıcı fotoğrafı
       backDressedUrl,    // Giydirilmiş manken (arka) — opsiyonel
@@ -66,6 +61,11 @@ export async function POST(request) {
       humanFrontUrl,
       garmentBackUrl,
     } = await request.json();
+
+    const user = await prisma.modaUser.findUnique({ where: { id: session.userId } });
+    if (!user || !user.id) return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
+    // Kredi kontrolü sadece 1. run için
+    if (!isRetry && user.credits < 1) return NextResponse.json({ error: 'Yetersiz bakiye.' }, { status: 403 });
 
     if (!frontDressedUrl || !category) {
       return NextResponse.json({ error: 'Eksik parametre.' }, { status: 400 });

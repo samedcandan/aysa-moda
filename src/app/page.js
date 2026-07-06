@@ -47,6 +47,7 @@ const MODELS = [
 ];
 
 const BACKGROUNDS = [
+  { id: 'original', label: 'Kendi Arka Planımı Koru', promptText: 'keep the original background from the source image completely unchanged, maintain background consistency, keep the exact same background environment without any changes or modifications' },
   { id: 'boutique', label: 'Lüks Butik', promptText: 'elegant luxury boutique interior, marble floors, soft warm ambient lighting, premium retail environment' },
   { id: 'runway', label: 'Moda Podyumu', promptText: 'high fashion runway stage, dramatic professional spotlights, white catwalk, blurred audience in background' },
   { id: 'street', label: 'Şehir Caddesi', promptText: 'busy city street, natural daylight, urban buildings and shops blurred in background, realistic outdoor atmosphere' },
@@ -213,7 +214,7 @@ function HomePageContent() {
   const [garmentBack, setGarmentBack] = useState(null);
   const [category, setCategory] = useState('gelinlik');
   const [activeAccordion, setActiveAccordion] = useState('all_categories');
-  const [backgroundId, setBackgroundId] = useState('boutique');
+  const [backgroundId, setBackgroundId] = useState('original');
   const [customBg, setCustomBg] = useState(null);
   const [motionType, setMotionType] = useState('rotation');
   const [customPrompt, setCustomPrompt] = useState('');
@@ -669,7 +670,7 @@ function HomePageContent() {
     setRetryVideoUrl(null);
     setVtonResult({ front: null, back: null, garmentFrontUrl: null, humanFrontUrl: null });
     setErrorMsg('');
-    setBackgroundId('boutique');
+    setBackgroundId('original');
     setCustomPrompt('');
     setAnalysisResult(null);
     setAnalyzeError('');
@@ -877,7 +878,7 @@ function HomePageContent() {
                 {/* Arka plan */}
                 <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Ortam</p>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                  {BACKGROUNDS.filter(b => b.id !== 'custom').map(bg => (
+                  {BACKGROUNDS.filter(b => b.id !== 'custom' && b.id !== 'original').map(bg => (
                     <div key={bg.id} onClick={() => setBackgroundId(bg.id)} style={{
                       padding: '6px 12px', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s',
                       border: `1.5px solid ${backgroundId === bg.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`,
@@ -1106,30 +1107,30 @@ function HomePageContent() {
                       Kıyafetinizi bir AI mankene giydirebilir ya da kendi çektiğiniz mankenli fotoğrafı doğrudan canlandırabilirsiniz.
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                      {/* VTON */}
-                      <div onClick={() => { setGeneratorMode('vton'); setStep(3); }} className="glass-panel"
-                        style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(232,203,245,0.18)', background: 'linear-gradient(135deg, rgba(232,203,245,0.04), rgba(212,174,120,0.02))', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(232,203,245,0.08)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                        <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'linear-gradient(135deg, rgba(232,203,245,0.2), rgba(212,174,120,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>👗</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px' }}>Manken Seç &amp; Giydir</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Kıyafetinizi yapay zeka mankenine giydirir. Askı/düz ürün görselleri için ideal.</div>
-                        </div>
-                        <span style={{ color: 'var(--text-gold)', fontSize: '20px', flexShrink: 0 }}>›</span>
-                      </div>
-                      {/* Direct */}
-                      <div onClick={() => { setGeneratorMode('direct'); setStep(3); }} className="glass-panel"
-                        style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(212,174,120,0.18)', background: 'linear-gradient(135deg, rgba(212,174,120,0.04), rgba(232,203,245,0.02))', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(212,174,120,0.08)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                        <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'linear-gradient(135deg, rgba(212,174,120,0.2), rgba(232,203,245,0.12))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>📸</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px' }}>Kendi Fotoğrafımı Canlandır</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Kendi çektiğiniz mankenli görseli doğrudan animate eder. Gelinlik, abiye gibi özel çekimler için ideal.</div>
-                        </div>
-                        <span style={{ color: 'var(--text-gold)', fontSize: '20px', flexShrink: 0 }}>›</span>
-                      </div>
+                       {/* VTON */}
+                       <div onClick={() => { setGeneratorMode('vton'); setStep(3); setBackgroundId('boutique'); }} className="glass-panel"
+                         style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(232,203,245,0.18)', background: 'linear-gradient(135deg, rgba(232,203,245,0.04), rgba(212,174,120,0.02))', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
+                         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(232,203,245,0.08)'; }}
+                         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                         <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'linear-gradient(135deg, rgba(232,203,245,0.2), rgba(212,174,120,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>👗</div>
+                         <div style={{ flex: 1 }}>
+                           <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px' }}>Manken Seç &amp; Giydir</div>
+                           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Kıyafetinizi yapay zeka mankenine giydirir. Askı/düz ürün görselleri için ideal.</div>
+                         </div>
+                         <span style={{ color: 'var(--text-gold)', fontSize: '20px', flexShrink: 0 }}>›</span>
+                       </div>
+                       {/* Direct */}
+                       <div onClick={() => { setGeneratorMode('direct'); setStep(3); setBackgroundId('original'); }} className="glass-panel"
+                         style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(212,174,120,0.18)', background: 'linear-gradient(135deg, rgba(212,174,120,0.04), rgba(232,203,245,0.02))', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
+                         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(212,174,120,0.08)'; }}
+                         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                         <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'linear-gradient(135deg, rgba(212,174,120,0.2), rgba(232,203,245,0.12))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>📸</div>
+                         <div style={{ flex: 1 }}>
+                           <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px' }}>Kendi Fotoğrafımı Canlandır</div>
+                           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Kendi çektiğiniz mankenli görseli doğrudan animate eder. Gelinlik, abiye gibi özel çekimler için ideal.</div>
+                         </div>
+                         <span style={{ color: 'var(--text-gold)', fontSize: '20px', flexShrink: 0 }}>›</span>
+                       </div>
                     </div>
                   </div>
                 )}
@@ -1230,26 +1231,21 @@ function HomePageContent() {
                               <span style={{ fontSize: '11px', color: 'var(--text-secondary)', minWidth: '60px' }}>Stil:</span>
                               <span style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>{analysisResult.style}</span>
                             </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', minWidth: '60px' }}>Öneri:</span>
-                              <span style={{ fontSize: '11px', color: 'var(--text-gold)', fontWeight: 700 }}>{analysisResult.motionSuggestion}</span>
-                            </div>
                           </div>
                         </div>
 
-                        {/* Hareket Tipi */}
-                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Hareket Tipi</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '20px' }}>
-                          {MOTION_TYPES.map(mt => (
-                            <div key={mt.id} onClick={() => setMotionType(mt.id)} style={{
-                              padding: '10px 12px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s',
-                              border: `1.5px solid ${motionType === mt.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`,
-                              background: motionType === mt.id ? 'rgba(212,174,120,0.1)' : 'rgba(255,255,255,0.02)',
-                              fontSize: '12px', fontWeight: 600, textAlign: 'center',
-                              color: motionType === mt.id ? 'var(--text-gold)' : 'var(--text-secondary)',
+                        {/* Arka Plan Seçimi */}
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Stüdyo Arka Planı</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px', marginBottom: '20px' }}>
+                          {BACKGROUNDS.map(bg => (
+                            <div key={bg.id} onClick={() => setBackgroundId(bg.id)} style={{
+                              padding: '8px 10px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s',
+                              border: `1.5px solid ${backgroundId === bg.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.06)'}`,
+                              background: backgroundId === bg.id ? 'rgba(212,174,120,0.1)' : 'rgba(255,255,255,0.02)',
+                              fontSize: '11px', fontWeight: 600, textAlign: 'center',
+                              color: backgroundId === bg.id ? 'var(--text-gold)' : 'var(--text-secondary)',
                             }}>
-                              {mt.id === analysisResult.motionId && <span style={{ fontSize: '9px', color: '#66cc88', display: 'block', marginBottom: '2px' }}>✓ ÖNERİLEN</span>}
-                              {mt.label}
+                              {bg.label}
                             </div>
                           ))}
                         </div>
@@ -1257,23 +1253,13 @@ function HomePageContent() {
                         {/* Prompt */}
                         <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
                           📝 Video Açıklaması
-                          <span style={{ marginLeft: '8px', fontSize: '10px', color: '#66cc88' }}>(GPT-4o tarafından önerildi — düzenleyebilirsiniz)</span>
+                          <span style={{ marginLeft: '8px', fontSize: '10px', color: '#66cc88' }}>(düzenlenebilir)</span>
                         </p>
                         <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
-                        <textarea value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} rows={3}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '8px', transition: 'border-color 0.3s' }} />
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                          {['Rüzgarlı hava', 'Zarif yürüyüş', 'Yavaş dönüş', 'Kumaş uçuşsun', 'Doğal ışık', 'Lüks atmosfer'].map(tag => (
-                            <button key={tag} onClick={() => setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim())}
-                              style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
-                              onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
-                              onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}>
-                              + {tag}
-                            </button>
-                          ))}
-                        </div>
+                        <textarea value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} rows={4}
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '20px', transition: 'border-color 0.3s' }} />
 
                         <button className="btn-gold" onClick={() => handleDirectGenerate(false)}
                           disabled={customPrompt.trim().length < 20}
