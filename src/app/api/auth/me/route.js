@@ -35,8 +35,8 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Me GET API error:', error?.message, error?.code, error?.stack?.split('\n').slice(0,3).join(' | '));
-    return NextResponse.json({ error: 'Kullanıcı bilgileri alınamadı.', detail: error?.message, code: error?.code }, { status: 500 });
+    console.error('Me GET API error:', error?.message);
+    return NextResponse.json({ error: 'Kullanıcı bilgileri alınamadı.' }, { status: 500 });
   }
 }
 

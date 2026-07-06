@@ -2,32 +2,33 @@ import crypto from 'crypto';
 import { cookies } from 'next/headers';
 
 const AUTH_COOKIE_NAME = 'aysamoda_session';
-const SECRET_KEY = 'aysa-moda-super-secret-key'; // Proje için basit imza anahtarı
+const SECRET_KEY = 'aysa-moda-super-secret-key-2024';
 
 export function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+function sign(payload) {
+  return crypto.createHmac('sha256', SECRET_KEY).update(payload).digest('hex');
+}
+
 export function createToken(userId, email) {
   const payload = JSON.stringify({ userId, email, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 });
-  const cipher = crypto.createCipheriv('aes-256-cbc', crypto.scryptSync(SECRET_KEY, 'salt', 32), Buffer.alloc(16, 0));
-  let encrypted = cipher.update(payload, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
+  const b64 = Buffer.from(payload).toString('base64url');
+  const sig = sign(b64);
+  return `${b64}.${sig}`;
 }
 
 export function verifyToken(token) {
   try {
-    const decipher = crypto.createDecipheriv('aes-256-cbc', crypto.scryptSync(SECRET_KEY, 'salt', 32), Buffer.alloc(16, 0));
-    let decrypted = decipher.update(token, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    const payload = JSON.parse(decrypted);
-    
-    if (payload.exp < Date.now()) {
-      return null;
-    }
+    const [b64, sig] = token.split('.');
+    if (!b64 || !sig) return null;
+    const expectedSig = sign(b64);
+    if (sig !== expectedSig) return null;
+    const payload = JSON.parse(Buffer.from(b64, 'base64url').toString('utf8'));
+    if (payload.exp < Date.now()) return null;
     return payload;
-  } catch (err) {
+  } catch {
     return null;
   }
 }
