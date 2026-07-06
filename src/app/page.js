@@ -316,7 +316,11 @@ function HomePageContent() {
 
   // ---- Auth ----
   const handleLogin = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!email || !password) {
+      setAuthError('E-posta ve şifre gereklidir.');
+      return;
+    }
     setAuthError('');
     try {
       const res = await fetch('/api/auth/login', {
@@ -331,7 +335,11 @@ function HomePageContent() {
   };
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!email || !password) {
+      setAuthError('E-posta ve şifre gereklidir.');
+      return;
+    }
     setAuthError('');
     try {
       const res = await fetch('/api/auth/register', {
@@ -702,7 +710,12 @@ function HomePageContent() {
               <input type="password" required className="glass-input" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••" />
             </div>
             {authError && <div style={{ color: '#ff6b6b', fontSize: '13px', textAlign: 'center', background: 'rgba(220,53,69,0.08)', padding: '8px', borderRadius: '8px', border: '1px solid rgba(220,53,69,0.15)' }}>{authError}</div>}
-            <button type="submit" className="btn-gold" style={{ marginTop: '8px' }}>
+            <button 
+              type="button" 
+              onClick={authMode === 'login' ? handleLogin : handleRegister}
+              className="btn-gold" 
+              style={{ marginTop: '8px', position: 'relative', zIndex: 100 }}
+            >
               {authMode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
             </button>
           </form>
