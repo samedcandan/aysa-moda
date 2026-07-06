@@ -872,11 +872,75 @@ function HomePageContent() {
                     ))}
                   </div>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Ortam</p>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
                     {BACKGROUNDS.filter(b => b.id !== 'custom').map(bg => (
                       <div key={bg.id} onClick={() => setBackgroundId(bg.id)} style={{ padding: '6px 12px', borderRadius: '20px', cursor: 'pointer', border: `1.5px solid ${backgroundId === bg.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`, background: backgroundId === bg.id ? 'rgba(212,174,120,0.1)' : 'rgba(255,255,255,0.02)', fontSize: '11px', color: backgroundId === bg.id ? 'var(--text-gold)' : 'var(--text-secondary)', transition: 'all 0.2s' }}>
                         {bg.label}
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Prompt alanı — yönlendirmeli */}
+                  <div style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600, margin: 0 }}>
+                      📝 Video Açıklaması <span style={{ color: '#ff8888', fontWeight: 700 }}>*</span>
+                    </p>
+                    <span style={{
+                      fontSize: '11px', fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+                      color: customPrompt.trim().length === 0 ? '#ff6666'
+                        : customPrompt.trim().length < 20 ? '#ffaa44'
+                        : '#66cc88'
+                    }}>
+                      {customPrompt.trim().length} / 20 karakter
+                    </span>
+                  </div>
+
+                  {/* Renk çubuğu */}
+                  <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%', borderRadius: '2px',
+                      width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`,
+                      background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)',
+                      transition: 'width 0.3s, background 0.4s'
+                    }} />
+                  </div>
+
+                  <textarea
+                    value={customPrompt}
+                    onChange={e => setCustomPrompt(e.target.value)}
+                    placeholder="Örn: Rüzgarlı bir gün, gelinlik hafifçe uçuşsun, manken zarif yürüsün, yumuşak doğal ışık..."
+                    rows={3}
+                    style={{
+                      width: '100%', background: 'rgba(255,255,255,0.03)',
+                      border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : customPrompt.trim().length > 0 ? 'rgba(255,170,68,0.35)' : 'rgba(255,255,255,0.1)'}`,
+                      borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px',
+                      padding: '12px 14px', resize: 'none', outline: 'none',
+                      lineHeight: 1.5, transition: 'border-color 0.3s',
+                      fontFamily: 'inherit', boxSizing: 'border-box'
+                    }}
+                  />
+
+                  {/* Yardımcı mesaj */}
+                  {customPrompt.trim().length < 20 && (
+                    <p style={{ fontSize: '11px', color: customPrompt.trim().length === 0 ? '#ff8888' : '#ffaa44', marginTop: '6px', lineHeight: 1.4 }}>
+                      {customPrompt.trim().length === 0
+                        ? '⚠️ Lütfen videonuzu tanımlayan bir açıklama yazın.'
+                        : `⏳ ${20 - customPrompt.trim().length} karakter daha yazın.`}
+                    </p>
+                  )}
+
+                  {/* Hızlı etiketler */}
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' }}>
+                    {['Rüzgarlı hava', 'Yavaş dönüş', 'Zarif yürüyüş', 'Kumaş uçuşsun', 'Sinematik ışık', 'Lüks atmosfer'].map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim())}
+                        style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
+                        onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
+                        onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}
+                      >
+                        + {tag}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -885,8 +949,13 @@ function HomePageContent() {
                   <button onClick={resetForm} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                     ↩ Yeniden Dene
                   </button>
-                  <button className="btn-gold" onClick={handleStartVideo} style={{ flex: 2 }}>
-                    ⚡ Videoyu Başlat — 1 Kredi
+                  <button
+                    className="btn-gold"
+                    onClick={handleStartVideo}
+                    disabled={customPrompt.trim().length < 20}
+                    style={{ flex: 2, opacity: customPrompt.trim().length < 20 ? 0.45 : 1, cursor: customPrompt.trim().length < 20 ? 'not-allowed' : 'pointer', transition: 'opacity 0.3s' }}
+                  >
+                    {customPrompt.trim().length < 20 ? '📝 Prompt yazın...' : '⚡ Videoyu Başlat — 1 Kredi'}
                   </button>
                 </div>
               </div>
@@ -1016,8 +1085,76 @@ function HomePageContent() {
                       ))}
                     </div>
 
-                    <button className="btn-gold" disabled={!directFront} onClick={handleGenerate} style={{ opacity: directFront ? 1 : 0.4 }}>
-                      ⚡ Canlandır (1 Kredi)
+                    {/* Prompt alanı — yönlendirmeli */}
+                    <div style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600, margin: 0 }}>
+                        📝 Video Açıklaması <span style={{ color: '#ff8888', fontWeight: 700 }}>*</span>
+                      </p>
+                      <span style={{
+                        fontSize: '11px', fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+                        color: customPrompt.trim().length === 0 ? '#ff6666'
+                          : customPrompt.trim().length < 20 ? '#ffaa44'
+                          : '#66cc88'
+                      }}>
+                        {customPrompt.trim().length} / 20 karakter
+                      </span>
+                    </div>
+
+                    {/* Renk çubuğu */}
+                    <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', borderRadius: '2px',
+                        width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`,
+                        background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)',
+                        transition: 'width 0.3s, background 0.4s'
+                      }} />
+                    </div>
+
+                    <textarea
+                      value={customPrompt}
+                      onChange={e => setCustomPrompt(e.target.value)}
+                      placeholder="Örn: Açık hava çekimi, gelinlik rüzgarda uçuşsun, zarif yürüyüş, doğal ışık, sinematik atmosfer..."
+                      rows={3}
+                      style={{
+                        width: '100%', background: 'rgba(255,255,255,0.03)',
+                        border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : customPrompt.trim().length > 0 ? 'rgba(255,170,68,0.35)' : 'rgba(255,255,255,0.1)'}`,
+                        borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px',
+                        padding: '12px 14px', resize: 'none', outline: 'none',
+                        lineHeight: 1.5, transition: 'border-color 0.3s',
+                        fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '6px'
+                      }}
+                    />
+
+                    {customPrompt.trim().length < 20 && (
+                      <p style={{ fontSize: '11px', color: customPrompt.trim().length === 0 ? '#ff8888' : '#ffaa44', marginBottom: '8px', lineHeight: 1.4 }}>
+                        {customPrompt.trim().length === 0
+                          ? '⚠️ Videonuzu tanımlayan bir açıklama girin.'
+                          : `⏳ ${20 - customPrompt.trim().length} karakter daha yazın.`}
+                      </p>
+                    )}
+
+                    {/* Hızlı etiketler */}
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                      {['Rüzgarlı hava', 'Zarif yürüyüş', 'Yavaş dönüş', 'Kumaş uçuşsun', 'Doğal ışık', 'Lüks atmosfer'].map(tag => (
+                        <button
+                          key={tag}
+                          onClick={() => setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim())}
+                          style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
+                          onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
+                          onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}
+                        >
+                          + {tag}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      className="btn-gold"
+                      disabled={!directFront || customPrompt.trim().length < 20}
+                      onClick={handleGenerate}
+                      style={{ opacity: (directFront && customPrompt.trim().length >= 20) ? 1 : 0.4, cursor: (directFront && customPrompt.trim().length >= 20) ? 'pointer' : 'not-allowed', transition: 'opacity 0.3s' }}
+                    >
+                      {!directFront ? '📷 Fotoğraf yükleyin' : customPrompt.trim().length < 20 ? '📝 Prompt yazın...' : '⚡ Canlandır (1 Kredi)'}
                     </button>
                   </div>
                 )}
