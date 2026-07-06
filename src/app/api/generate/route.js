@@ -142,10 +142,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
     }
 
-    if (user.credits < 1) {
-      return NextResponse.json({ error: 'Yetersiz bakiye. Lütfen paket yükleyin.' }, { status: 403 });
-    }
-
     // 2. Parse request parameters
     const {
       humanFront,   // Base64 or URL of front human (mannequin template OR user's own photo)
@@ -159,7 +155,13 @@ export async function POST(request) {
       customPrompt,
       motionType,   // rotation | walk | pose | breeze
       directMode,   // boolean — true: skip VTON, animate user's own photo directly
+      isRetry,      // boolean — true: 2. run, kredi düşülmez
     } = await request.json();
+
+    // Kredi kontrolü sadece 1. run için
+    if (!isRetry && user.credits < 1) {
+      return NextResponse.json({ error: 'Yetersiz bakiye. Lütfen paket yükleyin.' }, { status: 403 });
+    }
 
     const isRotation = motionType === 'rotation';
     const isDirectMode = !!directMode;

@@ -377,24 +377,44 @@ model ModaUser {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   generations    ModaGeneration[]
+  feedbacks      ModaFeedback[]
 }
 
 model ModaGeneration {
-  id           String    @id @default(uuid())
+  id           String         @id @default(uuid())
   userId       Int
   category     String
   frontGarmUrl String
   backGarmUrl  String
   modelId      String
-  bodySize     String    @default("STANDARD") // STANDARD or PLUS_SIZE
+  bodySize     String         @default("STANDARD") // STANDARD or PLUS_SIZE
   backgroundId String
   videoUrl     String?
-  status       String    @default("PROCESSING") // PROCESSING, SUCCESS, FAILED
+  status       String         @default("PROCESSING") // PROCESSING, SUCCESS, FAILED, FEEDBACK_SENT
   error        String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  user         ModaUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runCount     Int            @default(1)   // 1. run veya 2. run (Yeniden Dene)
+  retryTaskId  String?        // 2. run'ın Kling task ID'si
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  user         ModaUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedbacks    ModaFeedback[]
 
   @@index([userId])
   @@index([userId, createdAt(sort: Desc)])
+}
+
+model ModaFeedback {
+  id           String         @id @default(uuid())
+  userId       Int
+  generationId String
+  category     String         // giydirme_hatasi | hareket | kalite | prompt | diger
+  description  String?
+  status       String         @default("bekliyor") // bekliyor | incelendi | cozuldu
+  createdAt    DateTime       @default(now())
+  user         ModaUser       @relation(fields: [userId], references: [id])
+  generation   ModaGeneration @relation(fields: [generationId], references: [id])
+
+  @@index([userId])
+  @@index([generationId])
+  @@index([status])
 }

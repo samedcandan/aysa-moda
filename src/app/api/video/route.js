@@ -46,8 +46,9 @@ export async function POST(request) {
     }
 
     const user = await prisma.modaUser.findUnique({ where: { id: session.userId } });
-    if (!user) return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
-    if (user.credits < 1) return NextResponse.json({ error: 'Yetersiz bakiye.' }, { status: 403 });
+    if (!user || !user.id) return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
+    // Kredi kontrolü sadece 1. run için
+    if (!isRetry && user.credits < 1) return NextResponse.json({ error: 'Yetersiz bakiye.' }, { status: 403 });
 
     const {
       frontDressedUrl,   // Giydirilmiş manken (ön) — VTON veya kullanıcı fotoğrafı
@@ -59,6 +60,7 @@ export async function POST(request) {
       bodySize,
       backgroundId,
       isDirectMode,
+      isRetry,           // true ise: 2. run, kredi düşülmez
       // DB için orijinal görsel URL'leri
       garmentFrontUrl,
       humanFrontUrl,
@@ -89,32 +91,53 @@ export async function POST(request) {
     const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId);
     console.log('[Video] Kling task created:', taskId);
 
-    // Kredi düş + DB kayıt
-    await prisma.$transaction(async (tx) => {
-      await tx.modaUser.update({
-        where: { id: user.id },
-        data: { credits: { decrement: 1 } },
+    // DB kayıt
+    let generationId;
+    if (isRetry) {
+      // 2. run — kredi düşme, mevcut kaydı güncelle
+      const existing = await prisma.modaGeneration.findFirst({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
       });
-      await tx.modaGeneration.create({
-        data: {
-          id: taskId,
-          userId: user.id,
-          category,
-          frontGarmUrl: garmentFrontUrl || humanFrontUrl || frontDressedUrl,
-          backGarmUrl: garmentBackUrl || garmentFrontUrl || humanFrontUrl || frontDressedUrl,
-          modelId: isDirectMode ? 'own_model' : (modelId || 'melisa'),
-          bodySize: bodySize || 'STANDARD',
-          backgroundId: backgroundId || 'own',
-          status: 'PROCESSING',
-        },
+      if (existing) {
+        await prisma.modaGeneration.update({
+          where: { id: existing.id },
+          data: { runCount: 2, retryTaskId: taskId, status: 'PROCESSING', updatedAt: new Date() },
+        });
+        generationId = existing.id;
+      }
+    } else {
+      // 1. run — kredi düş + yeni kayıt
+      await prisma.$transaction(async (tx) => {
+        await tx.modaUser.update({
+          where: { id: user.id },
+          data: { credits: { decrement: 1 } },
+        });
+        const gen = await tx.modaGeneration.create({
+          data: {
+            id: taskId,
+            userId: user.id,
+            category,
+            frontGarmUrl: garmentFrontUrl || humanFrontUrl || frontDressedUrl,
+            backGarmUrl: garmentBackUrl || garmentFrontUrl || humanFrontUrl || frontDressedUrl,
+            modelId: isDirectMode ? 'own_model' : (modelId || 'melisa'),
+            bodySize: bodySize || 'STANDARD',
+            backgroundId: backgroundId || 'own',
+            status: 'PROCESSING',
+            runCount: 1,
+          },
+        });
+        generationId = gen.id;
       });
-    });
+    }
 
     return NextResponse.json({
       success: true,
       taskId,
-      creditsLeft: user.credits - 1,
+      generationId,
+      creditsLeft: isRetry ? user.credits : user.credits - 1,
     });
+
 
   } catch (error) {
     console.error('[Video] Error:', error);
