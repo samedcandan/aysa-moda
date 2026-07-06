@@ -317,6 +317,7 @@ function HomePageContent() {
   // ---- Auth ----
   const handleLogin = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    console.log("handleLogin started", { email });
     if (!email || !password) {
       setAuthError('E-posta ve şifre gereklidir.');
       return;
@@ -329,13 +330,18 @@ function HomePageContent() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
+      console.log("handleLogin API result:", { status: res.status, ok: res.ok, data });
       if (res.ok) { fetchUserSession(); }
       else { setAuthError(data.error || 'Giriş yapılamadı.'); }
-    } catch { setAuthError('Bağlantı hatası.'); }
+    } catch (err) {
+      console.error("handleLogin connection error:", err);
+      setAuthError('Bağlantı hatası.');
+    }
   };
 
   const handleRegister = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    console.log("handleRegister started", { email });
     if (!email || !password) {
       setAuthError('E-posta ve şifre gereklidir.');
       return;
@@ -348,9 +354,13 @@ function HomePageContent() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
+      console.log("handleRegister API result:", { status: res.status, ok: res.ok, data });
       if (res.ok) { fetchUserSession(); }
       else { setAuthError(data.error || 'Kayıt yapılamadı.'); }
-    } catch { setAuthError('Bağlantı hatası.'); }
+    } catch (err) {
+      console.error("handleRegister connection error:", err);
+      setAuthError('Bağlantı hatası.');
+    }
   };
 
   const handleLogout = async () => {
@@ -711,8 +721,7 @@ function HomePageContent() {
             </div>
             {authError && <div style={{ color: '#ff6b6b', fontSize: '13px', textAlign: 'center', background: 'rgba(220,53,69,0.08)', padding: '8px', borderRadius: '8px', border: '1px solid rgba(220,53,69,0.15)' }}>{authError}</div>}
             <button 
-              type="button" 
-              onClick={authMode === 'login' ? handleLogin : handleRegister}
+              type="submit" 
               className="btn-gold" 
               style={{ marginTop: '8px', position: 'relative', zIndex: 100 }}
             >
@@ -1557,8 +1566,8 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <>
+    <Suspense fallback={null}>
       <HomePageContent />
-    </>
+    </Suspense>
   );
 }
