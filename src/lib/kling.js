@@ -170,6 +170,7 @@ async function kieVideoAPI(imageUrls, prompt, negativePrompt) {
         mode: 'pro',
         multi_shots: false,
         sound: false,
+        aspect_ratio: '9:16', // Reels size
       },
     }),
   });
@@ -233,6 +234,7 @@ async function replicateAPI(imageUrl, prompt, negativePrompt) {
         prompt: prompt,
         negative_prompt: negativePrompt || 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg',
         duration: 5,
+        aspect_ratio: '9:16', // Reels size
       },
     }),
   });
@@ -284,6 +286,7 @@ async function klingDirectAPI(imageUrl, prompt, negativePrompt) {
       negative_prompt: negativePrompt || 'nudity, revealing clothing, changed outfit, modified clothing, slit, leg slit, torn clothing, deformed leg',
       duration: '5',
       mode: 'std',
+      aspect_ratio: '9:16', // Reels size
     }),
   });
 
