@@ -55,19 +55,21 @@ model Account {
 }
 
 model User {
-  id              Int             @id @default(autoincrement())
-  name            String
-  phone           String          @unique
-  password        String
-  role            String          @default("TECHNICIAN")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  companyId       Int?
-  logs            AutomationLog[]
-  tasks           Task[]          @relation("AssignedTasks")
-  company         Company?        @relation(fields: [companyId], references: [id])
-  personalAccount Account?
-  pushTokens      PushToken[]
+  id                    Int             @id @default(autoincrement())
+  name                  String
+  email                 String?         @unique
+  googleId              String?         @unique
+  phone                 String?         @unique
+  password              String?
+  role                  String          @default("TECHNICIAN")
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  companyId             Int?
+  logs                  AutomationLog[]
+  tasks                 Task[]          @relation("AssignedTasks")
+  company               Company?        @relation(fields: [companyId], references: [id])
+  personalAccount       Account?
+  pushTokens            PushToken[]
   notifyOnTaskComplete  Boolean         @default(true)
   notifyOnDuePayments   Boolean         @default(true)
   notifyOnFilterOverdue Boolean         @default(true)
@@ -96,6 +98,7 @@ model Customer {
   updatedAt             DateTime        @updatedAt
   companyId             Int
   notes                 String?
+  isActive              Boolean         @default(true)
   logs                  AutomationLog[]
   company               Company         @relation(fields: [companyId], references: [id])
   efaturaLogs           EFaturaLog[]
@@ -136,6 +139,8 @@ model Task {
   prevNextServiceDate DateTime?
   prevDebtDueDate     DateTime?
   transactions        Transaction[]
+  productId           Int?
+  product             Product?  @relation(fields: [productId], references: [id])
 
   @@index([companyId])
   @@index([customerId])
@@ -144,6 +149,7 @@ model Task {
   @@index([companyId, status, date])
   @@index([assignedToId, status, date])
   @@index([customerId, date, type])
+  @@index([productId])
 }
 
 model Transaction {
@@ -248,6 +254,7 @@ model Product {
   updatedAt     DateTime      @updatedAt
   company       Company       @relation(fields: [companyId], references: [id])
   transactions  Transaction[]
+  tasks         Task[]
 
   @@index([companyId])
   @@index([companyId, name])
