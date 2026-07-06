@@ -93,11 +93,13 @@ function HomePageContent() {
   const [motionType, setMotionType] = useState('rotation');
 
   // Generation status
-  const [phase, setPhase] = useState('idle'); // idle | uploading | VTON | generating | done | error
+  const [phase, setPhase] = useState('idle'); // idle | uploading | vton_preview | VTON | generating | done | error
   const [progressText, setProgressText] = useState('');
   const [progressStep, setProgressStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState('');
   const [generatedVideo, setGeneratedVideo] = useState(null);
+  // VTON önizleme sonuçları
+  const [vtonResult, setVtonResult] = useState({ front: null, back: null, garmentFrontUrl: null, humanFrontUrl: null });
 
   const fileInputFrontRef = useRef(null);
   const fileInputBackRef = useRef(null);
@@ -437,87 +439,143 @@ function HomePageContent() {
     });
   };
 
-  // Start Pipeline
+  // Helper: Kling polling
+  const startPolling = (taskId) => {
+    let attempts = 0;
+    const maxAttempts = 72; // 72 * 10s = 12 dakika
+    pollRef.current = setInterval(async () => {
+      attempts++;
+      if (attempts > maxAttempts) {
+        clearInterval(pollRef.current);
+        setPhase('error');
+        setErrorMsg('Video canlandırma işlemi zaman aşımına uğradı. (12 dakika)');
+        return;
+      }
+      try {
+        const statusRes = await fetch('/api/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId }),
+        });
+        const statusData = await statusRes.json();
+        if (statusData.status === 'done' && statusData.videoUrl) {
+          clearInterval(pollRef.current);
+          setGeneratedVideo(statusData.videoUrl);
+          setPhase('done');
+          fetchUserSession();
+        } else if (statusData.status === 'error') {
+          clearInterval(pollRef.current);
+          setPhase('error');
+          setErrorMsg(statusData.error || 'Kling AI video üretimi başarısız oldu.');
+        }
+      } catch { /* keep polling */ }
+    }, 10000);
+  };
+
+  // ===== VTON MODE: Adım 1 — VTON çalıştır, önizleme göster (kredi düşmez) =====
   const handleGenerate = async () => {
-    // Validate inputs based on mode
     if (generatorMode === 'direct') {
       if (!directFront) return alert('Lütfen kendi mankenli fotoğrafınızı yükleyin.');
-    } else {
-      if (!garmentFront && !garmentBack) return;
+      return handleDirectGenerate();
     }
+    // VTON mode validation
+    if (!garmentFront && !garmentBack) return alert('Lütfen kıyafet fotoğrafı yükleyin.');
 
     setPhase('uploading');
     setProgressStep(1);
-    setProgressText('Görseller sunucuya aktarılıyor...');
+    setProgressText('Manken şablonu hazırlanıyor...');
     setErrorMsg('');
 
     try {
-      let requestBody;
+      // isRotation'ı KULLANMADAN ÖNCE tanımla (bug fix)
+      const isRotation = motionType === 'rotation';
+      const sizeSuffix = bodySize === 'PLUS_SIZE' ? 'plus' : 'standard';
+      const frontLocalPath = `/models/${modelId}_${sizeSuffix}_front.png`;
+      const backLocalPath = `/models/${modelId}_${sizeSuffix}_back.png`;
 
-      if (generatorMode === 'direct') {
-        // DIRECT MODE: user's own photos go straight to Kling, no VTON
-        setProgressText('Fotoğraflarınız hazırlanıyor...');
-        requestBody = {
-          humanFront: directFront,
-          humanBack: directBack || directFront,  // Use front if no back provided
-          category: category || 'elbise',
-          customPrompt,
-          motionType,
-          directMode: true,
-        };
-      } else {
-        // VTON MODE: mannequin template goes to VTON, no canvas bg composition
-        const activeGarmentFront = garmentFront || garmentBack;
-        const activeGarmentBack = garmentBack || garmentFront;
+      // Manken PNG'lerini base64'e çevir
+      const loadAsBase64 = (path) => fetch(path).then(r => r.blob()).then(blob => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(blob);
+      }));
 
-        // Load mannequin PNG (transparent) directly — NO background composition
-        const sizeSuffix = bodySize === 'PLUS_SIZE' ? 'plus' : 'standard';
-        const frontLocalPath = `/models/${modelId}_${sizeSuffix}_front.png`;
-        const backLocalPath = `/models/${modelId}_${sizeSuffix}_back.png`;
+      const [humanFrontB64, humanBackB64] = await Promise.all([
+        loadAsBase64(frontLocalPath),
+        isRotation ? loadAsBase64(backLocalPath) : Promise.resolve(null),
+      ]);
 
-        setProgressText('Manken şablonu hazırlanıyor...');
-        // Load PNG as base64 (fetch from public folder)
-        const [frontPngBase64, backPngBase64] = await Promise.all([
-          fetch(frontLocalPath).then(r => r.blob()).then(blob => new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result);
-            reader.readAsDataURL(blob);
-          })),
-          isRotation
-            ? fetch(backLocalPath).then(r => r.blob()).then(blob => new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onload = e => resolve(e.target.result);
-                reader.readAsDataURL(blob);
-              }))
-            : Promise.resolve(null),
-        ]);
+      // VTON API çağrısı (kredi düşmez, sadece VTON yapar)
+      setPhase('VTON');
+      setProgressStep(2);
+      setProgressText('Yapay zeka kıyafeti mankene giydiriyor... (45-90 saniye)');
 
-        const isRotation = motionType === 'rotation';
-
-        requestBody = {
-          humanFront: frontPngBase64,
-          humanBack: backPngBase64 || frontPngBase64,
-          garmentFront: activeGarmentFront,
-          garmentBack: activeGarmentBack,
+      const res = await fetch('/api/vton', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          humanFront: humanFrontB64,
+          humanBack: humanBackB64,
+          garmentFront: garmentFront || garmentBack,
+          garmentBack: garmentBack || garmentFront,
           category,
           modelId,
           bodySize,
-          backgroundId,
-          customPrompt,
           motionType,
-          directMode: false,
-        };
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.frontDressedUrl) {
+        throw new Error(data.error || 'VTON işlemi başarısız oldu.');
       }
 
-      // Call API
-      setProgressStep(2);
-      setProgressText(generatorMode === 'direct' ? 'Video canlandırılıyor...' : 'Yapay zeka mankeni giydiriyor...');
-      setPhase(generatorMode === 'direct' ? 'generating' : 'VTON');
+      // VTON sonucunu önizleme olarak göster — kredi henüz düşmedi
+      setVtonResult({
+        front: data.frontDressedUrl,
+        back: data.backDressedUrl,
+        garmentFrontUrl: data.frontDressedUrl, // DB için
+        humanFrontUrl: humanFrontB64,
+      });
+      setPhase('vton_preview');
 
-      const res = await fetch('/api/generate', {
+    } catch (err) {
+      setPhase('error');
+      setErrorMsg(err.message || 'VTON işlemi sırasında hata oluştu.');
+    }
+  };
+
+  // ===== VTON MODE: Adım 2 — Kullanıcı onayladı, video başlat (kredi düşer) =====
+  const handleStartVideo = async () => {
+    if (!vtonResult.front) return;
+
+    setPhase('generating');
+    setProgressStep(3);
+    const motionLabel = MOTION_TYPES.find(m => m.id === motionType)?.label || '360° video';
+    setProgressText(`${motionLabel} canlandırılıyor...`);
+
+    try {
+      const isRotation = motionType === 'rotation';
+      const bgPromptObj = BACKGROUNDS.find(b => b.id === backgroundId);
+      const bgPromptText = bgPromptObj?.promptText || '';
+      const fullCustomPrompt = [customPrompt, bgPromptText].filter(Boolean).join(' ');
+
+      const res = await fetch('/api/video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          frontDressedUrl: vtonResult.front,
+          backDressedUrl: isRotation ? vtonResult.back : null,
+          category,
+          customPrompt: fullCustomPrompt,
+          motionType,
+          modelId,
+          bodySize,
+          backgroundId,
+          isDirectMode: false,
+          garmentFrontUrl: vtonResult.garmentFrontUrl,
+          humanFrontUrl: vtonResult.humanFrontUrl,
+        }),
       });
 
       const data = await res.json();
@@ -525,50 +583,54 @@ function HomePageContent() {
         throw new Error(data.error || 'Video üretimi başlatılamadı.');
       }
 
-      // Update local credit balance
       setUser(prev => ({ ...prev, credits: data.creditsLeft }));
+      startPolling(data.taskId);
 
-      // Poll Kling status
+    } catch (err) {
+      setPhase('error');
+      setErrorMsg(err.message || 'Video başlatılırken hata oluştu.');
+    }
+  };
+
+  // ===== DIRECT MODE: Kendi fotoğrafı doğrudan Kling'e gönder =====
+  const handleDirectGenerate = async () => {
+    setPhase('uploading');
+    setProgressStep(1);
+    setProgressText('Fotoğraflarınız hazırlanıyor...');
+    setErrorMsg('');
+
+    try {
+      const bgPromptObj = BACKGROUNDS.find(b => b.id === backgroundId);
+      const bgPromptText = bgPromptObj?.promptText || '';
+      const fullCustomPrompt = [customPrompt, bgPromptText].filter(Boolean).join(' ');
+
       setPhase('generating');
+      setProgressStep(2);
+      setProgressText('Video canlandırılıyor...');
+
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          humanFront: directFront,
+          humanBack: directBack || directFront,
+          category: category || 'elbise',
+          customPrompt: fullCustomPrompt,
+          motionType,
+          directMode: true,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.taskId) {
+        throw new Error(data.error || 'Video üretimi başlatılamadı.');
+      }
+
+      setUser(prev => ({ ...prev, credits: data.creditsLeft }));
       setProgressStep(3);
-      const motionLabel = MOTION_TYPES.find(m => m.id === motionType)?.label || '360° video dönüşü';
+      const motionLabel = MOTION_TYPES.find(m => m.id === motionType)?.label || '360° video';
       setProgressText(`${motionLabel} canlandırılıyor...`);
-
-      const taskId = data.taskId;
-      let attempts = 0;
-      const maxAttempts = 60; // 60 * 10s = 10 mins
-
-      pollRef.current = setInterval(async () => {
-        attempts++;
-        if (attempts > maxAttempts) {
-          clearInterval(pollRef.current);
-          setPhase('error');
-          setErrorMsg('Video canlandırma işlemi zaman aşımına uğradı.');
-          return;
-        }
-
-        try {
-          const statusRes = await fetch('/api/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ taskId }),
-          });
-          const statusData = await statusRes.json();
-
-          if (statusData.status === 'done' && statusData.videoUrl) {
-            clearInterval(pollRef.current);
-            setGeneratedVideo(statusData.videoUrl);
-            setPhase('done');
-            fetchUserSession(); // reload history
-          } else if (statusData.status === 'error') {
-            clearInterval(pollRef.current);
-            setPhase('error');
-            setErrorMsg(statusData.error || 'Kling AI video üretimi başarısız oldu.');
-          }
-        } catch {
-          // keep polling
-        }
-      }, 10000);
+      startPolling(data.taskId);
 
     } catch (err) {
       setPhase('error');
@@ -626,8 +688,10 @@ function HomePageContent() {
     setDirectBack(null);
     setIsHijabDirect(false);
     setGeneratedVideo(null);
+    setVtonResult({ front: null, back: null, garmentFrontUrl: null, humanFrontUrl: null });
     setErrorMsg('');
     setBackgroundId('boutique');
+    setCustomPrompt('');
   };
 
   const themeClass = genderSelection === 'WOMEN' ? 'theme-women' : 'theme-men';
@@ -748,7 +812,88 @@ function HomePageContent() {
         {/* TAB 1: GENERATE */}
         {activeTab === 'generate' && (
           <>
+            {/* Yükleme / İşlem ekranı */}
+            {(phase === 'uploading' || phase === 'VTON' || phase === 'generating') && (
+              <div className="glass-panel animate-in" style={{ padding: '40px 24px', textAlign: 'center' }}>
+                <div style={{ width: '64px', height: '64px', margin: '0 auto 20px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(232,203,245,0.2), rgba(212,174,120,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', animation: 'spin 2s linear infinite' }}>
+                  {phase === 'uploading' ? '⬆️' : phase === 'VTON' ? '🧵' : '🎬'}
+                </div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                  {phase === 'uploading' ? 'Hazırlanıyor...' : phase === 'VTON' ? 'Kıyafet Giydiriliyor' : 'Video Üretiliyor'}
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '24px' }}>
+                  {progressText}
+                </p>
+                {phase === 'VTON' && (
+                  <p style={{ fontSize: '11px', color: 'rgba(212,174,120,0.7)', background: 'rgba(212,174,120,0.06)', border: '1px solid rgba(212,174,120,0.15)', borderRadius: '8px', padding: '10px 14px' }}>
+                    ⏳ VTON işlemi 45-90 saniye sürebilir. Lütfen sayfadan ayrılmayın.
+                  </p>
+                )}
+                {phase === 'generating' && (
+                  <p style={{ fontSize: '11px', color: 'rgba(232,203,245,0.7)', background: 'rgba(232,203,245,0.06)', border: '1px solid rgba(232,203,245,0.15)', borderRadius: '8px', padding: '10px 14px' }}>
+                    🎞️ Video üretimi 3-5 dakika sürebilir. Bu ekranda bekleyin.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* VTON Önizleme Ekranı — Kredi henüz düşmedi */}
+            {phase === 'vton_preview' && (
+              <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '20px', marginBottom: '6px' }}>✅ Kıyafet Giydirme Tamamlandı</div>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                    Sonuç aşağıdadır. Beğeniyorsanız <strong style={{ color: 'var(--text-gold)' }}>1 kredi</strong> harcayarak videoyu başlatın.
+                  </p>
+                </div>
+
+                {/* Giydirilmiş görsel önizleme */}
+                <div style={{ display: 'grid', gridTemplateColumns: vtonResult.back ? '1fr 1fr' : '1fr', gap: '12px', marginBottom: '20px' }}>
+                  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid rgba(212,174,120,0.3)' }}>
+                    <img src={vtonResult.front} alt="Ön Görünüm" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block' }} />
+                    <div style={{ padding: '6px', textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.3)' }}>Ön Görünüm</div>
+                  </div>
+                  {vtonResult.back && (
+                    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid rgba(212,174,120,0.3)' }}>
+                      <img src={vtonResult.back} alt="Arka Görünüm" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block' }} />
+                      <div style={{ padding: '6px', textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.3)' }}>Arka Görünüm</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Hareket tipi + arka plan */}
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Hareket Tipi</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                    {MOTION_TYPES.map(mt => (
+                      <div key={mt.id} onClick={() => setMotionType(mt.id)} style={{ padding: '8px 10px', borderRadius: '8px', cursor: 'pointer', border: `1.5px solid ${motionType === mt.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`, background: motionType === mt.id ? 'rgba(212,174,120,0.08)' : 'rgba(255,255,255,0.02)', fontSize: '11px', fontWeight: 600, color: motionType === mt.id ? 'var(--text-gold)' : 'var(--text-secondary)', textAlign: 'center', transition: 'all 0.2s' }}>
+                        {mt.label}
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Ortam</p>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                    {BACKGROUNDS.filter(b => b.id !== 'custom').map(bg => (
+                      <div key={bg.id} onClick={() => setBackgroundId(bg.id)} style={{ padding: '6px 12px', borderRadius: '20px', cursor: 'pointer', border: `1.5px solid ${backgroundId === bg.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`, background: backgroundId === bg.id ? 'rgba(212,174,120,0.1)' : 'rgba(255,255,255,0.02)', fontSize: '11px', color: backgroundId === bg.id ? 'var(--text-gold)' : 'var(--text-secondary)', transition: 'all 0.2s' }}>
+                        {bg.label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={resetForm} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ↩ Yeniden Dene
+                  </button>
+                  <button className="btn-gold" onClick={handleStartVideo} style={{ flex: 2 }}>
+                    ⚡ Videoyu Başlat — 1 Kredi
+                  </button>
+                </div>
+              </div>
+            )}
+
             {phase === 'idle' && (
+
               <>
                 {/* Dynamic progress bar based on mode */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)', padding: '0 4px', marginBottom: '12px', gap: '4px' }}>

@@ -8,7 +8,7 @@ import { Jimp } from 'jimp';
 import path from 'path';
 import fs from 'fs';
 
-export const maxDuration = 60; // Set Vercel execution limit to 60 seconds
+export const maxDuration = 300; // Vercel Pro: 300 saniye (VTON + upload + Kling)
 
 // Helper to overlay/mask original hijab on VTON dressed output to prevent bare neck/hair/skin hallucinations
 async function maskHijab({ originalComposedBase64, dressedImageUrl, modelId, bodySize, view }) {
