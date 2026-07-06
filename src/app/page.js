@@ -43,10 +43,11 @@ const MODELS = [
 ];
 
 const BACKGROUNDS = [
-  { id: 'boutique', label: 'Lüks Butik', url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800' },
-  { id: 'runway', label: 'Moda Podyumu', url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800' },
-  { id: 'street', label: 'Şehir Caddesi', url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800' },
-  { id: 'custom', label: 'Kendi Mağazam', url: null },
+  { id: 'boutique', label: 'Lüks Butik', promptText: 'elegant luxury boutique interior, marble floors, soft warm ambient lighting, premium retail environment' },
+  { id: 'runway', label: 'Moda Podyumu', promptText: 'high fashion runway stage, dramatic professional spotlights, white catwalk, blurred audience in background' },
+  { id: 'street', label: 'Şehir Caddesi', promptText: 'busy city street, natural daylight, urban buildings and shops blurred in background, realistic outdoor atmosphere' },
+  { id: 'garden', label: 'Yemyeşil Bahce', promptText: 'beautiful lush garden, soft natural sunlight, green leaves and flowers in background, peaceful outdoor setting' },
+  { id: 'custom', label: 'Kendi Mağazam', promptText: '' },
 ];
 
 const PROMPT_TAGS = [
@@ -74,10 +75,15 @@ function HomePageContent() {
 
   // Wizard state
   const [step, setStep] = useState(1);
+  const [generatorMode, setGeneratorMode] = useState(null); // null | 'vton' | 'direct'
   const [genderSelection, setGenderSelection] = useState(null); // WOMEN | MEN | null
   const [category, setCategory] = useState('gelinlik');
   const [garmentFront, setGarmentFront] = useState(null);
   const [garmentBack, setGarmentBack] = useState(null);
+  // Direct mode: user's own model photos
+  const [directFront, setDirectFront] = useState(null);
+  const [directBack, setDirectBack] = useState(null);
+  const [isHijabDirect, setIsHijabDirect] = useState(false);
   const [modelId, setModelId] = useState('melisa');
   const [bodySize, setBodySize] = useState('STANDARD'); // STANDARD | PLUS_SIZE
   const [backgroundId, setBackgroundId] = useState('boutique');
@@ -97,6 +103,8 @@ function HomePageContent() {
   const fileInputBackRef = useRef(null);
   const fileInputBgRef = useRef(null);
   const fileInputWatermarkRef = useRef(null);
+  const fileInputDirectFrontRef = useRef(null);
+  const fileInputDirectBackRef = useRef(null);
   const pollRef = useRef(null);
 
   // Helper logic for gender categories and styling
@@ -121,7 +129,9 @@ function HomePageContent() {
       setCategory('gelinlik');
       setModelId('melisa');
     }
-    setStep(2);
+    // In VTON mode gender selection leads to category (step 3)
+    // In direct mode gender is selected at step 2 via its own flow
+    setStep(3);
   };
 
   // Fetch session & user data
@@ -164,70 +174,80 @@ function HomePageContent() {
 
   // Set default prompt when category, background or motionType changes (in Turkish)
   useEffect(() => {
+    // In direct mode, build a simplified prompt (no category-specific garment description)
+    if (generatorMode === 'direct') {
+      const trMotionPrompts = {
+        rotation: 'Manken yavaşça 360 derece kendi etrafında dönerek kıyafetin ön, yan ve arka duruşunu sergiliyor.',
+        walk: 'Manken zarif adımlarla kameraya doğru yürüyor, kıyafetin kumaş hareketini ve akışını gösteriyor.',
+        pose: 'Manken yavaş ve zarif moda pozları vererek kıyafetin tüm detaylarını farklı açılardan sergiliyor.',
+        breeze: 'Manken sabit dururken hafif bir rüzgar kıyafetin eteklerini ve kumaşını uçuruyor.',
+      };
+      const hijabNote = isHijabDirect ? ' Manken şik ve modern bir tesettür başörtüsü takmaktadır, saçlar, boyun ve omuzlar tamamen örtülülür.' : '';
+      const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
+      setCustomPrompt(`${motionText}${hijabNote}`);
+      return;
+    }
+
+    // VTON mode: full prompt with category + background + motion
     const trCategoryPrompts = {
-      gelinlik: "Gelinlik giyen bayan mankenin profesyonel moda tanıtım videosu. Gelinliğin tüm ince detayları, dantelleri ve zarif dökümü ön planda.",
-      abiye: "Abiye giyen bayan mankenin lüks moda tanıtım videosu. Kumaş kalitesi, drapeleri ve şık detayları ön planda.",
-      elbise: "Günlük elbise giyen bayan mankenin modern ve hareketli tanıtım videosu. Elbisenin kalıbı ve şık tasarımı ön planda.",
-      gomlek: "Gömlek giyen bayan mankenin profesyonel ürün tanıtım videosu. Yakası, düğmeleri, manşetleri ve kalıbı ön planda.",
-      straplez: "Straplez kıyafet giyen bayan mankenin zarif tanıtım videosu. Boyun çizgisi, omuz dekoltesi ve silüeti ön planda.",
-      askili: "Askılı bluz giyen bayan mankenin yazlık ve şık moda videosu. Askı detayları, yaka kesimi ve kumaş dokusu ön planda.",
-      ceket: "Ceket giyen bayan mankenin modern ürün tanıtım videosu. Ceketin kesimi, düğmeleri, omuz yapısı ve kalıbı ön planda.",
-      trenckot: "Trençkot/hırka giyen bayan mankenin sonbahar modası tanıtım videosu. Kemer, yaka detayları ve kumaş kalitesi ön planda.",
-      mont: "Mont giyen bayan mankenin kışlık ürün tanıtım videosu. Montun dolgunluğu, fermuar detayları ve modern kalıbı ön planda.",
-      pelus: "Peluş ceket giyen bayan mankenin yumuşak kış modası videosu. Peluşun yumuşak dokusu, sıcaklığı ve duruşu ön planda.",
-      kurk: "Kürk giyen bayan mankenin lüks kış modası tanıtım videosu. Kürkün hacmi, kalitesi ve zengin dokusu ön planda.",
-      tisort: "Tişört/bluz giyen bayan mankenin spor/sokak modası tanıtım videosu. Kumaş yapısı, kalıbı ve baskı detayları ön planda.",
-      kazak: "Kazak giyen bayan mankenin sıcak kış modası tanıtım videosu. Örgü detayları, yaka kesimi ve dokusu ön planda.",
-      pantolon: "Pantolon/jean giyen bayan mankenin ürün tanıtım videosu. Kesimi, kalıbı ve cepleri ön planda.",
-      etek: "Etek giyen bayan mankenin hareketli ve şık tanıtım videosu. Eteğin pilileri, boyu ve uçuşması ön planda."
+      gelinlik: 'Gelinlik giyen bayan mankenin profesyonel moda tanıtım videosu. Gelinliğin tüm ince detayları, danteleri ve zarif dökümü ön planda.',
+      abiye: 'Abiye giyen bayan mankenin lüks moda tanıtım videosu. Kumaş kalitesi, drapaleri ve şik detayları ön planda.',
+      elbise: 'Günlük elbise giyen bayan mankenin modern ve hareketli tanıtım videosu. Elbisenin kalıbı ve şik tasarımı ön planda.',
+      gomlek: 'Gömlek giyen bayan mankenin profesyonel ürün tanıtım videosu. Yakası, düğmeleri, manşetleri ve kalıbı ön planda.',
+      straplez: 'Straplez kıyafet giyen bayan mankenin zarif tanıtım videosu. Boyun çizgisi, omuz dekoltesi ve silüeti ön planda.',
+      askili: 'Askilı bluz giyen bayan mankenin yazlık ve şik moda videosu. Askı detayları, yaka kesimi ve kumaş dokusu ön planda.',
+      ceket: 'Ceket giyen bayan mankenin modern ürün tanıtım videosu. Ceketin kesimi, düğmeleri, omuz yapısı ve kalıbı ön planda.',
+      trenckot: 'Trençkot/hırka giyen bayan mankenin sonbahar modası tanıtım videosu. Kemer, yaka detayları ve kumaş kalitesi ön planda.',
+      mont: 'Mont giyen bayan mankenin kışlık ürün tanıtım videosu. Montun dolgunluğu, fermuar detayları ve modern kalıbı ön planda.',
+      pelus: 'Peluş ceket giyen bayan mankenin yumuşak kış modası videosu. Peluşun yumuşak dokusu, sıcaklığı ve duruşu ön planda.',
+      kurk: 'Kürk giyen bayan mankenin lüks kış modası tanıtım videosu. Kürkün hacmi, kalitesi ve zengin dokusu ön planda.',
+      tisort: 'Tişört/bluz giyen bayan mankenin spor/sokak modası tanıtım videosu. Kumaş yapısı, kalıbı ve baskı detayları ön planda.',
+      kazak: 'Kazak giyen bayan mankenin sıcak kış modası tanıtım videosu. Örgü detayları, yaka kesimi ve dokusu ön planda.',
+      pantolon: 'Pantolon/jean giyen bayan mankenin ürün tanıtım videosu. Kesimi, kalıbı ve cepleri ön planda.',
+      etek: 'Etek giyen bayan mankenin hareketli ve şik tanıtım videosu. Eteğin pilileri, boyu ve uçuşması ön planda.'
     };
 
-    const trBackgroundPrompts = {
-      boutique: "Lüks ve şık butik mağaza arka planında.",
-      runway: "Moda podyumunda, profesyonel podyum ışıkları altında.",
-      street: "Şık ve hareketli bir şehir caddesinde, dış mekan sokak arka planında.",
-      custom: "Butiğin kendi mağaza dekoru arka planında."
-    };
+    // Background is now a TEXT prompt, not a URL
+    const selectedBg = BACKGROUNDS.find(b => b.id === backgroundId);
+    const bgText = selectedBg?.promptText ? `Arka plan: ${selectedBg.label.toLowerCase()} ortamı.` : '';
 
     const trMotionPrompts = {
-      rotation: "Manken yavaşça 360 derece kendi etrafında dönerek kıyafetin ön, yan ve arka duruşunu sergiliyor.",
-      walk: "Manken zarif adımlarla kameraya doğru yürüyor, kıyafetin kumaş hareketini ve akışını gösteriyor.",
-      pose: "Manken yavaş ve zarif moda pozları vererek kıyafetin tüm detaylarını farklı açılardan sergiliyor.",
-      breeze: "Manken sabit dururken hafif bir rüzgar kıyafetin eteklerini ve kumaşını uçuruyor."
+      rotation: 'Manken yavaşça 360 derece kendi etrafında dönerek kıyafetin ön, yan ve arka duruşunu sergiliyor.',
+      walk: 'Manken zarif adımlarla kameraya doğru yürüyor, kıyafetin kumaş hareketini ve akışını gösteriyor.',
+      pose: 'Manken yavaş ve zarif moda pozları vererek kıyafetin tüm detaylarını farklı açılardan sergiliyor.',
+      breeze: 'Manken sabit dururken hafif bir rüzgar kıyafetin eteklerini ve kumaşını uçuruyor.',
     };
 
     const trFramingPrompts = {
-      gelinlik: "Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.",
-      abiye: "Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.",
-      elbise: "Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.",
-      gomlek: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      straplez: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      askili: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      tisort: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      kazak: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      ceket: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      trenckot: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      mont: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      pelus: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      kurk: "Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      pantolon: "Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.",
-      etek: "Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürüzsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler."
+      gelinlik: 'Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.',
+      abiye: 'Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.',
+      elbise: 'Baştan sona mankenin tüm vücudunu (full body showcase) gösteren profesyonel boydan çekim.',
+      gomlek: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      straplez: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      askili: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      tisort: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      kazak: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      ceket: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      trenckot: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      mont: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      pelus: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      kurk: 'Video üst vücuda odaklanmış yakın plan (upper body zoom) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      pantolon: 'Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.',
+      etek: 'Video alt vücuda odaklanmış (lower body focus) olarak başlar ve videonun sonuna doğru pürünsüzce geri çekilerek tüm vücudu (full body) gösterecek şekilde genişler.'
     };
 
     let catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
     if (modelId === 'huma') {
-      catText = catText.replaceAll("bayan mankenin", "tesettürlü bayan mankenin");
-      catText += " Manken şık ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır. Manken, İslami tesettür kurallarına %100 uygun şekilde giyinmiştir. Kollar tamamen uzun, yaka kapalıdır; boyun, saçlar, omuzlar ve kollar tüm video boyunca, her açıdan (ön, yan, arka) tamamen örtülüdür, kesinlikle ten görünmez, bacak yırtmacı veya açık dekolte yoktur. Başörtüsü, manken dönerken de her açıdan saçları ve boynu kusursuz şekilde kapatmaya devam eder (model wears an elegant, modern hijab headscarf. The model is dressed 100% in accordance with Islamic hijab rules. Long sleeves, high neck, no skin showing on arms, neck, shoulders or chest, and no leg/skirt slits. The hijab covers all hair and neck completely from the front, sides, and back views during the entire rotation).";
+      catText = catText.replaceAll('bayan mankenin', 'tesettürlü bayan mankenin');
+      catText += ' Manken şik ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır. Manken, İslami tesettür kurallarına %100 uygun şekilde giyinmiştir. Kollar tamamen uzun, yaka kapalıdır; boyun, saçlar, omuzlar ve kollar tüm video boyunca, her açıdan (ön, yan, arka) tamamen örtülüdür, kesinlikle ten görünmez, bacak yırtmacı veya açık dekolte yoktur. Başörtüsü, manken dönerken de her açıdan saçları ve boynu kusursuz şekilde kapatmaya devam eder (model wears an elegant, modern hijab headscarf. The model is dressed 100% in accordance with Islamic hijab rules. Long sleeves, high neck, no skin showing on arms, neck, shoulders or chest, and no leg/skirt slits. The hijab covers all hair and neck completely from the front, sides, and back views during the entire rotation).';
     }
-    const bgText = trBackgroundPrompts[backgroundId] || trBackgroundPrompts.boutique;
     const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
-    const framingText = trFramingPrompts[category] || "";
-    const fidelityText = "Kıyafetin tasarımı, orijinal renkleri, kumaş dokusu, desenleri ve tüm detayları video boyunca %100 birebir korunur, hiçbir bozulma veya değişiklik olmaz.";
-    const bgConsistencyText = "İlk kareden itibaren manken, seçilen arka plan ile tam uyumlu olarak konumlandırılır. Video, mankenin bu arka planın içinde doğal ve kusursuz bir şekilde entegre olmasıyla başlar, arka plan baştan sona tutarlıdır.";
+    const framingText = trFramingPrompts[category] || '';
+    const fidelityText = 'Kıyafetin tasarımı, orijinal renkleri, kumaş dokusu, desenleri ve tüm detayları video boyunca %100 birebir korunur, hiçbir bozulma veya değişiklik olmaz.';
 
-    // Combine with clean spacing
-    setCustomPrompt(`${catText} ${bgText} ${motionText} ${framingText} ${fidelityText} ${bgConsistencyText}`);
-  }, [category, backgroundId, motionType, modelId]);
+    // Combine with clean spacing — background is now a text prompt, not a URL
+    setCustomPrompt(`${catText} ${bgText} ${motionText} ${framingText} ${fidelityText}`);
+  }, [category, backgroundId, motionType, modelId, generatorMode, isHijabDirect]);
 
   // Handle Login
   const handleLogin = async (e) => {
@@ -419,10 +439,12 @@ function HomePageContent() {
 
   // Start Pipeline
   const handleGenerate = async () => {
-    if (!garmentFront && !garmentBack) return;
-
-    const activeGarmentFront = garmentFront || garmentBack;
-    const activeGarmentBack = garmentBack || garmentFront;
+    // Validate inputs based on mode
+    if (generatorMode === 'direct') {
+      if (!directFront) return alert('Lütfen kendi mankenli fotoğrafınızı yükleyin.');
+    } else {
+      if (!garmentFront && !garmentBack) return;
+    }
 
     setPhase('uploading');
     setProgressStep(1);
@@ -430,36 +452,51 @@ function HomePageContent() {
     setErrorMsg('');
 
     try {
-      // Determine background URL
-      let bgUrl = BACKGROUNDS.find(b => b.id === backgroundId)?.url;
-      if (backgroundId === 'custom') {
-        if (!customBg) throw new Error('Lütfen kendi mağaza fotoğrafınızı yükleyin.');
-        bgUrl = customBg;
-      }
+      let requestBody;
 
-      // Model templates local paths
-      const sizeSuffix = bodySize === 'PLUS_SIZE' ? 'plus' : 'standard';
-      const frontLocalPath = `/models/${modelId}_${sizeSuffix}_front.png`;
-      const backLocalPath = `/models/${modelId}_${sizeSuffix}_back.png`;
+      if (generatorMode === 'direct') {
+        // DIRECT MODE: user's own photos go straight to Kling, no VTON
+        setProgressText('Fotoğraflarınız hazırlanıyor...');
+        requestBody = {
+          humanFront: directFront,
+          humanBack: directBack || directFront,  // Use front if no back provided
+          category: category || 'elbise',
+          customPrompt,
+          motionType,
+          directMode: true,
+        };
+      } else {
+        // VTON MODE: mannequin template goes to VTON, no canvas bg composition
+        const activeGarmentFront = garmentFront || garmentBack;
+        const activeGarmentBack = garmentBack || garmentFront;
 
-      // Compose human images on client side canvas
-      setProgressText('Manken ve arka plan birleştiriliyor...');
-      const [humanFrontComposed, humanBackComposed] = await Promise.all([
-        composeModelWithBackground(frontLocalPath, bgUrl),
-        composeModelWithBackground(backLocalPath, bgUrl),
-      ]);
+        // Load mannequin PNG (transparent) directly — NO background composition
+        const sizeSuffix = bodySize === 'PLUS_SIZE' ? 'plus' : 'standard';
+        const frontLocalPath = `/models/${modelId}_${sizeSuffix}_front.png`;
+        const backLocalPath = `/models/${modelId}_${sizeSuffix}_back.png`;
 
-      // Call API
-      setProgressStep(2);
-      setProgressText('Yapay zeka mankeni giydiriyor...');
-      setPhase('VTON');
+        setProgressText('Manken şablonu hazırlanıyor...');
+        // Load PNG as base64 (fetch from public folder)
+        const [frontPngBase64, backPngBase64] = await Promise.all([
+          fetch(frontLocalPath).then(r => r.blob()).then(blob => new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(blob);
+          })),
+          isRotation
+            ? fetch(backLocalPath).then(r => r.blob()).then(blob => new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.readAsDataURL(blob);
+              }))
+            : Promise.resolve(null),
+        ]);
 
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          humanFront: humanFrontComposed,
-          humanBack: humanBackComposed,
+        const isRotation = motionType === 'rotation';
+
+        requestBody = {
+          humanFront: frontPngBase64,
+          humanBack: backPngBase64 || frontPngBase64,
           garmentFront: activeGarmentFront,
           garmentBack: activeGarmentBack,
           category,
@@ -468,7 +505,19 @@ function HomePageContent() {
           backgroundId,
           customPrompt,
           motionType,
-        }),
+          directMode: false,
+        };
+      }
+
+      // Call API
+      setProgressStep(2);
+      setProgressText(generatorMode === 'direct' ? 'Video canlandırılıyor...' : 'Yapay zeka mankeni giydiriyor...');
+      setPhase(generatorMode === 'direct' ? 'generating' : 'VTON');
+
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();
@@ -566,14 +615,19 @@ function HomePageContent() {
     if (pollRef.current) clearInterval(pollRef.current);
     setPhase('idle');
     setStep(1);
+    setGeneratorMode(null);
     setGenderSelection(null);
     setCategory('gelinlik');
     setActiveAccordion('all_categories');
     setMotionType('rotation');
     setGarmentFront(null);
     setGarmentBack(null);
+    setDirectFront(null);
+    setDirectBack(null);
+    setIsHijabDirect(false);
     setGeneratedVideo(null);
     setErrorMsg('');
+    setBackgroundId('boutique');
   };
 
   const themeClass = genderSelection === 'WOMEN' ? 'theme-women' : 'theme-men';
@@ -696,107 +750,150 @@ function HomePageContent() {
           <>
             {phase === 'idle' && (
               <>
+                {/* Dynamic progress bar based on mode */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)', padding: '0 4px', marginBottom: '12px', gap: '4px' }}>
-                  <span style={{ color: step === 1 ? 'var(--text-gold)' : (step > 1 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 1 ? '700' : '500', transition: 'color 0.3s' }}>1. Giyim Türü</span>
-                  <span style={{ color: step === 2 ? 'var(--text-gold)' : (step > 2 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 2 ? '700' : '500', transition: 'color 0.3s' }}>2. Kategori</span>
-                  <span style={{ color: step === 3 ? 'var(--text-gold)' : (step > 3 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 3 ? '700' : '500', transition: 'color 0.3s' }}>3. Görseller</span>
-                  <span style={{ color: step === 4 ? 'var(--text-gold)' : (step > 4 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 4 ? '700' : '500', transition: 'color 0.3s' }}>4. Manken</span>
-                  <span style={{ color: step === 5 ? 'var(--text-gold)' : (step > 5 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 5 ? '700' : '500', transition: 'color 0.3s' }}>5. Arka Plan</span>
+                  {generatorMode === 'direct' ? (
+                    <>
+                      <span style={{ color: step === 1 ? 'var(--text-gold)' : (step > 1 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 1 ? '700' : '500', transition: 'color 0.3s' }}>1. Yöntem</span>
+                      <span style={{ color: step === 2 ? 'var(--text-gold)' : (step > 2 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 2 ? '700' : '500', transition: 'color 0.3s' }}>2. Fotoğraf</span>
+                      <span style={{ color: step === 5 ? 'var(--text-gold)' : (step > 5 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 5 ? '700' : '500', transition: 'color 0.3s' }}>3. Canlandır</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ color: step === 1 ? 'var(--text-gold)' : (step > 1 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 1 ? '700' : '500', transition: 'color 0.3s' }}>1. Yöntem</span>
+                      <span style={{ color: step === 2 ? 'var(--text-gold)' : (step > 2 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 2 ? '700' : '500', transition: 'color 0.3s' }}>2. Tür</span>
+                      <span style={{ color: step === 3 ? 'var(--text-gold)' : (step > 3 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 3 ? '700' : '500', transition: 'color 0.3s' }}>3. Kategori</span>
+                      <span style={{ color: step === 4 ? 'var(--text-gold)' : (step > 4 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 4 ? '700' : '500', transition: 'color 0.3s' }}>4. Görsel</span>
+                      <span style={{ color: step === 5 ? 'var(--text-gold)' : (step > 5 ? 'var(--text-primary)' : 'var(--text-secondary)'), fontWeight: step === 5 ? '700' : '500', transition: 'color 0.3s' }}>5. Manken</span>
+                    </>
+                  )}
                 </div>
 
-                {/* Step 1: Gender Selection */}
+                {/* Step 1: Mod Seçimi — Manken Seç vs Kendi Fotoğrafım */}
                 {step === 1 && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px', textAlign: 'center' }}>
-                    <h2 style={{ fontSize: '16px', color: 'var(--text-gold)', marginBottom: '8px', fontWeight: 700 }}>
-                      Giyim Türü Seçin
+                  <div className="glass-panel animate-in" style={{ padding: '28px 24px', textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '17px', color: 'var(--text-gold)', marginBottom: '8px', fontWeight: 700 }}>
+                      Nasıl Üretmek İstersiniz?
                     </h2>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                      Butiğinizin tasarım çizgisini ve canlandırmak istediğiniz giyim türünü seçin.
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '28px', lineHeight: 1.5 }}>
+                      Kıyafetinüzü bir AI mankene giydirebilir ya da kendi çektiğiniz mankenli fotoğrafı doğrudan canlandırabilirsiniz.
                     </p>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '8px' }}>
-                      {/* Bayan Giyim Card */}
-                      <div 
-                        onClick={() => selectGender('WOMEN')}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {/* VTON Option */}
+                      <div
+                        onClick={() => { setGeneratorMode('vton'); setStep(2); }}
                         className="glass-panel"
-                        style={{
-                          padding: '24px 16px',
-                          cursor: 'pointer',
-                          border: '1.5px solid rgba(232, 203, 245, 0.15)',
-                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(232, 203, 245, 0.03) 100%)',
-                          transition: 'all 0.3s ease',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: '12px'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-4px)';
-                          e.currentTarget.style.borderColor = 'rgba(232, 203, 245, 0.45)';
-                          e.currentTarget.style.boxShadow = '0 8px 24px rgba(232, 203, 245, 0.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.borderColor = 'rgba(232, 203, 245, 0.15)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
+                        style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(232, 203, 245, 0.18)', background: 'linear-gradient(135deg, rgba(232, 203, 245, 0.05) 0%, rgba(212, 174, 120, 0.03) 100%)', transition: 'all 0.3s ease', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(232, 203, 245, 0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(232, 203, 245, 0.08)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(232, 203, 245, 0.18)'; e.currentTarget.style.boxShadow = 'none'; }}
                       >
-                        <div style={{
-                          width: '56px',
-                          height: '56px',
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, rgba(232, 203, 245, 0.2) 0%, rgba(212, 174, 120, 0.1) 100%)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '28px'
-                        }}>
-                          👗
-                        </div>
+                        <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'linear-gradient(135deg, rgba(232, 203, 245, 0.2), rgba(212, 174, 120, 0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>👗</div>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-lavender)' }}>Bayan Giyim</div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>Zarif & Estetik Tema</div>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px' }}>Manken Seç &amp; Giydir</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Kıyafetinüzü yapay zeka mankenine giydirir. Askı/düz ürün görselleri için ideal.</div>
                         </div>
+                        <span style={{ marginLeft: 'auto', color: 'var(--text-gold)', fontSize: '18px', flexShrink: 0 }}>›</span>
                       </div>
 
-                      {/* Erkek Giyim Card */}
-                      <div 
-                        onClick={() => selectGender('MEN')}
+                      {/* Direct Option */}
+                      <div
+                        onClick={() => { setGeneratorMode('direct'); setStep(2); }}
                         className="glass-panel"
-                        style={{
-                          padding: '24px 16px',
-                          cursor: 'pointer',
-                          border: '1.5px solid rgba(212, 174, 120, 0.15)',
-                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(212, 174, 120, 0.03) 100%)',
-                          transition: 'all 0.3s ease',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: '12px'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-4px)';
-                          e.currentTarget.style.borderColor = 'rgba(212, 174, 120, 0.45)';
-                          e.currentTarget.style.boxShadow = '0 8px 24px rgba(212, 174, 120, 0.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.borderColor = 'rgba(212, 174, 120, 0.15)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
+                        style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(212, 174, 120, 0.18)', background: 'linear-gradient(135deg, rgba(212, 174, 120, 0.05) 0%, rgba(232, 203, 245, 0.03) 100%)', transition: 'all 0.3s ease', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(212, 174, 120, 0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(212, 174, 120, 0.08)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(212, 174, 120, 0.18)'; e.currentTarget.style.boxShadow = 'none'; }}
                       >
-                        <div style={{
-                          width: '56px',
-                          height: '56px',
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, rgba(212, 174, 120, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '28px'
-                        }}>
-                          👔
+                        <div style={{ width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0, background: 'linear-gradient(135deg, rgba(212, 174, 120, 0.2), rgba(232, 203, 245, 0.12))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' }}>📸</div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px' }}>Kendi Fotoğrafımı Canlandır</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Kendi çektiğiniz mankenli görseli doğrudan animate eder. Gelinlik, abiye gibi özel çekimler için ideal.</div>
                         </div>
+                        <span style={{ marginLeft: 'auto', color: 'var(--text-gold)', fontSize: '18px', flexShrink: 0 }}>›</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2 — DIRECT MODE: Kendi fotoğrafını yükle + Canlandır */}
+                {step === 2 && generatorMode === 'direct' && (
+                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Mankenli Fotoğrafınızı Yükleyin</h2>
+                      <button onClick={() => { setStep(1); setGeneratorMode(null); }} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
+                    </div>
+
+                    <input type="file" ref={fileInputDirectFrontRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setDirectFront)} />
+                    <input type="file" ref={fileInputDirectBackRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setDirectBack)} />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+                      <div onClick={() => fileInputDirectFrontRef.current?.click()} style={{ aspectRatio: '3/4', borderRadius: '12px', border: `2px dashed ${directFront ? 'var(--text-gold)' : 'rgba(255,255,255,0.15)'}`, background: directFront ? 'none' : 'rgba(255,255,255,0.02)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
+                        {directFront ? (
+                          <img src={directFront} alt="Ön" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ textAlign: 'center', padding: '16px' }}>
+                            <div style={{ fontSize: '28px', marginBottom: '8px' }}>📷</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Ön Görünüm</div>
+                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '4px', color: '#ff8888' }}>Zorunlu</div>
+                          </div>
+                        )}
+                      </div>
+                      <div onClick={() => fileInputDirectBackRef.current?.click()} style={{ aspectRatio: '3/4', borderRadius: '12px', border: `2px dashed ${directBack ? 'rgba(212,174,120,0.7)' : 'rgba(255,255,255,0.1)'}`, background: directBack ? 'none' : 'rgba(255,255,255,0.01)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
+                        {directBack ? (
+                          <img src={directBack} alt="Arka" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ textAlign: 'center', padding: '16px' }}>
+                            <div style={{ fontSize: '28px', marginBottom: '8px' }}>🔄</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Arka Görünüm</div>
+                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '4px' }}>360° için</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Tesettür toggle */}
+                    <div onClick={() => setIsHijabDirect(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: isHijabDirect ? 'rgba(212,174,120,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isHijabDirect ? 'rgba(212,174,120,0.4)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '10px', cursor: 'pointer', marginBottom: '16px', transition: 'all 0.2s' }}>
+                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, border: `2px solid ${isHijabDirect ? 'var(--text-gold)' : 'rgba(255,255,255,0.2)'}`, background: isHijabDirect ? 'var(--text-gold)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+                        {isHijabDirect && <span style={{ color: '#1a1a1a', fontSize: '11px', fontWeight: 700 }}>✓</span>}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Mankenim Tesettürlü (Başörtülü)</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Saç, boyun korunması için prompt güncellenir</div>
+                      </div>
+                    </div>
+
+                    {/* Hareket tipi */}
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '10px', fontWeight: 600 }}>Hareket Tipi Seçin</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '20px' }}>
+                      {MOTION_TYPES.map(mt => (
+                        <div key={mt.id} onClick={() => setMotionType(mt.id)} style={{ padding: '10px 12px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s', border: `1.5px solid ${motionType === mt.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`, background: motionType === mt.id ? 'rgba(212,174,120,0.08)' : 'rgba(255,255,255,0.02)', fontSize: '12px', fontWeight: 600, color: motionType === mt.id ? 'var(--text-gold)' : 'var(--text-secondary)' }}>
+                          {mt.label}
+                        </div>
+                      ))}
+                    </div>
+
+                    <button className="btn-gold" disabled={!directFront} onClick={handleGenerate} style={{ opacity: directFront ? 1 : 0.4 }}>
+                      ⚡ Canlandır (1 Kredi)
+                    </button>
+                  </div>
+                )}
+
+                {/* Step 2 — VTON MODE: Giyim Türü (Cinsiyet) */}
+                {step === 2 && generatorMode === 'vton' && (
+                  <div className="glass-panel animate-in" style={{ padding: '24px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <h2 style={{ fontSize: '16px', color: 'var(--text-gold)', fontWeight: 700 }}>Giyim Türü Seçin</h2>
+                      <button onClick={() => { setStep(1); setGeneratorMode(null); }} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div onClick={() => selectGender('WOMEN')} className="glass-panel" style={{ padding: '24px 16px', cursor: 'pointer', border: '1.5px solid rgba(232, 203, 245, 0.15)', background: 'linear-gradient(135deg, rgba(255,255,255,0.03), rgba(232,203,245,0.03))', transition: 'all 0.3s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.45)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.15)'; }}>
+                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(232,203,245,0.2), rgba(212,174,120,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>👗</div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-lavender)' }}>Bayan Giyim</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>Zarif &amp; Estetik Tema</div>
+                        </div>
+                      </div>
+                      <div onClick={() => selectGender('MEN')} className="glass-panel" style={{ padding: '24px 16px', cursor: 'pointer', border: '1.5px solid rgba(212, 174, 120, 0.15)', background: 'linear-gradient(135deg, rgba(255,255,255,0.03), rgba(212,174,120,0.03))', transition: 'all 0.3s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.45)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.15)'; }}>
+                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(212,174,120,0.2), rgba(255,255,255,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>👔</div>
                         <div>
                           <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-gold)' }}>Erkek Giyim</div>
                           <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>Karizmatik Koyu Tema</div>
@@ -806,16 +903,14 @@ function HomePageContent() {
                   </div>
                 )}
 
-                {/* Step 2: Category */}
-                {step === 2 && (
+                {/* Step 3 — VTON MODE: Kıyafet Kategorisi */}
+                {step === 3 && generatorMode === 'vton' && (
                   <div className="glass-panel animate-in" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                        Kıyafet Kategorisi Seçin
-                      </h2>
-                      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
+                      <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Kıyafet Kategorisi Seçin</h2>
+                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
-                    
+
                     <div className="accordion-wrapper">
                       {getFilteredCategoryGroups().map((group) => {
                         const isActive = activeAccordion === group.id;
@@ -843,27 +938,24 @@ function HomePageContent() {
                       })}
                     </div>
 
-                    <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(3)}>
+                    <button className="btn-gold" style={{ marginTop: '24px' }} onClick={() => setStep(4)}>
                       Devam Et ➔
                     </button>
                   </div>
                 )}
 
-                {/* Step 3: Upload images */}
-                {step === 3 && (
+                {/* Step 4 — VTON MODE: Ürün Görselleri Yükleme */}
+                {step === 4 && generatorMode === 'vton' && (
                   <div className="glass-panel animate-in" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                        Ürün Fotoğrafları Yükleyin
-                      </h2>
-                      <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
+                      <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Ürün Fotoğrafları Yükleyin</h2>
+                      <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
 
                     <input type="file" ref={fileInputFrontRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setGarmentFront)} />
                     <input type="file" ref={fileInputBackRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageSelect(e, setGarmentBack)} />
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      {/* Front Upload */}
                       <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={() => triggerImageUpload(fileInputFrontRef)} style={{ minHeight: '180px' }}>
                         {!garmentFront ? (
                           <>
@@ -878,8 +970,6 @@ function HomePageContent() {
                           </div>
                         )}
                       </div>
-
-                      {/* Back Upload */}
                       <div className={`upload-area ${garmentBack ? 'has-image' : ''}`} onClick={() => triggerImageUpload(fileInputBackRef)} style={{ minHeight: '180px' }}>
                         {!garmentBack ? (
                           <>
@@ -896,14 +986,14 @@ function HomePageContent() {
                       </div>
                     </div>
 
-                    <button className="btn-gold" style={{ marginTop: '24px' }} disabled={!garmentFront && !garmentBack} onClick={() => setStep(4)}>
+                    <button className="btn-gold" style={{ marginTop: '24px' }} disabled={!garmentFront && !garmentBack} onClick={() => setStep(5)}>
                       Devam Et ➔
                     </button>
                   </div>
                 )}
 
-                {/* Step 4: Model & Size */}
-                {step === 4 && (
+                {/* Step 5 — VTON MODE: Manken &amp; Beden Seçimi + Son Ayarlar */}
+                {step === 5 && generatorMode === 'vton' && (
                   <div className="glass-panel animate-in" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>

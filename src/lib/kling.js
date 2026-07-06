@@ -8,82 +8,83 @@ const KIE_API_KEY = process.env.KLING_API_KEY || process.env.KIE_API_KEY;
 const KLING_ACCESS_KEY = process.env.KLING_ACCESS_KEY;
 const KLING_SECRET_KEY = process.env.KLING_SECRET_KEY;
 
-// Kategori bazlı ön tanımlı promptlar (kullanıcı bunu düzenleyebilir)
+// Kategori bazlı ön tanımlı promptlar — Arka plan NÖTR (arka plan metin olarak customPrompt'tan geliyor)
 export const DEFAULT_PROMPTS = {
   gelinlik: 
-    "A professional fashion runway video of the model wearing the bridal dress. Gentle breeze animation on the dress. " +
-    "Slow camera orbit turnaround, showing the front view and then the back view of the dress. " +
-    "High-end lighting, photorealistic 4k fashion presentation, smooth 360 degree rotation.",
+    "A professional fashion video of the model wearing a bridal dress. " +
+    "Gentle breeze creates natural movement in the fabric and veil. " +
+    "Slow camera reveals the intricate lace details, elegant draping, and full silhouette from front and back. " +
+    "High-end lighting, photorealistic 4K fashion presentation.",
 
   abiye:
-    "A professional haute couture fashion showcase video. The model slowly rotates 360 degrees. " +
-    "Cinematic camera orbit revealing the dress details from the front and back views. " +
-    "Luxury boutique background, studio lighting, smooth fabric animation.",
+    "A professional haute couture fashion video. The model moves elegantly. " +
+    "Cinematic camera reveals the gown's fabric quality, draping details, and full silhouette from front and back views. " +
+    "Soft studio lighting, smooth fabric animation, photorealistic quality.",
 
   elbise:
-    "A gorgeous fashion showcase of the dress. The model moves gracefully. " +
-    "Cinematic lighting, showcasing the style, draping, and flow of the dress from the front and back views. " +
-    "Luxury background, professional product presentation.",
+    "A gorgeous fashion video of the dress. The model moves gracefully. " +
+    "Showcasing the style, draping, and natural flow of the dress from the front and back views. " +
+    "Professional cinematic lighting.",
 
   gomlek:
-    "A professional fashion showcase of the shirt. The model moves gracefully. " +
+    "A professional fashion video of the shirt. The model moves naturally. " +
     "Showcasing the collar, buttons, cuffs, and clean fabric texture from the front and back views. " +
-    "Soft studio lighting, modern boutique style.",
+    "Soft cinematic lighting, detailed product presentation.",
 
   straplez:
-    "A stunning fashion presentation of the strapless outfit. The model rotates gracefully. " +
-    "Revealing the neckline, silhouette, and drape from the front and back views. " +
-    "High-end studio lighting, elegant background.",
+    "A stunning fashion video of the strapless outfit. The model moves gracefully. " +
+    "Revealing the neckline, silhouette, and drape from front and back angles. " +
+    "High-end cinematic lighting.",
 
   askili:
-    "A beautiful fashion presentation of the strap top. The model moves naturally. " +
-    "Highlighting the shoulder straps, neckline, and fit from the front and back views. " +
-    "Clean studio background, professional lighting.",
+    "A beautiful fashion video of the strap top. The model moves naturally. " +
+    "Highlighting the shoulder straps, neckline, and fabric fit from front and back views. " +
+    "Professional cinematic lighting.",
 
   ceket:
-    "A stylish clothing showcase of the jacket. The model rotates slowly. " +
-    "Camera orbits around the model showing the jacket cut, buttons, and fit from front to back views. " +
-    "Modern clean background, professional product commercial style.",
+    "A stylish fashion video of the jacket. The model moves slowly and confidently. " +
+    "Showcasing the jacket cut, buttons, structure, and fit from front and back views. " +
+    "Professional product presentation lighting.",
 
   trenckot:
-    "A professional fashion showcase of the trenchcoat/cardigan. The model moves gracefully. " +
-    "Showcasing the buttons, collar, fabric, and fit from the front and back views. " +
-    "Clean studio background, soft cinematic lighting.",
+    "A professional fashion video of the trenchcoat. The model moves elegantly. " +
+    "Showcasing the belt, collar, fabric quality, and fit from the front and back views. " +
+    "Soft cinematic lighting.",
 
   mont:
-    "A high-quality fashion presentation of the winter coat. The model turns slowly. " +
+    "A high-quality fashion video of the winter coat. The model turns slowly. " +
     "Showcasing the zippers, hood, texture, and volume of the coat from the front and back views. " +
-    "Modern outdoor lighting, clean background.",
+    "Natural cinematic lighting.",
 
   pelus:
-    "A cozy fashion showcase of the plush jacket. The model rotates gracefully. " +
+    "A cozy fashion video of the plush jacket. The model rotates gracefully. " +
     "Revealing the soft plush texture, collar, and warm fit from the front and back views. " +
-    "Cozy warm studio lighting.",
+    "Warm cinematic lighting.",
 
   kurk:
-    "A luxury fashion showcase of the faux fur coat. The model rotates slowly. " +
+    "A luxury fashion video of the faux fur coat. The model moves slowly and confidently. " +
     "Highlighting the rich fur texture, volume, and elegance from the front and back views. " +
-    "Luxury background, soft studio lighting.",
+    "Soft cinematic lighting.",
 
   tisort:
-    "A clean streetwear product video. The model does a slow turnaround rotation. " +
-    "Showcasing the top/t-shirt print and design on both the front and back views. " +
-    "Studio lighting, natural motion, sharp details.",
+    "A clean fashion product video of the t-shirt. The model does a slow natural rotation. " +
+    "Showcasing the print, design, and fabric on both the front and back views. " +
+    "Natural lighting, sharp details.",
 
   kazak:
-    "A cozy winter fashion presentation of the sweater. The model moves slowly. " +
+    "A cozy fashion video of the sweater. The model moves naturally. " +
     "Highlighting the knit textures, patterns, and fit of the sweater from the front and back. " +
-    "Soft warm lighting, clean studio background.",
+    "Soft warm cinematic lighting.",
 
   pantolon:
-    "A fashion presentation of the trousers. The model does a slow orbit rotation. " +
+    "A fashion video of the trousers. The model moves confidently. " +
     "Highlighting the fabric, fit, and style of the pants from the front and back views. " +
-    "Neutral studio background, smooth camera movement.",
+    "Smooth cinematic camera movement.",
 
   etek:
-    "A beautiful fashion presentation of the skirt. The model rotates gracefully. " +
-    "Showcasing the pleats, length, and movement of the skirt from the front and back views. " +
-    "Elegant clean background, professional commercial lighting."
+    "A beautiful fashion video of the skirt. The model moves gracefully. " +
+    "Showcasing the pleats, length, and natural movement of the skirt from the front and back views. " +
+    "Professional cinematic lighting."
 };
 
 /**

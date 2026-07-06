@@ -148,46 +148,72 @@ export async function POST(request) {
 
     // 2. Parse request parameters
     const {
-      humanFront,   // Base64 or URL of front human (composed with bg)
-      humanBack,    // Base64 or URL of back human (composed with bg)
-      garmentFront, // Base64 of garment front
-      garmentBack,  // Base64 of garment back
+      humanFront,   // Base64 or URL of front human (mannequin template OR user's own photo)
+      humanBack,    // Base64 or URL of back human
+      garmentFront, // Base64 of garment front (only in VTON mode)
+      garmentBack,  // Base64 of garment back (only in VTON mode)
       category,
       modelId,
       bodySize,
       backgroundId,
       customPrompt,
       motionType,   // rotation | walk | pose | breeze
+      directMode,   // boolean — true: skip VTON, animate user's own photo directly
     } = await request.json();
 
     const isRotation = motionType === 'rotation';
+    const isDirectMode = !!directMode;
 
-    if (!humanFront || !garmentFront || !category) {
+    if (!humanFront || !category) {
       return NextResponse.json({ error: 'Gerekli görsel parametreleri eksik.' }, { status: 400 });
     }
-    if (isRotation && (!humanBack || !garmentBack)) {
-      return NextResponse.json({ error: '360° dönüş için arka görünüm görselleri gereklidir.' }, { status: 400 });
+    if (!isDirectMode && !garmentFront) {
+      return NextResponse.json({ error: 'VTON modu için kıyafet görseli gereklidir.' }, { status: 400 });
+    }
+    if (isRotation && !humanBack) {
+      return NextResponse.json({ error: '360° dönüş için arka görünüm görseli gereklidir.' }, { status: 400 });
     }
 
     console.log(`[Generate Route] Starting generation for user: ${user.email}, motion: ${motionType}`);
 
     // 3. Upload images to ImgBB
     console.log('[Generate Route] Uploading source images to ImgBB...');
-    const uploadPromises = [
-      uploadToImgBB(humanFront),
-      isRotation ? uploadToImgBB(humanBack) : Promise.resolve(null),
-      uploadToImgBB(garmentFront),
-      garmentBack ? uploadToImgBB(garmentBack) : Promise.resolve(null),
-    ];
 
-    const [humanFrontUrl, humanBackUrl, garmentFrontUrl, garmentBackUrl] = await Promise.all(uploadPromises);
+    let humanFrontUrl, humanBackUrl, garmentFrontUrl, garmentBackUrl;
 
-    // 4. Run Fal.ai VTON try-on (conditionally for front & back, or just front)
+    if (isDirectMode) {
+      // Direct mode: upload only user's own photos, no garment images needed
+      console.log('[Generate Route] [Direct Mode] Uploading user photos only (VTON skipped)...');
+      const uploadPromises = [
+        uploadToImgBB(humanFront),
+        humanBack ? uploadToImgBB(humanBack) : Promise.resolve(null),
+      ];
+      [humanFrontUrl, humanBackUrl] = await Promise.all(uploadPromises);
+      garmentFrontUrl = null;
+      garmentBackUrl = null;
+    } else {
+      // VTON mode: upload mannequin template + garment images
+      console.log('[Generate Route] [VTON Mode] Uploading mannequin and garment images...');
+      const uploadPromises = [
+        uploadToImgBB(humanFront),
+        isRotation ? uploadToImgBB(humanBack) : Promise.resolve(null),
+        uploadToImgBB(garmentFront),
+        garmentBack ? uploadToImgBB(garmentBack) : Promise.resolve(null),
+      ];
+      [humanFrontUrl, humanBackUrl, garmentFrontUrl, garmentBackUrl] = await Promise.all(uploadPromises);
+    }
+
+    // 4. Run Fal.ai VTON try-on (only in VTON mode)
     let frontDressedUrl;
     let backDressedUrl = null;
 
-    if (isRotation) {
-      console.log('[Generate Route] Triggering Fal.ai try-on for Front & Back (rotation)...');
+    if (isDirectMode) {
+      // Skip VTON — use user's own photos directly
+      console.log('[Generate Route] [Direct Mode] Bypassing VTON. Using user photos directly for Kling.');
+      frontDressedUrl = humanFrontUrl;
+      backDressedUrl = humanBackUrl || humanFrontUrl;
+    } else if (isRotation) {
+      console.log('[Generate Route] [VTON Mode] Triggering Fal.ai try-on for Front & Back (rotation)...');
       const [frontRes, backRes] = await Promise.all([
         runVirtualTryOn({
           humanUrl: humanFrontUrl,
@@ -203,7 +229,7 @@ export async function POST(request) {
       frontDressedUrl = frontRes;
       backDressedUrl = backRes;
     } else {
-      console.log('[Generate Route] Triggering Fal.ai try-on for Front only (non-rotation)...');
+      console.log('[Generate Route] [VTON Mode] Triggering Fal.ai try-on for Front only...');
       frontDressedUrl = await runVirtualTryOn({
         humanUrl: humanFrontUrl,
         garmentUrl: garmentFrontUrl,
@@ -211,7 +237,7 @@ export async function POST(request) {
       });
     }
 
-    console.log('[Generate Route] VTON complete. Dressed URLs:', { frontDressedUrl, backDressedUrl });
+    console.log('[Generate Route] Dressed URLs ready:', { frontDressedUrl, backDressedUrl, isDirectMode });
 
     // Apply Hijab Masking if model is Huma (tesettürlü)
     if (modelId === 'huma') {
@@ -249,11 +275,20 @@ export async function POST(request) {
     console.log('[Generate Route] Translating custom prompt to English if needed...');
     const translatedPrompt = await translateToEnglish(customPrompt);
 
+    // Cinematic suffix — eliminates green screen / flat background effect
+    // By instructing Kling to treat the environment as real 3D space with natural depth
+    const cinematicSuffix = isDirectMode
+      ? 'Photorealistic video, natural environment lighting, cinematic depth of field, genuine atmospheric perspective, natural camera motion, realistic shadows cast on ground, 8K quality, no artificial studio look.'
+      : 'Photorealistic, cinematic depth of field, natural environmental lighting, background has realistic depth and parallax motion, no flat or studio green screen look, natural shadows and ground contact, 8K quality.';
+
+    const finalPrompt = `${translatedPrompt} ${cinematicSuffix}`;
+    console.log('[Generate Route] Final prompt with cinematic suffix ready.');
+
     // 6. Trigger Kling video generation with start (and optional end) frames
     console.log('[Generate Route] Triggering Kling AI video generation...');
-    // Since we now mask the back view of Huma to preserve the hijab, we can safely pass both front and back views for rotation!
+    // For rotation: pass both front and back. For direct mode: pass whatever views user uploaded.
     const imagesToPass = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
-    const { taskId } = await createVideo(imagesToPass, category, translatedPrompt, modelId);
+    const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);
 
@@ -271,11 +306,11 @@ export async function POST(request) {
           id: taskId, // Use Kling taskId as unique generation ID
           userId: user.id,
           category,
-          frontGarmUrl: garmentFrontUrl,
-          backGarmUrl: garmentBackUrl || garmentFrontUrl, // DB constraint check
-          modelId,
-          bodySize,
-          backgroundId,
+          frontGarmUrl: garmentFrontUrl || humanFrontUrl,  // In direct mode, store user's own photo
+          backGarmUrl: garmentBackUrl || garmentFrontUrl || humanFrontUrl, // DB constraint
+          modelId: isDirectMode ? 'own_model' : (modelId || 'melisa'),
+          bodySize: bodySize || 'STANDARD',
+          backgroundId: backgroundId || 'own',
           status: 'PROCESSING',
         },
       });
