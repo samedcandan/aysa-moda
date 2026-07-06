@@ -162,9 +162,32 @@ function SVGOutline({ category }) {
 //  ANA SAYFA İÇERİĞİ
 // ============================================================
 
+function SearchParamsHandler({ setActiveTab, fetchUserSession }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus === 'success') {
+      const plan = searchParams.get('plan');
+      const added = searchParams.get('added');
+      alert(`Ödemeniz başarıyla tamamlandı! ${plan} planı tanımlandı ve hesabınıza ${added} video kredisi eklendi.`);
+      setActiveTab('settings');
+      fetchUserSession();
+      router.replace('/');
+    } else if (paymentStatus === 'error') {
+      const msg = searchParams.get('msg') || 'Ödeme işlemi gerçekleştirilemedi.';
+      alert(`Ödeme Hatası: ${msg}`);
+      setActiveTab('settings');
+      router.replace('/');
+    }
+  }, [searchParams, router, setActiveTab, fetchUserSession]);
+
+  return null;
+}
+
 function HomePageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   // --- Auth ---
   const [user, setUser] = useState(null);
@@ -289,22 +312,7 @@ function HomePageContent() {
 
   useEffect(() => { fetchUserSession(); }, []);
 
-  useEffect(() => {
-    const paymentStatus = searchParams.get('payment');
-    if (paymentStatus === 'success') {
-      const plan = searchParams.get('plan');
-      const added = searchParams.get('added');
-      alert(`Ödemeniz başarıyla tamamlandı! ${plan} planı tanımlandı ve hesabınıza ${added} video kredisi eklendi.`);
-      setActiveTab('settings');
-      fetchUserSession();
-      router.replace('/');
-    } else if (paymentStatus === 'error') {
-      const msg = searchParams.get('msg') || 'Ödeme işlemi gerçekleştirilemedi.';
-      alert(`Ödeme Hatası: ${msg}`);
-      setActiveTab('settings');
-      router.replace('/');
-    }
-  }, [searchParams, router]);
+  // searchParams logic moved to SearchParamsHandler component above
 
   // ---- Auth ----
   const handleLogin = async (e) => {
@@ -666,6 +674,10 @@ function HomePageContent() {
 
   if (!user) {
     return (
+      <>
+        <Suspense fallback={null}>
+          <SearchParamsHandler setActiveTab={setActiveTab} fetchUserSession={fetchUserSession} />
+        </Suspense>
       <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', position: 'relative' }}>
         <div className="glow-container">
           <div className="glow-blob-1" /><div className="glow-blob-2" /><div className="glow-blob-3" />
@@ -702,6 +714,7 @@ function HomePageContent() {
           </div>
         </div>
       </div>
+    </>
     );
   }
 
@@ -712,7 +725,11 @@ function HomePageContent() {
   const activeVideo = retryVideoUrl || generatedVideo;
 
   return (
-    <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+    <>
+      <Suspense fallback={null}>
+        <SearchParamsHandler setActiveTab={setActiveTab} fetchUserSession={fetchUserSession} />
+      </Suspense>
+      <div className={themeClass} style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
       <div className="glow-container">
         <div className="glow-blob-1" /><div className="glow-blob-2" /><div className="glow-blob-3" />
       </div>
@@ -1517,6 +1534,7 @@ function HomePageContent() {
 
       <footer className="footer">Karneyn Yazılım — AI Moda Stüdyosu</footer>
     </div>
+    </>
   );
 }
 
@@ -1526,12 +1544,8 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary, #0a0e1a)', color: 'white' }}>
-        <div className="spinner" />
-      </div>
-    }>
+    <>
       <HomePageContent />
-    </Suspense>
+    </>
   );
 }
