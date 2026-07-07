@@ -39,10 +39,11 @@ Sadece JSON döndür, başka hiçbir şey yazma.
 Kurallar:
 - categoryId şunlardan biri olmalı: gelinlik, abiye, elbise, gomlek, straplez, askili, tisort, kazak, ceket, trenckot, mont, pelus, kurk, pantolon, etek
 - motionId şunlardan biri olmalı: rotation (360° dönüş), walk (podyum yürüyüşü), pose (zarif pozlar), breeze (rüzgar duruşu)
-- promptSuggestion Türkçe olmalı, kıyafeti tanımlayan kısa ve etkili bir video açıklaması
-- productType Türkçe, kıyafetin genel adı
-- color Türkçe, ana renk
-- style Türkçe, kesim/model bilgisi
+- productType Türkçe, kıyafetin genel adı (örn: Gömlek, Ceket, Pantolon, Abiye Elbise)
+- color Türkçe, ana renk (örn: Lacivert, Siyah, Kırmızı, Haki)
+- clothingType Türkçe, giyim türü. Sadece şu üç değerden biri olmalı: "Üst Giyim", "Alt Giyim", "Full Giyim"
+- fabric Türkçe, kumaş türü (örn: Keten, Pamuk, İpek, Kot, Şifon, Saten, Dantel, Kadife, Yün)
+- promptSuggestion Türkçe olmalı. Kıyafeti (türünü, rengini, giyim tipini, kumaşını, detaylarını) ve önerilen hareketi (motionId'ye uygun olarak mankenin yapacağı eylemleri, örn. yavaşça 360 derece dönerek kıyafeti sergilemesi, podyumda yürümesi veya rüzgarda dalgalanması) birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kıyafetin hareket/akış durumunu ve rüzgar esintisi gibi detayları doğrudan bu promptSuggestion içerisinde eylem olarak betimle.
 
 ${genderNote}
 
@@ -51,8 +52,8 @@ Yanıt formatı:
   "productType": "string",
   "categoryId": "string",
   "color": "string",
-  "style": "string",
-  "motionSuggestion": "string",
+  "clothingType": "string",
+  "fabric": "string",
   "motionId": "string",
   "promptSuggestion": "string"
 }`;

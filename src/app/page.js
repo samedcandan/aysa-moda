@@ -1189,20 +1189,12 @@ function HomePageContent() {
                       <>
                         {/* Analiz Özeti */}
                         <div style={{ padding: '16px', background: 'rgba(102,204,136,0.06)', border: '1px solid rgba(102,204,136,0.2)', borderRadius: '12px', marginBottom: '20px' }}>
-                          <div style={{ fontSize: '12px', color: '#66cc88', fontWeight: 700, marginBottom: '8px' }}>✅ Analiz Tamamlandı</div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', minWidth: '60px' }}>Ürün:</span>
-                              <span style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>{analysisResult.productType}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', minWidth: '60px' }}>Renk:</span>
-                              <span style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>{analysisResult.color}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', minWidth: '60px' }}>Stil:</span>
-                              <span style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>{analysisResult.style}</span>
-                            </div>
+                          <div style={{ fontSize: '12px', color: '#66cc88', fontWeight: 700, marginBottom: '10px' }}>✅ Analiz Tamamlandı</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Ürün: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.productType}</strong></div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Renk: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.color}</strong></div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Giyim Türü: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.clothingType || 'Belirtilmedi'}</strong></div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Kumaş: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.fabric || 'Belirtilmedi'}</strong></div>
                           </div>
                         </div>
 
@@ -1354,8 +1346,13 @@ function HomePageContent() {
                         )}
                         {analysisResult && (
                           <div style={{ padding: '14px', background: 'rgba(102,204,136,0.06)', border: '1px solid rgba(102,204,136,0.2)', borderRadius: '12px', marginBottom: '16px' }}>
-                            <div style={{ fontSize: '11px', color: '#66cc88', fontWeight: 700, marginBottom: '6px' }}>✅ Tespit: {analysisResult.productType} — {analysisResult.color}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Hareket Önerisi: <span style={{ color: 'var(--text-gold)', fontWeight: 600 }}>{analysisResult.motionSuggestion}</span></div>
+                            <div style={{ fontSize: '12px', color: '#66cc88', fontWeight: 700, marginBottom: '10px' }}>✅ Ürün Analizi Tamamlandı</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Ürün: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.productType}</strong></div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Renk: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.color}</strong></div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Giyim Türü: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.clothingType || 'Belirtilmedi'}</strong></div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Kumaş: <strong style={{ color: 'var(--text-primary)' }}>{analysisResult.fabric || 'Belirtilmedi'}</strong></div>
+                            </div>
                           </div>
                         )}
 
