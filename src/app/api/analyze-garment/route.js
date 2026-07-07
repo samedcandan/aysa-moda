@@ -44,6 +44,11 @@ Kurallar:
 - clothingType Türkçe, giyim türü. Sadece şu üç değerden biri olmalı: "Üst Giyim", "Alt Giyim", "Full Giyim"
 - fabric Türkçe, kumaş türü (örn: Keten, Pamuk, İpek, Kot, Şifon, Saten, Dantel, Kadife, Yün)
 - promptSuggestion Türkçe olmalı. Kıyafeti (türünü, rengini, giyim tipini, kumaşını, detaylarını) ve önerilen hareketi (motionId'ye uygun olarak mankenin yapacağı eylemleri, örn. yavaşça 360 derece dönerek kıyafeti sergilemesi, podyumda yürümesi veya rüzgarda dalgalanması) birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kıyafetin hareket/akış durumunu ve rüzgar esintisi gibi detayları doğrudan bu promptSuggestion içerisinde eylem olarak betimle.
+- Kadraj ve Odak Noktası Kuralları: Tespit edilen clothingType değerine göre promptSuggestion içinde kameranın kadrajı ve odak noktası mutlaka belirtilmelidir:
+  * "Üst Giyim" için: Video üst vücuda odaklanmış yakın/orta çekim (upper body focus, medium close-up, chest-up details) olarak betimlenmeli, yaka/omuz detayları vurgulanmalıdır.
+  * "Alt Giyim" için: Video alt vücuda odaklanmış bacak/pantolon/etek yakın çekim (lower body focus, waist-down showcase) olarak betimlenmeli, kalıp/kesim detayları vurgulanmalıdır.
+  * "Full Giyim" için: Video baştan ayağa tüm vücudu ve elbisenin tamamını gösteren boydan çekim (full body showcase, head-to-toe framing) olarak betimlenmeli, genel silüet vurgulanmalıdır.
+  Bu kadraj yönlendirmesini promptSuggestion metninin içerisine doğal ve akıcı bir şekilde yerleştir.
 
 ${genderNote}
 
