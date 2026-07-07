@@ -881,17 +881,7 @@ function HomePageContent() {
                   <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                 </div>
                 <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={3}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s' }} />
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px', marginBottom: '20px' }}>
-                  {['Rüzgarlı hava', 'Yavaş dönüş', 'Zarif yürüyüş', 'Kumaş uçuşsun', 'Sinematik ışık', 'Lüks atmosfer'].map(tag => (
-                    <button key={tag} onClick={() => { setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim()); setIsPromptEdited(true); }}
-                      style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
-                      onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}>
-                      + {tag}
-                    </button>
-                  ))}
-                </div>
+                  style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s', marginBottom: '20px' }} />
 
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button onClick={() => { setPhase('idle'); setStep(5); }} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
@@ -1380,17 +1370,7 @@ function HomePageContent() {
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
                         <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={3}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s' }} />
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px', marginBottom: '20px' }}>
-                          {['Rüzgarlı hava', 'Yavaş dönüş', 'Zarif yürüyüş', 'Kumaş uçuşsun', 'Sinematik ışık', 'Lüks atmosfer'].map(tag => (
-                            <button key={tag} onClick={() => { setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim()); setIsPromptEdited(true); }}
-                              style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
-                              onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
-                              onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}>
-                              + {tag}
-                            </button>
-                          ))}
-                        </div>
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s', marginBottom: '20px' }} />
 
                         <button className="btn-gold" onClick={handleVTONGenerate}
                           disabled={customPrompt.trim().length < 20}
