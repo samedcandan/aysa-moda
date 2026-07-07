@@ -218,6 +218,7 @@ function HomePageContent() {
   const [customBg, setCustomBg] = useState(null);
   const [motionType, setMotionType] = useState('rotation');
   const [customPrompt, setCustomPrompt] = useState('');
+  const [isPromptEdited, setIsPromptEdited] = useState(false);
 
   // --- Direct Mod ---
   const [directFront, setDirectFront] = useState(null);
@@ -260,16 +261,24 @@ function HomePageContent() {
 
   // ---- Prompt Otomatik Güncelleme ----
   useEffect(() => {
+    if (isPromptEdited) return;
+    if (analysisResult && analysisResult.promptSuggestion) {
+      setCustomPrompt(analysisResult.promptSuggestion);
+      return;
+    }
     const prompt = buildPrompt({ category, backgroundId, motionType, modelId, generatorMode, isHijabDirect });
     setCustomPrompt(prompt);
-  }, [category, backgroundId, motionType, modelId, generatorMode, isHijabDirect]);
+  }, [category, backgroundId, motionType, modelId, generatorMode, isHijabDirect, isPromptEdited, analysisResult]);
 
   // ---- Analiz sonucu gelince prompt/category/motion güncelle ----
   useEffect(() => {
     if (!analysisResult) return;
     if (analysisResult.categoryId) setCategory(analysisResult.categoryId);
     if (analysisResult.motionId) setMotionType(analysisResult.motionId);
-    if (analysisResult.promptSuggestion) setCustomPrompt(analysisResult.promptSuggestion);
+    if (analysisResult.promptSuggestion) {
+      setCustomPrompt(analysisResult.promptSuggestion);
+      setIsPromptEdited(false);
+    }
   }, [analysisResult]);
 
   // ---- Cinsiyet değişince model ayarla ----
@@ -672,6 +681,7 @@ function HomePageContent() {
     setErrorMsg('');
     setBackgroundId('original');
     setCustomPrompt('');
+    setIsPromptEdited(false);
     setAnalysisResult(null);
     setAnalyzeError('');
     setIsAnalyzing(false);
@@ -860,36 +870,8 @@ function HomePageContent() {
                     </div>
                   )}
                 </div>
-
-                {/* Hareket tipi */}
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Hareket Tipi</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-                  {MOTION_TYPES.map(mt => (
-                    <div key={mt.id} onClick={() => setMotionType(mt.id)} style={{
-                      padding: '8px 10px', borderRadius: '8px', cursor: 'pointer',
-                      border: `1.5px solid ${motionType === mt.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`,
-                      background: motionType === mt.id ? 'rgba(212,174,120,0.08)' : 'rgba(255,255,255,0.02)',
-                      fontSize: '11px', fontWeight: 600, textAlign: 'center', transition: 'all 0.2s',
-                      color: motionType === mt.id ? 'var(--text-gold)' : 'var(--text-secondary)',
-                    }}>{mt.label}</div>
-                  ))}
-                </div>
-
-                {/* Arka plan */}
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Ortam</p>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                  {BACKGROUNDS.filter(b => b.id !== 'custom' && b.id !== 'original').map(bg => (
-                    <div key={bg.id} onClick={() => setBackgroundId(bg.id)} style={{
-                      padding: '6px 12px', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.2s',
-                      border: `1.5px solid ${backgroundId === bg.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`,
-                      background: backgroundId === bg.id ? 'rgba(212,174,120,0.1)' : 'rgba(255,255,255,0.02)',
-                      fontSize: '11px', color: backgroundId === bg.id ? 'var(--text-gold)' : 'var(--text-secondary)',
-                    }}>{bg.label}</div>
-                  ))}
-                </div>
-
                 {/* Prompt */}
-                <div style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600, margin: 0 }}>📝 Video Açıklaması</p>
                   <span style={{ fontSize: '11px', fontWeight: 700, color: customPrompt.trim().length < 20 ? '#ff6666' : '#66cc88' }}>
                     {customPrompt.trim().length} / 20 karakter
@@ -898,11 +880,11 @@ function HomePageContent() {
                 <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                 </div>
-                <textarea value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} placeholder="Manken açıklamasını girin..." rows={3}
+                <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={3}
                   style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s' }} />
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px', marginBottom: '20px' }}>
                   {['Rüzgarlı hava', 'Yavaş dönüş', 'Zarif yürüyüş', 'Kumaş uçuşsun', 'Sinematik ışık', 'Lüks atmosfer'].map(tag => (
-                    <button key={tag} onClick={() => setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim())}
+                    <button key={tag} onClick={() => { setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim()); setIsPromptEdited(true); }}
                       style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
                       onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
                       onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}>
@@ -912,8 +894,8 @@ function HomePageContent() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={resetForm} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                    ↩ Yeniden Dene
+                  <button onClick={() => { setPhase('idle'); setStep(5); }} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Ayarları Düzenle
                   </button>
                   <button className="btn-gold" onClick={() => handleStartVideo(false)}
                     disabled={customPrompt.trim().length < 20}
@@ -1234,22 +1216,6 @@ function HomePageContent() {
                           </div>
                         </div>
 
-                        {/* Arka Plan Seçimi */}
-                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Stüdyo Arka Planı</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px', marginBottom: '20px' }}>
-                          {BACKGROUNDS.map(bg => (
-                            <div key={bg.id} onClick={() => setBackgroundId(bg.id)} style={{
-                              padding: '8px 10px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s',
-                              border: `1.5px solid ${backgroundId === bg.id ? 'var(--text-gold)' : 'rgba(255,255,255,0.06)'}`,
-                              background: backgroundId === bg.id ? 'rgba(212,174,120,0.1)' : 'rgba(255,255,255,0.02)',
-                              fontSize: '11px', fontWeight: 600, textAlign: 'center',
-                              color: backgroundId === bg.id ? 'var(--text-gold)' : 'var(--text-secondary)',
-                            }}>
-                              {bg.label}
-                            </div>
-                          ))}
-                        </div>
-
                         {/* Prompt */}
                         <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
                           📝 Video Açıklaması
@@ -1258,7 +1224,7 @@ function HomePageContent() {
                         <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
-                        <textarea value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} rows={4}
+                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} rows={4}
                           style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '20px', transition: 'border-color 0.3s' }} />
 
                         <button className="btn-gold" onClick={() => handleDirectGenerate(false)}
@@ -1403,34 +1369,33 @@ function HomePageContent() {
                           </div>
                         )}
 
-                        {/* Kategori Seçimi */}
-                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '10px', fontWeight: 600 }}>Kıyafet Kategorisi</p>
-                        <div className="accordion-wrapper" style={{ marginBottom: '16px' }}>
-                          {getFilteredCategories().map(group => {
-                            const isActive = activeAccordion === group.id;
-                            return (
-                              <div key={group.id} className={`accordion-item ${isActive ? 'active' : ''}`}>
-                                <div className="accordion-header" onClick={() => setActiveAccordion(isActive ? '' : group.id)}>
-                                  <span className="accordion-title">{group.title}</span>
-                                  <span className="accordion-arrow">▼</span>
-                                </div>
-                                <div className="accordion-content">
-                                  <div className="accordion-category-list">
-                                    {group.categories.map(cat => (
-                                      <div key={cat.id} className={`accordion-category-card ${category === cat.id ? 'selected' : ''}`} onClick={() => setCategory(cat.id)}>
-                                        <span className="label">{cat.label}</span>
-                                        {analysisResult?.categoryId === cat.id && <span style={{ fontSize: '9px', color: '#66cc88', display: 'block' }}>✓ önerilen</span>}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
+                        {/* Prompt */}
+                        <div style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600, margin: 0 }}>📝 Video Açıklaması</p>
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: customPrompt.trim().length < 20 ? '#ff6666' : '#66cc88' }}>
+                            {customPrompt.trim().length} / 20 karakter
+                          </span>
+                        </div>
+                        <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
+                        </div>
+                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={3}
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s' }} />
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px', marginBottom: '20px' }}>
+                          {['Rüzgarlı hava', 'Yavaş dönüş', 'Zarif yürüyüş', 'Kumaş uçuşsun', 'Sinematik ışık', 'Lüks atmosfer'].map(tag => (
+                            <button key={tag} onClick={() => { setCustomPrompt(prev => `${prev.trim()} ${tag}.`.trim()); setIsPromptEdited(true); }}
+                              style={{ padding: '5px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s' }}
+                              onMouseEnter={e => { e.target.style.borderColor = 'rgba(212,174,120,0.4)'; e.target.style.color = 'var(--text-gold)'; }}
+                              onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.color = 'var(--text-secondary)'; }}>
+                              + {tag}
+                            </button>
+                          ))}
                         </div>
 
-                        <button className="btn-gold" onClick={handleVTONGenerate}>
-                          🧵 Giydirmeye Başla ›
+                        <button className="btn-gold" onClick={handleVTONGenerate}
+                          disabled={customPrompt.trim().length < 20}
+                          style={{ opacity: customPrompt.trim().length < 20 ? 0.45 : 1, cursor: customPrompt.trim().length < 20 ? 'not-allowed' : 'pointer' }}>
+                          {customPrompt.trim().length < 20 ? '📝 Prompt yazın...' : '🧵 Giydirmeye Başla ›'}
                         </button>
                       </>
                     )}
