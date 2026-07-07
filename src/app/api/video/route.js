@@ -22,7 +22,7 @@ async function translateToEnglish(text) {
         messages: [
           {
             role: 'system',
-            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Output ONLY the English translation, no other text.',
+            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Crucially, specify that the fabric of the clothing must be 100% opaque, solid, non-transparent, and non-see-through, maintaining its original thick texture (like solid linen, velvet, wool, cotton) without showing any skin or undergarments underneath. Output ONLY the English translation, no other text.',
           },
           { role: 'user', content: text },
         ],

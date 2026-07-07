@@ -102,7 +102,7 @@ async function translateToEnglish(text) {
         messages: [
           {
             role: 'system',
-            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Pay special attention to modesty and hijab requirements: if the prompt describes a hijab (tesettür, başörtüsü), ensure the English translation clearly specifies that all hair, neck, shoulders, and arms must remain fully covered at all times and from all camera angles, without any exposure of skin or undergarments. Output ONLY the English translation, no other text or explanation.'
+            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Crucially, specify that the fabric of the clothing must be 100% opaque, solid, non-transparent, and non-see-through, maintaining its original thick texture (like solid linen, velvet, wool, cotton) without showing any skin or undergarments underneath. Pay special attention to modesty and hijab requirements: if the prompt describes a hijab (tesettür, başörtüsü), ensure the English translation clearly specifies that all hair, neck, shoulders, and arms must remain fully covered at all times and from all camera angles, without any exposure of skin or undergarments. Output ONLY the English translation, no other text or explanation.'
           },
           {
             role: 'user',

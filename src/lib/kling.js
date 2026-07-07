@@ -99,11 +99,11 @@ export async function createVideo(imageUrls, category, customPrompt, modelId) {
   const prompt = customPrompt || DEFAULT_PROMPTS[category] || DEFAULT_PROMPTS.tisort;
   const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
 
-  // Dynamic negative prompt for Huma (hijab model) to prevent exposed skin/neck/hair/slits and outfit morphing
-  let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg';
+  // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits and outfit morphing
+  let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes';
   const lowerPrompt = prompt.toLowerCase();
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
-    negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck';
+    negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes';
   }
 
   // 1. Kie AI (Primary)

@@ -275,6 +275,7 @@ function HomePageContent() {
     if (!analysisResult) return;
     if (analysisResult.categoryId) setCategory(analysisResult.categoryId);
     if (analysisResult.motionId) setMotionType(analysisResult.motionId);
+    if (analysisResult.backgroundId) setBackgroundId(analysisResult.backgroundId);
     if (analysisResult.promptSuggestion) {
       setCustomPrompt(analysisResult.promptSuggestion);
       setIsPromptEdited(false);
@@ -483,7 +484,7 @@ function HomePageContent() {
           humanBack: humanBackB64,
           garmentFront: garmentFront || garmentBack,
           garmentBack: garmentBack || garmentFront,
-          category, modelId, bodySize, motionType,
+          category, modelId, bodySize, motionType, backgroundId,
         }),
       });
 

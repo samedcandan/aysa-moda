@@ -9,6 +9,45 @@ import fs from 'fs';
 // Vercel Pro: 5 dakikaya kadar çalışabilir
 export const maxDuration = 300;
 
+// Helper to composite transparent mannequin onto a selected stock background image using Jimp
+async function composeMannequinOnBackground({ mannequinBase64, backgroundId }) {
+  const backgrounds = {
+    boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
+    runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
+    street: 'https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?q=80&w=768&auto=format&fit=crop',
+    garden: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?q=80&w=768&auto=format&fit=crop',
+  };
+
+  const bgUrl = backgrounds[backgroundId];
+  if (!bgUrl) {
+    return mannequinBase64;
+  }
+
+  try {
+    console.log(`[VTON Compositing] Composing mannequin on background: ${backgroundId}`);
+    const cleanBase64 = mannequinBase64.replace(/^data:image\/\w+;base64,/, '');
+    const mannequinBuffer = Buffer.from(cleanBase64, 'base64');
+
+    const [bgImg, mannequinImg] = await Promise.all([
+      Jimp.read(bgUrl),
+      Jimp.read(mannequinBuffer)
+    ]);
+
+    const targetW = mannequinImg.bitmap.width;
+    const targetH = mannequinImg.bitmap.height;
+
+    bgImg.resize({ w: targetW, h: targetH });
+    bgImg.composite(mannequinImg, 0, 0);
+
+    const outBuffer = await bgImg.getBuffer('image/jpeg');
+    return `data:image/jpeg;base64,${outBuffer.toString('base64')}`;
+
+  } catch (error) {
+    console.error(`[VTON Compositing] Error composing background:`, error);
+    return mannequinBase64;
+  }
+}
+
 // Hijab masking helper (aynı route.js'teki gibi)
 async function maskHijab({ originalBase64, dressedImageUrl, modelId, bodySize, view }) {
   try {
@@ -74,6 +113,7 @@ export async function POST(request) {
       modelId,
       bodySize,
       motionType,
+      backgroundId,
     } = await request.json();
 
     if (!humanFront || !garmentFront || !category) {
@@ -82,21 +122,32 @@ export async function POST(request) {
 
     const isRotation = motionType === 'rotation';
 
-    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}`);
+    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}, backgroundId=${backgroundId}`);
+
+    // Pre-compose transparent mannequin onto selected background if applicable
+    let finalHumanFront = humanFront;
+    let finalHumanBack = humanBack;
+
+    if (backgroundId && backgroundId !== 'original') {
+      finalHumanFront = await composeMannequinOnBackground({ mannequinBase64: humanFront, backgroundId });
+      if (humanBack) {
+        finalHumanBack = await composeMannequinOnBackground({ mannequinBase64: humanBack, backgroundId });
+      }
+    }
 
     // 1. Görselleri ImgBB'ye yükle
     console.log('[VTON] Uploading images to ImgBB...');
     const uploadTasks = [
-      uploadToImgBB(humanFront),
+      uploadToImgBB(finalHumanFront),
       uploadToImgBB(garmentFront),
     ];
-    if (isRotation && humanBack) uploadTasks.push(uploadToImgBB(humanBack));
+    if (isRotation && finalHumanBack) uploadTasks.push(uploadToImgBB(finalHumanBack));
     if (garmentBack) uploadTasks.push(uploadToImgBB(garmentBack));
 
     const uploadResults = await Promise.all(uploadTasks);
     const humanFrontUrl = uploadResults[0];
     const garmentFrontUrl = uploadResults[1];
-    const humanBackUrl = isRotation && humanBack ? uploadResults[2] : null;
+    const humanBackUrl = isRotation && finalHumanBack ? uploadResults[2] : null;
     const garmentBackUrl = garmentBack ? uploadResults[uploadTasks.length - 1] : null;
 
     console.log('[VTON] Images uploaded. Starting try-on...');
@@ -122,15 +173,15 @@ export async function POST(request) {
     if (modelId === 'huma') {
       console.log('[VTON] Applying hijab masking...');
       frontDressedUrl = await maskHijab({
-        originalBase64: humanFront,
+        originalBase64: finalHumanFront,
         dressedImageUrl: frontDressedUrl,
         modelId,
         bodySize,
         view: 'front',
       });
-      if (isRotation && backDressedUrl && humanBack) {
+      if (isRotation && backDressedUrl && finalHumanBack) {
         backDressedUrl = await maskHijab({
-          originalBase64: humanBack,
+          originalBase64: finalHumanBack,
           dressedImageUrl: backDressedUrl,
           modelId,
           bodySize,
