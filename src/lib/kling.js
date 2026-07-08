@@ -121,10 +121,13 @@ export async function createVideo(imageUrls, category, customPrompt, modelId, fa
                         lowerPrompt.includes('kot');
 
   // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits and outfit morphing
-  let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes';
+  let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes, chiffon, lace, tulle, organza, hollow out, see through, sheer dress, sheer skirt, lace details';
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
-    negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes';
+    negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes, chiffon, lace, tulle, organza, hollow out, see through, sheer dress, sheer skirt, lace details';
   }
+
+  // Reinforce solid opaque fabric structure to prevent Kling from turning it into chiffon/sheer material
+  prompt += ', solid opaque fabric structure, strictly non-transparent fabric, heavy solid cloth texture, thick solid weave, completely opaque clothing, 100% opaque, no transparency, no sheer';
 
   if (isMatteFabric) {
     console.log(`[Kling AI] Matte fabric protection activated for: ${fabric || 'detected in prompt'}`);
