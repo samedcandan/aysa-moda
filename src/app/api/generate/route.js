@@ -156,6 +156,7 @@ export async function POST(request) {
       motionType,   // rotation | walk | pose | breeze
       directMode,   // boolean — true: skip VTON, animate user's own photo directly
       isRetry,      // boolean — true: 2. run, kredi düşülmez
+      fabric,       // Kumaş türü (örn: Keten)
     } = await request.json();
 
     // Kredi kontrolü sadece 1. run için
@@ -290,7 +291,7 @@ export async function POST(request) {
     console.log('[Generate Route] Triggering Kling AI video generation...');
     // For rotation: pass both front and back. For direct mode: pass whatever views user uploaded.
     const imagesToPass = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
-    const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId);
+    const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId, fabric);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);
 

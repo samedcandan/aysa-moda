@@ -93,17 +93,45 @@ export const DEFAULT_PROMPTS = {
  * @param {string} category - gelinlik | abiye | ceket | tisort | pantolon
  * @param {string} [customPrompt] - Kullanıcının düzenlediği prompt
  * @param {string} [modelId] - Manken kimliği
+ * @param {string} [fabric] - Kumaş türü (örn: Keten, Pamuk)
  * @returns {Promise<{taskId: string}>}
  */
-export async function createVideo(imageUrls, category, customPrompt, modelId) {
-  const prompt = customPrompt || DEFAULT_PROMPTS[category] || DEFAULT_PROMPTS.tisort;
+export async function createVideo(imageUrls, category, customPrompt, modelId, fabric) {
+  let prompt = customPrompt || DEFAULT_PROMPTS[category] || DEFAULT_PROMPTS.tisort;
   const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+
+  const lowerPrompt = prompt.toLowerCase();
+  const lowerFabric = (fabric || '').toLowerCase();
+
+  // Detect if the fabric is a matte/non-reflective material (e.g. Linen, Cotton, Denim, Wool)
+  const isMatteFabric = lowerFabric.includes('keten') || 
+                        lowerFabric.includes('pamuk') || 
+                        lowerFabric.includes('kot') || 
+                        lowerFabric.includes('yün') ||
+                        lowerFabric.includes('linen') || 
+                        lowerFabric.includes('cotton') || 
+                        lowerFabric.includes('denim') || 
+                        lowerFabric.includes('wool') ||
+                        lowerPrompt.includes('linen') ||
+                        lowerPrompt.includes('cotton') ||
+                        lowerPrompt.includes('denim') ||
+                        lowerPrompt.includes('wool') ||
+                        lowerPrompt.includes('keten') ||
+                        lowerPrompt.includes('pamuk') ||
+                        lowerPrompt.includes('kot');
 
   // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits and outfit morphing
   let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes';
-  const lowerPrompt = prompt.toLowerCase();
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
     negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes';
+  }
+
+  if (isMatteFabric) {
+    console.log(`[Kling AI] Matte fabric protection activated for: ${fabric || 'detected in prompt'}`);
+    // Block shiny/satin re-rendering
+    negativePrompt += ', satin, silk, shiny fabric, glossy fabric, reflective fabric, metallic sheen, shimmer, glitter, sparkle, glossy texture, leather-like shine, vinyl, plastic texture';
+    // Emphasize matte weave and raw texture in positive prompt
+    prompt += ', matte fabric texture, raw fabric details, non-reflective material, highly detailed linen weave, natural matte cloth';
   }
 
   // 1. Kie AI (Primary)

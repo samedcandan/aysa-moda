@@ -529,6 +529,7 @@ function HomePageContent() {
           modelId, bodySize, backgroundId,
           isDirectMode: false,
           isRetry,
+          fabric: analysisResult?.fabric,
           garmentFrontUrl: vtonResult.garmentFrontUrl,
           humanFrontUrl: vtonResult.humanFrontUrl,
         }),
@@ -571,6 +572,7 @@ function HomePageContent() {
           motionType,
           directMode: true,
           isRetry,
+          fabric: analysisResult?.fabric,
         }),
       });
 

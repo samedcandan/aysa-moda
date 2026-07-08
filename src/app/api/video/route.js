@@ -56,6 +56,7 @@ export async function POST(request) {
       backgroundId,
       isDirectMode,
       isRetry,           // true ise: 2. run, kredi düşülmez
+      fabric,            // Kumaş türü (örn: Keten)
       // DB için orijinal görsel URL'leri
       garmentFrontUrl,
       humanFrontUrl,
@@ -88,7 +89,7 @@ export async function POST(request) {
       : [frontDressedUrl];
 
     console.log('[Video] Triggering Kling with', imagesToPass.length, 'image(s)...');
-    const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId);
+    const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId, fabric);
     console.log('[Video] Kling task created:', taskId);
 
     // DB kayıt
