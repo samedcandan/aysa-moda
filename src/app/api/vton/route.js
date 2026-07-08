@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { uploadToImgBB } from '@/lib/imgbb';
-import { runVirtualTryOn } from '@/lib/fal';
+import { runVirtualTryOn, removeBackground } from '@/lib/fal';
 import { Jimp } from 'jimp';
 import path from 'path';
 import fs from 'fs';
@@ -45,6 +45,42 @@ async function composeMannequinOnBackground({ mannequinBase64, backgroundId }) {
   } catch (error) {
     console.error(`[VTON Compositing] Error composing background:`, error);
     return mannequinBase64;
+  }
+}
+
+// Helper to composite dressed mannequin (transparent) onto selected background using Jimp
+async function composeDressedOnBackground({ transparentDressedUrl, backgroundId }) {
+  const backgrounds = {
+    boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
+    runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
+    street: 'https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?q=80&w=768&auto=format&fit=crop',
+    garden: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?q=80&w=768&auto=format&fit=crop',
+  };
+
+  const bgUrl = backgrounds[backgroundId];
+  if (!bgUrl) {
+    return transparentDressedUrl;
+  }
+
+  try {
+    console.log(`[VTON Post-Compositing] Composing dressed mannequin on background: ${backgroundId}`);
+    const [bgImg, dressedImg] = await Promise.all([
+      Jimp.read(bgUrl),
+      Jimp.read(transparentDressedUrl)
+    ]);
+
+    const targetW = dressedImg.bitmap.width;
+    const targetH = dressedImg.bitmap.height;
+
+    bgImg.resize({ w: targetW, h: targetH });
+    bgImg.composite(dressedImg, 0, 0);
+
+    const outBuffer = await bgImg.getBuffer('image/jpeg');
+    const uploadUrl = await uploadToImgBB(outBuffer.toString('base64'));
+    return uploadUrl;
+  } catch (error) {
+    console.error(`[VTON Post-Compositing] Error composing background:`, error);
+    return transparentDressedUrl;
   }
 }
 
@@ -187,6 +223,24 @@ export async function POST(request) {
           bodySize,
           view: 'back',
         });
+      }
+    }
+
+    // 4. Post-compose background (remove white background of VTON output and composite on chosen background)
+    if (backgroundId && backgroundId !== 'original') {
+      try {
+        console.log(`[VTON Post-Compose] Removing background and post-compositing onto ${backgroundId}...`);
+        const [transparentFront, transparentBack] = await Promise.all([
+          removeBackground({ imageUrl: frontDressedUrl }),
+          backDressedUrl ? removeBackground({ imageUrl: backDressedUrl }) : Promise.resolve(null),
+        ]);
+
+        frontDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentFront, backgroundId });
+        if (backDressedUrl && transparentBack) {
+          backDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentBack, backgroundId });
+        }
+      } catch (bgError) {
+        console.error('[VTON Post-Compose] Failed post-compositing background:', bgError);
       }
     }
 

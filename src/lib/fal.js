@@ -94,3 +94,80 @@ export async function runVirtualTryOn({ humanUrl, garmentUrl, category }) {
 
   throw new Error('Fal.ai try-on işlemi zaman aşımına uğradı.');
 }
+
+/**
+ * Fal.ai Bria RMBG 2.0 (Background Removal) API Client
+ * 
+ * Görselin arka planını temizler ve şeffaf hale getirir.
+ * @param {object} params
+ * @param {string} params.imageUrl
+ * @returns {Promise<string>} Transparent image URL
+ */
+export async function removeBackground({ imageUrl }) {
+  const FAL_API_KEY = process.env.FAL_API_KEY;
+  if (!FAL_API_KEY) {
+    throw new Error('FAL_API_KEY ortam değişkeni tanımlı değil. Lütfen .env.local dosyasını güncelleyin.');
+  }
+
+  console.log(`[Fal Background Remove] Submitting job for: ${imageUrl}`);
+
+  const response = await fetch('https://queue.fal.run/fal-ai/bria/background/remove', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Key ${FAL_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      image_url: imageUrl,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || 'Fal.ai arka plan temizleme başlatma hatası.');
+  }
+
+  const statusUrl = data.status_url;
+  console.log(`[Fal Background Remove] Task queued. Status URL: ${statusUrl}`);
+
+  // Polling queue status
+  let attempts = 0;
+  const maxAttempts = 30; // 30 * 2s = 60s max
+  while (attempts < maxAttempts) {
+    attempts++;
+    const statusRes = await fetch(statusUrl, {
+      headers: {
+        'Authorization': `Key ${FAL_API_KEY}`,
+      },
+    });
+
+    const statusData = await statusRes.json();
+
+    if (statusData.status === 'COMPLETED') {
+      console.log(`[Fal Background Remove] Success after ${attempts} attempts.`);
+      let result = statusData.outputs;
+      if (!result && statusData.response_url) {
+        const responseRes = await fetch(statusData.response_url, {
+          headers: {
+            'Authorization': `Key ${FAL_API_KEY}`,
+          },
+        });
+        result = await responseRes.json();
+      }
+      if (result) {
+        const transparentImageUrl = result.image?.url || result.images?.[0]?.url;
+        if (transparentImageUrl) return transparentImageUrl;
+      }
+      throw new Error('Fal.ai arka plan temizleme çıktısı alınamadı.');
+    } else if (statusData.status === 'FAILED') {
+      throw new Error(`Fal.ai arka plan temizleme işlemi başarısız oldu: ${statusData.error || 'Bilinmeyen hata'}`);
+    }
+
+    // Wait 2 seconds before next poll
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+  throw new Error('Fal.ai arka plan temizleme işlemi zaman aşımına uğradı.');
+}
+
