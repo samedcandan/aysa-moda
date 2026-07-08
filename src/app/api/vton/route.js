@@ -33,6 +33,64 @@ function getBottomPadding(jimpImage) {
   return transparentRows;
 }
 
+// Helper to add a contact shadow under the model's feet
+function addContactShadow(bgImg, targetW, targetH, offsetY, mannequinImg) {
+  try {
+    const bottomPadding = getBottomPadding(mannequinImg);
+    // Scan the bottom 100 pixels of the model body to find the horizontal boundaries of the feet
+    const scanStartY = Math.max(0, targetH - bottomPadding - 100);
+    const scanEndY = targetH - bottomPadding;
+    
+    let minX = targetW;
+    let maxX = 0;
+    
+    for (let y = scanStartY; y < scanEndY; y++) {
+      for (let x = 0; x < targetW; x++) {
+        const color = mannequinImg.getPixelColor(x, y);
+        const alpha = color & 0xff;
+        if (alpha > 50) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+        }
+      }
+    }
+    
+    if (maxX > minX) {
+      const centerX = Math.round((minX + maxX) / 2);
+      const shadowWidth = Math.round((maxX - minX) * 0.85);
+      const shadowHeight = 16;
+      
+      const shadowImg = new Jimp({ width: targetW, height: 60, color: 0x00000000 });
+      
+      const cx = centerX;
+      const cy = 30;
+      const rx = shadowWidth / 2;
+      const ry = shadowHeight / 2;
+      
+      for (let y = 0; y < 60; y++) {
+        for (let x = 0; x < targetW; x++) {
+          const dx = x - cx;
+          const dy = y - cy;
+          const ellipseVal = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+          if (ellipseVal <= 1) {
+            const dist = Math.sqrt(ellipseVal);
+            const opacity = Math.round(110 * (1 - dist)); // Soft falloff (max 110 opacity)
+            shadowImg.setPixelColor(opacity, x, y);
+          }
+        }
+      }
+      
+      shadowImg.blur(6);
+      
+      // Composite the shadow just below the feet (offset by height/2 of the shadow canvas)
+      const feetY = scanEndY + offsetY;
+      bgImg.composite(shadowImg, 0, feetY - 33);
+    }
+  } catch (err) {
+    console.error('[Shadow] Failed to generate contact shadow:', err);
+  }
+}
+
 // Helper to composite transparent mannequin onto a selected stock background image using Jimp
 async function composeMannequinOnBackground({ mannequinBase64, backgroundId, customBg }) {
   const backgrounds = {
@@ -68,6 +126,7 @@ async function composeMannequinOnBackground({ mannequinBase64, backgroundId, cus
     const offsetY = Math.max(0, getBottomPadding(mannequinImg) - 5);
 
     bgImg.resize({ w: targetW, h: targetH });
+    addContactShadow(bgImg, targetW, targetH, offsetY, mannequinImg);
     bgImg.composite(mannequinImg, 0, offsetY);
 
     const outBuffer = await bgImg.getBuffer('image/jpeg');
@@ -111,6 +170,7 @@ async function composeDressedOnBackground({ transparentDressedUrl, backgroundId,
     const offsetY = Math.max(0, getBottomPadding(dressedImg) - 5);
 
     bgImg.resize({ w: targetW, h: targetH });
+    addContactShadow(bgImg, targetW, targetH, offsetY, dressedImg);
     bgImg.composite(dressedImg, 0, offsetY);
 
     const outBuffer = await bgImg.getBuffer('image/jpeg');
