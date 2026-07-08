@@ -15,7 +15,7 @@ async function composeMannequinOnBackground({ mannequinBase64, backgroundId, cus
     boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
     runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
     street: 'https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?q=80&w=768&auto=format&fit=crop',
-    garden: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?q=80&w=768&auto=format&fit=crop',
+    garden: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=768&auto=format&fit=crop',
   };
 
   let bgUrl = backgrounds[backgroundId];
@@ -58,7 +58,7 @@ async function composeDressedOnBackground({ transparentDressedUrl, backgroundId,
     boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
     runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
     street: 'https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?q=80&w=768&auto=format&fit=crop',
-    garden: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?q=80&w=768&auto=format&fit=crop',
+    garden: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=768&auto=format&fit=crop',
   };
 
   let bgUrl = backgrounds[backgroundId];
