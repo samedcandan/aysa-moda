@@ -40,17 +40,13 @@ Kurallar:
 - categoryId şunlardan biri olmalı: gelinlik, abiye, elbise, gomlek, straplez, askili, tisort, kazak, ceket, trenckot, mont, pelus, kurk, pantolon, etek
 - motionId şunlardan biri olmalı: rotation (360° dönüş), walk (podyum yürüyüşü), pose (zarif pozlar), breeze (rüzgar duruşu)
 - backgroundId şunlardan biri olmalı:
-  * "boutique" (Lüks Butik): Şık gömlek, kazak, ceket, kaliteli hazır giyimler ve kabanlar için.
-  * "runway" (Moda Podyumu): Gelinlikler, abiyeler ve lüks özel gün elbiseleri için.
-  * "street" (Şehir Caddesi): Pantolonlar, kotlar, günlük trençkotlar ve spor sokak giyimleri için.
-  * "garden" (Yemyeşil Bahçe): Yazlık elbiseler, günlük tişörtler ve askılı kıyafetler için.
-  * "original" (Sade Stüdyo): Diğer veya nötr/sade arka plan tercihleri için.
+  * "original" (Sade Stüdyo): Her zaman bu değer seçilmeli ve sade, minimalist stüdyo ortamı planlanmalı.
 - productType Türkçe, kıyafetin genel adı (örn: Gömlek, Ceket, Pantolon, Abiye Elbise)
 - color Türkçe, ana renk (örn: Lacivert, Siyah, Kırmızı, Haki)
 - clothingType Türkçe, giyim türü. Sadece şu üç değerden biri olmalı: "Üst Giyim", "Alt Giyim", "Full Giyim"
 - fabric Türkçe, kumaş türü (örn: Keten, Pamuk, İpek, Kot, Şifon, Saten, Dantel, Kadife, Yün)
 - Opaklık ve Kumaş Dokusu Kuralları: Kıyafetin kumaşı kesinlikle transparan (iç gösteren, tül, transparan, file, tülbent gibi) yapılmamalı, tamamen opak, tok, kalın ve kapalı olmalıdır. Bu kuralı promptSuggestion içinde de vurgula (örn: "kumaş tamamen opaktır, iç göstermez, orijinal kalın dokusunu korur").
-- promptSuggestion Türkçe olmalı. Kıyafeti (türünü, rengini, giyim tipini, kumaşını, detaylarını), belirlenen arka planı (backgroundId'ye uygun ortam detaylarını, örn: "lüks butik ortamı", "moda podyumu", "şehir caddesi", "yemyeşil bahçe" veya sade stüdyo) ve önerilen hareketi (motionId'ye uygun olarak mankenin yapacağı eylemleri, örn. yavaşça 360 derece dönerek kıyafeti sergilemesi, podyumda yürümesi veya rüzgarda dalgalanması) birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kıyafetin hareket/akış durumunu, arka plan ortamını ve rüzgar esintisi gibi detayları doğrudan bu promptSuggestion içerisinde eylem ve sahne olarak betimle. Kumaşın kalın, tok ve tamamen opak/iç göstermez olduğunu da metin içinde belirt.
+- promptSuggestion Türkçe olmalı. Kıyafeti (türünü, rengini, giyim tipini, kumaşını, detaylarını), belirlenen arka planı (sade stüdyo ortamı / clean solid studio background) ve önerilen hareketi (motionId'ye uygun olarak mankenin yapacağı eylemleri, örn. yavaşça 360 derece dönerek kıyafeti sergilemesi, podyumda yürümesi veya rüzgarda dalgalanması) birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kıyafetin hareket/akış durumunu, arka plan ortamını (sade stüdyo) ve rüzgar esintisi gibi detayları doğrudan bu promptSuggestion içerisinde eylem ve sahne olarak betimle. Kumaşın kalın, tok ve tamamen opak/iç göstermez olduğunu da metin içinde belirt.
 - Kadraj ve Odak Noktası Kuralları: Tespit edilen clothingType değerine göre promptSuggestion içinde kameranın kadrajı ve odak noktası mutlaka belirtilmelidir:
   * "Üst Giyim" için: Video üst vücuda odaklanmış yakın/orta çekim (upper body focus, medium close-up, chest-up details) olarak betimlenmeli, yaka/omuz detayları vurgulanmalıdır.
   * "Alt Giyim" için: Video alt vücuda odaklanmış bacak/pantolon/etek yakın çekim (lower body focus, waist-down showcase) olarak betimlenmeli, kalıp/kesim detayları vurgulanmalıdır.

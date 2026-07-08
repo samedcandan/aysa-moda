@@ -47,11 +47,7 @@ const MODELS = [
 ];
 
 const BACKGROUNDS = [
-  { id: 'original', label: 'Kendi Arka Planımı Koru', promptText: 'keep the original background from the source image completely unchanged, maintain background consistency, keep the exact same background environment without any changes or modifications' },
-  { id: 'boutique', label: 'Lüks Butik', promptText: 'elegant luxury boutique interior, marble floors, soft warm ambient lighting, premium retail environment' },
-  { id: 'runway', label: 'Moda Podyumu', promptText: 'high fashion runway stage, dramatic professional spotlights, white catwalk, blurred audience in background' },
-  { id: 'street', label: 'Şehir Caddesi', promptText: 'busy city street, natural daylight, urban buildings and shops blurred in background, realistic outdoor atmosphere' },
-  { id: 'garden', label: 'Yemyeşil Bahçe', promptText: 'beautiful lush garden, soft natural sunlight, green leaves and flowers in background, peaceful outdoor setting' },
+  { id: 'original', label: 'Sade Stüdyo', promptText: 'clean solid studio background, professional studio lighting, simple minimalist studio setting' },
   { id: 'custom', label: 'Kendi Mağazam', promptText: '' },
 ];
 
