@@ -9,6 +9,30 @@ import fs from 'fs';
 // Vercel Pro: 5 dakikaya kadar çalışabilir
 export const maxDuration = 300;
 
+// Helper to scan transparency of Jimp image at the bottom
+function getBottomPadding(jimpImage) {
+  const width = jimpImage.bitmap.width;
+  const height = jimpImage.bitmap.height;
+  let transparentRows = 0;
+  for (let y = height - 1; y >= 0; y--) {
+    let isRowTransparent = true;
+    for (let x = 0; x < width; x++) {
+      const pixelColor = jimpImage.getPixelColor(x, y);
+      const alpha = pixelColor & 0xff;
+      if (alpha > 10) {
+        isRowTransparent = false;
+        break;
+      }
+    }
+    if (isRowTransparent) {
+      transparentRows++;
+    } else {
+      break;
+    }
+  }
+  return transparentRows;
+}
+
 // Helper to composite transparent mannequin onto a selected stock background image using Jimp
 async function composeMannequinOnBackground({ mannequinBase64, backgroundId, customBg }) {
   const backgrounds = {
@@ -39,9 +63,12 @@ async function composeMannequinOnBackground({ mannequinBase64, backgroundId, cus
 
     const targetW = mannequinImg.bitmap.width;
     const targetH = mannequinImg.bitmap.height;
+    
+    // Shift model down to align feet at the bottom (leave 5px padding)
+    const offsetY = Math.max(0, getBottomPadding(mannequinImg) - 5);
 
     bgImg.resize({ w: targetW, h: targetH });
-    bgImg.composite(mannequinImg, 0, 0);
+    bgImg.composite(mannequinImg, 0, offsetY);
 
     const outBuffer = await bgImg.getBuffer('image/jpeg');
     return `data:image/jpeg;base64,${outBuffer.toString('base64')}`;
@@ -79,9 +106,12 @@ async function composeDressedOnBackground({ transparentDressedUrl, backgroundId,
 
     const targetW = dressedImg.bitmap.width;
     const targetH = dressedImg.bitmap.height;
+    
+    // Shift model down to align feet at the bottom (leave 5px padding)
+    const offsetY = Math.max(0, getBottomPadding(dressedImg) - 5);
 
     bgImg.resize({ w: targetW, h: targetH });
-    bgImg.composite(dressedImg, 0, 0);
+    bgImg.composite(dressedImg, 0, offsetY);
 
     const outBuffer = await bgImg.getBuffer('image/jpeg');
     const uploadUrl = await uploadToImgBB(outBuffer.toString('base64'));
@@ -117,6 +147,11 @@ async function maskHijab({ originalBase64, dressedImageUrl, modelId, bodySize, v
     templateImg.resize({ w: targetW, h: targetH });
     originalImg.resize({ w: targetW, h: targetH });
 
+    // Since originalImg and dressedImg were both pre-composited with offsetY,
+    // their head positions are shifted down by offsetY.
+    // templateImg is the raw model template, which is NOT shifted.
+    const offsetY = Math.max(0, getBottomPadding(templateImg) - 5);
+
     const startX = Math.round(targetW * 0.25);
     const width = Math.round(targetW * 0.50);
     const startY = Math.round(targetH * 0.12);
@@ -127,7 +162,10 @@ async function maskHijab({ originalBase64, dressedImageUrl, modelId, bodySize, v
         const color = templateImg.getPixelColor(x, y);
         const alpha = color & 0xff;
         if (alpha > 50) {
-          dressedImg.setPixelColor(originalImg.getPixelColor(x, y), x, y);
+          const targetY = y + offsetY;
+          if (targetY < targetH) {
+            dressedImg.setPixelColor(originalImg.getPixelColor(x, targetY), x, targetY);
+          }
         }
       }
     }
