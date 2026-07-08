@@ -215,7 +215,6 @@ function HomePageContent() {
   const [motionType, setMotionType] = useState('rotation');
   const [customPrompt, setCustomPrompt] = useState('');
   const [isPromptEdited, setIsPromptEdited] = useState(false);
-  const [showAdvancedBg, setShowAdvancedBg] = useState(false);
 
   // --- Direct Mod ---
   const [directFront, setDirectFront] = useState(null);
@@ -1369,74 +1368,6 @@ function HomePageContent() {
                         <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={3}
                           style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s', marginBottom: '20px' }} />
 
-                        {/* Arka Plan Seçimi (Accordion) */}
-                        <div style={{ marginBottom: '20px', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '10px', background: 'rgba(255,255,255,0.01)', overflow: 'hidden' }}>
-                          <div onClick={() => setShowAdvancedBg(!showAdvancedBg)} 
-                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', cursor: 'pointer', background: 'rgba(255,255,255,0.02)', userSelect: 'none' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                              🖼️ Arka Plan Seçimi (Gelişmiş)
-                            </span>
-                            <span style={{ fontSize: '12px', color: 'var(--text-gold)', fontWeight: 700 }}>
-                              {showAdvancedBg ? 'Gösteriliyor ▲' : 'Değiştir/Seç ▼'}
-                            </span>
-                          </div>
-                          
-                          {showAdvancedBg && (
-                            <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
-                                Görsel için kullanılacak ortam şablonu. Varsayılan olarak yapay zeka en uygun ortamı otomatik seçer.
-                              </p>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                {BACKGROUNDS.map(bg => {
-                                  const isSelected = backgroundId === bg.id;
-                                  const labelText = bg.id === 'original' ? 'Sade Stüdyo' : bg.label;
-                                  return (
-                                    <button key={bg.id} type="button" onClick={() => { setBackgroundId(bg.id); setIsPromptEdited(true); }}
-                                      style={{
-                                        padding: '8px 10px',
-                                        borderRadius: '8px',
-                                        border: `1.5px solid ${isSelected ? 'var(--text-gold)' : 'rgba(255,255,255,0.1)'}`,
-                                        background: isSelected ? 'rgba(212,174,120,0.12)' : 'rgba(255,255,255,0.02)',
-                                        color: isSelected ? 'var(--text-gold)' : 'var(--text-secondary)',
-                                        fontSize: '11px',
-                                        fontWeight: 600,
-                                        cursor: 'pointer',
-                                        textAlign: 'left',
-                                        transition: 'all 0.2s',
-                                      }}>
-                                      {labelText}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-
-                              {backgroundId === 'custom' && (
-                                <div style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '10px', marginTop: '4px' }}>
-                                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                                    Kendi Mağaza Arka Planınızı Yükleyin:
-                                  </label>
-                                  <input type="file" ref={fileInputBgRef} accept="image/*" 
-                                    onChange={(e) => handleImageSelect(e, setCustomBg)} 
-                                    style={{ display: 'none' }} />
-                                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                    <button type="button" onClick={() => fileInputBgRef.current?.click()}
-                                      className="btn-gold" style={{ padding: '6px 12px', fontSize: '11px', width: 'auto', margin: 0 }}>
-                                      📸 Görsel Seç
-                                    </button>
-                                    {customBg ? (
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <img src={customBg} alt="Mağaza Önizleme" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)' }} />
-                                        <span style={{ fontSize: '11px', color: '#66cc88', fontWeight: 600 }}>Yüklendi ✓</span>
-                                      </div>
-                                    ) : (
-                                      <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Henüz görsel seçilmedi.</span>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
 
                         <button className="btn-gold" onClick={handleVTONGenerate}
                           disabled={customPrompt.trim().length < 20}
