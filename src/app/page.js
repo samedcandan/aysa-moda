@@ -465,8 +465,8 @@ function HomePageContent() {
       }));
 
       const [humanFrontB64, humanBackB64] = await Promise.all([
-        loadAsBase64(`/models/${modelId}_${sizeSuffix}_front.png`),
-        isRotation ? loadAsBase64(`/models/${modelId}_${sizeSuffix}_back.png`) : Promise.resolve(null),
+        loadAsBase64(`/models/${modelId}_${sizeSuffix}_front.png?v=boxers`),
+        isRotation ? loadAsBase64(`/models/${modelId}_${sizeSuffix}_back.png?v=boxers`) : Promise.resolve(null),
       ]);
 
       setPhase('VTON');
@@ -1248,7 +1248,7 @@ function HomePageContent() {
                             <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{model.desc}</div>
                           </div>
                           <div style={{ width: '44px', height: '44px', borderRadius: '50%', overflow: 'hidden', border: modelId === model.id ? '2px solid var(--text-gold)' : '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', boxShadow: modelId === model.id ? '0 0 10px rgba(212,174,120,0.25)' : 'none', transition: 'all 0.3s' }}>
-                            <img src={`/models/${model.id}_standard_front.png`} alt={model.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+                            <img src={`/models/${model.id}_standard_front.png?v=boxers`} alt={model.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
                           </div>
                         </div>
                       ))}
