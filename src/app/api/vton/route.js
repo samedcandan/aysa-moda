@@ -10,7 +10,7 @@ import fs from 'fs';
 export const maxDuration = 300;
 
 // Helper to composite transparent mannequin onto a selected stock background image using Jimp
-async function composeMannequinOnBackground({ mannequinBase64, backgroundId }) {
+async function composeMannequinOnBackground({ mannequinBase64, backgroundId, customBg }) {
   const backgrounds = {
     boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
     runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
@@ -18,7 +18,11 @@ async function composeMannequinOnBackground({ mannequinBase64, backgroundId }) {
     garden: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?q=80&w=768&auto=format&fit=crop',
   };
 
-  const bgUrl = backgrounds[backgroundId];
+  let bgUrl = backgrounds[backgroundId];
+  if (backgroundId === 'custom' && customBg) {
+    bgUrl = customBg;
+  }
+
   if (!bgUrl) {
     return mannequinBase64;
   }
@@ -49,7 +53,7 @@ async function composeMannequinOnBackground({ mannequinBase64, backgroundId }) {
 }
 
 // Helper to composite dressed mannequin (transparent) onto selected background using Jimp
-async function composeDressedOnBackground({ transparentDressedUrl, backgroundId }) {
+async function composeDressedOnBackground({ transparentDressedUrl, backgroundId, customBg }) {
   const backgrounds = {
     boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
     runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
@@ -57,7 +61,11 @@ async function composeDressedOnBackground({ transparentDressedUrl, backgroundId 
     garden: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?q=80&w=768&auto=format&fit=crop',
   };
 
-  const bgUrl = backgrounds[backgroundId];
+  let bgUrl = backgrounds[backgroundId];
+  if (backgroundId === 'custom' && customBg) {
+    bgUrl = customBg;
+  }
+
   if (!bgUrl) {
     return transparentDressedUrl;
   }
@@ -150,6 +158,7 @@ export async function POST(request) {
       bodySize,
       motionType,
       backgroundId,
+      customBg,
     } = await request.json();
 
     if (!humanFront || !garmentFront || !category) {
@@ -165,9 +174,9 @@ export async function POST(request) {
     let finalHumanBack = humanBack;
 
     if (backgroundId && backgroundId !== 'original') {
-      finalHumanFront = await composeMannequinOnBackground({ mannequinBase64: humanFront, backgroundId });
+      finalHumanFront = await composeMannequinOnBackground({ mannequinBase64: humanFront, backgroundId, customBg });
       if (humanBack) {
-        finalHumanBack = await composeMannequinOnBackground({ mannequinBase64: humanBack, backgroundId });
+        finalHumanBack = await composeMannequinOnBackground({ mannequinBase64: humanBack, backgroundId, customBg });
       }
     }
 
@@ -235,9 +244,9 @@ export async function POST(request) {
           backDressedUrl ? removeBackground({ imageUrl: backDressedUrl }) : Promise.resolve(null),
         ]);
 
-        frontDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentFront, backgroundId });
+        frontDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentFront, backgroundId, customBg });
         if (backDressedUrl && transparentBack) {
-          backDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentBack, backgroundId });
+          backDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentBack, backgroundId, customBg });
         }
       } catch (bgError) {
         console.error('[VTON Post-Compose] Failed post-compositing background:', bgError);
