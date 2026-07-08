@@ -48,6 +48,10 @@ const MODELS = [
 
 const BACKGROUNDS = [
   { id: 'original', label: 'Sade Stüdyo', promptText: 'clean solid studio background, professional studio lighting, simple minimalist studio setting' },
+  { id: 'boutique', label: 'Lüks Butik', promptText: 'inside a luxury fashion boutique store with designer clothing racks, soft warm interior lighting, premium boutique atmosphere' },
+  { id: 'runway', label: 'Moda Podyumu', promptText: 'walking on a fashion show runway catwalk, dramatic stage spotlights, blurred audience in background, high fashion event setting' },
+  { id: 'street', label: 'Şık Sokak', promptText: 'walking on a stylish Parisian city street pavement, beautiful urban outdoor background, soft natural daylight, depth of field' },
+  { id: 'garden', label: 'Lüks Bahçe', promptText: 'walking along a lush green garden pathway, beautiful sun-dappled foliage, elegant outdoor nature background' },
   { id: 'custom', label: 'Kendi Mağazam', promptText: '' },
 ];
 
@@ -511,7 +515,11 @@ function HomePageContent() {
     setProgressText(`${motionLabel} canlandırılıyor...`);
 
     try {
-      const bgPromptText = BACKGROUNDS.find(b => b.id === backgroundId)?.promptText || '';
+      const studioKeywords = ["butik", "podyum", "sokak", "cadde", "bahçe", "runway", "catwalk", "street", "boutique", "garden", "palace", "balo", "salon", "caddede", "salonunda", "ortamı", "background", "indoor", "outdoor", "studio"];
+      const hasCustomBgText = studioKeywords.some(keyword => customPrompt.toLowerCase().includes(keyword));
+      const bgPromptText = (backgroundId === 'original' && hasCustomBgText)
+        ? ''
+        : (BACKGROUNDS.find(b => b.id === backgroundId)?.promptText || '');
       const fullPrompt = [customPrompt, bgPromptText].filter(Boolean).join(' ');
 
       const isRotation = motionType === 'rotation';
@@ -554,7 +562,11 @@ function HomePageContent() {
     setErrorMsg('');
 
     try {
-      const bgPromptText = BACKGROUNDS.find(b => b.id === backgroundId)?.promptText || '';
+      const studioKeywords = ["butik", "podyum", "sokak", "cadde", "bahçe", "runway", "catwalk", "street", "boutique", "garden", "palace", "balo", "salon", "caddede", "salonunda", "ortamı", "background", "indoor", "outdoor", "studio"];
+      const hasCustomBgText = studioKeywords.some(keyword => customPrompt.toLowerCase().includes(keyword));
+      const bgPromptText = (backgroundId === 'original' && hasCustomBgText)
+        ? ''
+        : (BACKGROUNDS.find(b => b.id === backgroundId)?.promptText || '');
       const fullPrompt = [customPrompt, bgPromptText].filter(Boolean).join(' ');
 
       const res = await fetch('/api/generate', {
