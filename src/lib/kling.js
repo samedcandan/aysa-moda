@@ -121,19 +121,27 @@ export async function createVideo(imageUrls, category, customPrompt, modelId, fa
                         lowerPrompt.includes('kot');
 
   // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits and outfit morphing
-  let negativePrompt = 'transparent clothing, see-through fabric, sheer fabric, translucent fabric, chiffon, tulle, lace, organza, mesh, net fabric, changed outfit, modified clothing, altered proportions, changed garment length, elongated garment, shortened garment, nudity, revealing, slit, torn clothing';
+  let negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, added details, removed details, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing';
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
-    negativePrompt = 'transparent clothing, see-through fabric, sheer fabric, translucent fabric, chiffon, tulle, lace, organza, mesh, net fabric, changed outfit, modified clothing, altered proportions, changed garment length, elongated garment, shortened garment, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair';
+    negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair';
   }
 
-  // Reinforce garment fidelity: opacity + dimension preservation in ONE concise suffix
-  // IMPORTANT: Kling AI works best with ~200 tokens. Keep this short and impactful.
-  prompt += '. The garment must remain 100% opaque with its exact original dimensions, length, width and proportions preserved throughout the video. No transparent, sheer or see-through fabric allowed.';
+  // === PROMPT ARCHITECTURE ===
+  // Kling AI pays most attention to the BEGINNING of the prompt.
+  // Strategy: IMAGE_FIDELITY_PREFIX + customPrompt + short quality suffix
+  
+  // 1. PREPEND: Image fidelity prefix — this is what Kling sees FIRST
+  const fidelityPrefix = 'Strictly preserve every detail of the garment exactly as shown in the input image: same design, same length, same width, same proportions, same fabric texture, same color, same pattern, completely opaque and non-transparent.';
+  
+  // 2. APPEND: Short quality suffix
+  const qualitySuffix = ' Photorealistic, 8K, cinematic lighting.';
+  
+  // Final prompt: fidelity first, then content, then quality
+  prompt = `${fidelityPrefix} ${prompt}${qualitySuffix}`;
 
   if (isMatteFabric) {
     console.log(`[Kling AI] Matte fabric protection activated for: ${fabric || 'detected in prompt'}`);
     negativePrompt += ', satin, silk, shiny fabric, glossy fabric, reflective fabric, metallic sheen';
-    prompt += ' Matte fabric texture, non-reflective material.';
   }
 
   // 1. Kie AI (Primary)

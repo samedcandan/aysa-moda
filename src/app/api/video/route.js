@@ -22,7 +22,7 @@ async function translateToEnglish(text) {
         messages: [
           {
             role: 'system',
-            content: 'You are a professional fashion translator. Translate the given Turkish fashion video prompt into a high-quality, descriptive English prompt for an AI video generator. Keep all technical terms, lighting, camera movement, and detail references accurate. Crucially, specify that the fabric of the clothing must be 100% opaque, solid, non-transparent, and non-see-through, maintaining its original thick texture (like solid linen, velvet, wool, cotton) without showing any skin or undergarments underneath. Output ONLY the English translation, no other text.',
+            content: 'You are a fashion video prompt translator. Translate Turkish to English for an AI video generator. RULES: 1) The garment in the video must be IDENTICAL to the input image - same design, buttons, seams, pleats, length, proportions. Never describe the garment differently from what is shown. 2) Fabric must be 100% opaque, solid, non-transparent. NEVER use: chiffon, sheer, tulle, lace, organza, transparent, see-through. Replace with: solid crepe, thick satin, opaque cotton. 3) If hijab/tesettür mentioned, ensure hair/neck/arms remain fully covered. 4) Keep the translation concise and direct. Output ONLY the English translation.',
           },
           { role: 'user', content: text },
         ],
