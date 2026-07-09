@@ -121,20 +121,19 @@ export async function createVideo(imageUrls, category, customPrompt, modelId, fa
                         lowerPrompt.includes('kot');
 
   // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits and outfit morphing
-  let negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes, chiffon, lace, tulle, organza, hollow out, see through, sheer dress, sheer skirt, lace details, elongated garment, shortened garment, stretched clothing, compressed clothing, changed proportions, altered dimensions, lengthened skirt, shortened skirt, modified hemline, changed garment length, changed garment width';
+  let negativePrompt = 'transparent clothing, see-through fabric, sheer fabric, translucent fabric, chiffon, tulle, lace, organza, mesh, net fabric, changed outfit, modified clothing, altered proportions, changed garment length, elongated garment, shortened garment, nudity, revealing, slit, torn clothing';
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
-    negativePrompt = 'nudity, revealing, changed outfit, modified clothing, removed headscarf, slit, leg slit, torn clothing, deformed leg, exposed skin, exposed hair, exposed neck, short sleeves, bare arms, bare shoulders, bare neck, cleavage, chest exposure, side slit, changed clothing, changed hijab, removed hijab, uncovered hair, uncovered neck, showing hair, showing neck, transparent clothing, see-through clothing, translucent fabric, semi-transparent fabric, changed fabric texture, sheer fabric, net fabric, mesh fabric, body silhouette showing through clothes, chiffon, lace, tulle, organza, hollow out, see through, sheer dress, sheer skirt, lace details, elongated garment, shortened garment, stretched clothing, compressed clothing, changed proportions, altered dimensions, lengthened skirt, shortened skirt, modified hemline, changed garment length, changed garment width';
+    negativePrompt = 'transparent clothing, see-through fabric, sheer fabric, translucent fabric, chiffon, tulle, lace, organza, mesh, net fabric, changed outfit, modified clothing, altered proportions, changed garment length, elongated garment, shortened garment, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair';
   }
 
-  // Reinforce solid opaque fabric structure to prevent Kling from turning it into chiffon/sheer material
-  prompt += ', solid opaque fabric structure, strictly non-transparent fabric, heavy solid cloth texture, thick solid weave, completely opaque clothing, 100% opaque, no transparency, no sheer, exact original garment proportions preserved, same garment length as source image, same garment width as source image, identical dimensions to reference photo';
+  // Reinforce garment fidelity: opacity + dimension preservation in ONE concise suffix
+  // IMPORTANT: Kling AI works best with ~200 tokens. Keep this short and impactful.
+  prompt += '. The garment must remain 100% opaque with its exact original dimensions, length, width and proportions preserved throughout the video. No transparent, sheer or see-through fabric allowed.';
 
   if (isMatteFabric) {
     console.log(`[Kling AI] Matte fabric protection activated for: ${fabric || 'detected in prompt'}`);
-    // Block shiny/satin re-rendering
-    negativePrompt += ', satin, silk, shiny fabric, glossy fabric, reflective fabric, metallic sheen, shimmer, glitter, sparkle, glossy texture, leather-like shine, vinyl, plastic texture';
-    // Emphasize matte weave and raw texture in positive prompt
-    prompt += ', matte fabric texture, raw fabric details, non-reflective material, highly detailed linen weave, natural matte cloth';
+    negativePrompt += ', satin, silk, shiny fabric, glossy fabric, reflective fabric, metallic sheen';
+    prompt += ' Matte fabric texture, non-reflective material.';
   }
 
   // 1. Kie AI (Primary)

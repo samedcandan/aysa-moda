@@ -280,8 +280,8 @@ export async function POST(request) {
     // Cinematic suffix — eliminates green screen / flat background effect
     // By instructing Kling to treat the environment as real 3D space with natural depth
     const cinematicSuffix = isDirectMode
-      ? 'Photorealistic video, natural environment lighting, cinematic depth of field, genuine atmospheric perspective, natural camera motion, realistic shadows cast on ground, 8K quality, no artificial studio look. CRITICAL: preserve exact original garment dimensions, length, width and proportions from the source image.'
-      : 'Photorealistic, cinematic depth of field, natural environmental lighting, background has realistic depth and parallax motion, no flat or studio green screen look, natural shadows and ground contact, 8K quality. CRITICAL: preserve exact original garment dimensions, length, width and proportions from the source image.';
+      ? 'Photorealistic video, natural environment lighting, cinematic depth of field, realistic shadows on ground, 8K quality.'
+      : 'Photorealistic, cinematic depth of field, natural environmental lighting, realistic depth and parallax, natural shadows and ground contact, 8K quality.';
 
     const finalPrompt = `${translatedPrompt} ${cinematicSuffix}`;
     console.log('[Generate Route] Final prompt with cinematic suffix ready.');
