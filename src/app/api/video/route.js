@@ -76,8 +76,8 @@ export async function POST(request) {
     // Prompt hazırlama
     const translatedPrompt = await translateToEnglish(customPrompt);
     const cinematicSuffix = isDirectMode
-      ? 'Photorealistic video, natural environment lighting, cinematic depth of field, genuine atmospheric perspective, natural camera motion, realistic shadows cast on ground, 8K quality, no artificial studio look.'
-      : 'Photorealistic, cinematic depth of field, natural environmental lighting, background has realistic depth and parallax motion, no flat or studio green screen look, natural shadows and ground contact, 8K quality.';
+      ? 'Photorealistic video, natural environment lighting, cinematic depth of field, genuine atmospheric perspective, natural camera motion, realistic shadows cast on ground, 8K quality, no artificial studio look. CRITICAL: preserve exact original garment dimensions, length, width and proportions from the source image.'
+      : 'Photorealistic, cinematic depth of field, natural environmental lighting, background has realistic depth and parallax motion, no flat or studio green screen look, natural shadows and ground contact, 8K quality. CRITICAL: preserve exact original garment dimensions, length, width and proportions from the source image.';
 
     const finalPrompt = `${translatedPrompt} ${cinematicSuffix}`.trim();
     console.log('[Video] Final prompt:', finalPrompt);

@@ -111,7 +111,7 @@ function buildPrompt({ category, motionType, modelId, generatorMode, isHijabDire
 
   const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
   const framingText = trFramingPrompts[category] || 'Video üst vücuda odaklanmış yakın plan olarak başlar ve videonun sonuna doğru tüm vücudu gösterecek şekilde genişler.';
-  const fidelityText = 'Kıyafetin tasarımı, orijinal renkleri, kumaş dokusu, desenleri and tüm detayları video boyunca %100 birebir korunur.';
+  const fidelityText = 'KRİTİK KURAL: Kıyafetin orijinal boyutları (uzunluğu, genişliği, oranları), tasarımı, renkleri, kumaş dokusu, desenleri ve tüm detayları video boyunca %100 birebir korunmalıdır. Kıyafet kesinlikle uzatılmamalı, kısaltılmamalı, daraltılmamalı veya genişletilmemelidir. Eteğin boyu, ceketin uzunluğu, pantolonun paçası vb. orijinal fotoğraftaki ile birebir aynı kalmalıdır.';
 
   return `${catText} ${motionText} ${framingText} ${fidelityText}`;
 }
