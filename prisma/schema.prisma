@@ -395,7 +395,7 @@ model ModaGeneration {
   backGarmUrl  String
   modelId      String
   bodySize     String         @default("STANDARD") // STANDARD or PLUS_SIZE
-  backgroundId String
+  backgroundId String         @default("dynamic")
   videoUrl     String?
   status       String         @default("PROCESSING") // PROCESSING, SUCCESS, FAILED, FEEDBACK_SENT
   error        String?

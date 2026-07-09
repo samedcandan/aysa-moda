@@ -39,24 +39,13 @@ Sadece JSON döndür, başka hiçbir şey yazma.
 Kurallar:
 - categoryId şunlardan biri olmalı: gelinlik, abiye, elbise, gomlek, straplez, askili, tisort, kazak, ceket, trenckot, mont, pelus, kurk, pantolon, etek
 - motionId şunlardan biri olmalı: rotation (360° dönüş), walk (podyum yürüyüşü), pose (zarif pozlar), breeze (rüzgar duruşu)
-- backgroundId şunlardan biri olmalı:
-  * "runway" (Moda Podyumu): Gelinlik, abiye ve podyum konseptli şık tasarımlar için.
-  * "boutique" (Lüks Butik): Abiyeler, elbiseler, ceketler ve butik ürünleri için.
-  * "street" (Şık Sokak/Cadde): Günlük kıyafetler, tişörtler, spor giyim, mont, trençkot, hırkalar için.
-  * "garden" (Lüks Bahçe): Yazlık elbiseler, askılı kıyafetler, açık hava tasarımları için.
-  * "original" (Sade Stüdyo): Sade stüdyo ortamı ve stüdyo ışığı altında sunum için (sadece çok minimalist veya sade stüdyo sunumu istenen ürünlerde tercih edilmelidir).
-- Mekan ve Ortam Uyum Kuralı: Seçtiğin backgroundId ile promptSuggestion içindeki ortam betimlemesi kesinlikle birbiriyle uyumlu olmalıdır!
-  * Eğer "runway" seçtiysen, promptSuggestion içinde podyum (runway, fashion catwalk) betimle.
-  * Eğer "boutique" seçtiysen, promptSuggestion içinde şık bir butik içi (luxury fashion boutique interior) betimle.
-  * Eğer "street" seçtiysen, promptSuggestion içinde sokak veya şık bir şehir caddesi (stylish city street, urban pavement) betimle.
-  * Eğer "garden" seçtiysen, promptSuggestion içinde lüks bir bahçe yolu (lush green garden pathway, elegant park) betimle.
-  * Eğer "original" seçtiysen, promptSuggestion içinde sade bir fotoğraf stüdyosu (professional photography studio backdrop) betimle.
+- Ortam (Mekan) Kuralı: promptSuggestion içinde kıyafetin tarzına, rengine, mevsimine ve amacına en uygun yaratıcı 3D mekanı serbestçe belirle ve betimle (örn: lüks otel lobisi, karlı Paris caddeleri, kumsalda gün batımı, modern bir tenis kortu, minimalist bir sanat galerisi, şık bir butik iç mekanı, moda podyumu, lüks bahçe yolu vb.). Ortamı düz bir "arka plan görseli" gibi değil; derinlik hissi veren, gölgelerin zemine düştüğü, hacimsel ışıklandırmalı gerçek bir 3 boyutlu uzay/mekan olarak detaylıca betimle.
 - productType Türkçe, kıyafetin genel adı (örn: Gömlek, Ceket, Pantolon, Abiye Elbise)
 - color Türkçe, ana renk (örn: Lacivert, Siyah, Kırmızı, Haki)
 - clothingType Türkçe, giyim türü. Sadece şu üç değerden biri olmalı: "Üst Giyim", "Alt Giyim", "Full Giyim"
 - fabric Türkçe, kumaş türü (örn: Keten, Pamuk, İpek, Kot, Saten, Kadife, Yün). Kesinlikle "Şifon", "Tül", "Dantel", "Organze", "File" gibi transparan kumaş isimleri seçilmemeli ve yazılmamalıdır.
 - Opaklık ve Kumaş Dokusu Kuralları: Kıyafetin kumaşı kesinlikle transparan (iç gösteren, tül, transparan, file, tülbent, şifon gibi) yapılmamalı, tamamen opak, tok, kalın ve kapalı olmalıdır. promptSuggestion içerisinde kesinlikle "şifon", "tül", "transparan", "file", "dantel", "organze", "iç gösteren", "yarı şeffaf" kelimelerini kullanma! Bunun yerine kumaşı "opak krep", "tok saten", "kalın dokuma", "opak pamuk" gibi tok ve opak kumaş kelimeleriyle betimle. Bu kuralı promptSuggestion içinde de vurgula (örn: "kumaş tamamen opaktır, iç göstermez, orijinal kalın dokusunu korur").
-- Ortam (Mekan) Önerisi Kuralı: promptSuggestion içinde mankenin/modelin bulunduğu ortam MUTLAKA betimlenmelidir (Seçtiğin backgroundId'ye uygun zengin 3D mekan bulunmalıdır). Kıyafetin tarzına, türüne ve mevsimine en uygun 3 boyutlu (3D) gerçekçi bir ortam belirle. Bu ortamı promptSuggestion içerisinde düz bir "arka plan görseli" gibi değil; modelin ve kıyafetin doğrudan içinde bulunduğu, derinlik hissi veren, gölgelerin zemine düştüğü, hacimsel ışıklandırmalı gerçek bir 3 boyutlu uzay/mekan (three-dimensional space with depth, realistic shadows cast on floor, volumetric lighting, parallax motion) olarak detaylıca betimle.
+- Ortam (Mekan) Önerisi Kuralı: promptSuggestion içinde mankenin/modelin bulunduğu ortam MUTLAKA betimlenmelidir. Kıyafetin tarzına, türüne ve mevsimine en uygun 3 boyutlu (3D) gerçekçi bir ortam belirle. Bu ortamı promptSuggestion içerisinde düz bir "arka plan görseli" gibi değil; modelin ve kıyafetin doğrudan içinde bulunduğu, derinlik hissi veren, gölgelerin zemine düştüğü, hacimsel ışıklandırmalı gerçek bir 3 boyutlu uzay/mekan (three-dimensional space with depth, realistic shadows cast on floor, volumetric lighting, parallax motion) olarak detaylıca betimle.
 - Hareket ve Aksiyon Kuralları: promptSuggestion içinde model kesinlikle durağan veya sadece ayakta sabit duruyor şekilde betimlenmemelidir. Modelin hareketleri doğal, dinamik ve zarif olmalıdır. Modelin podyumda yürümesi (walking on a runway), kameraya doğru zarif adımlarla yaklaşması (walking gracefully towards the camera), kendi etrafında yavaşça dönerek kıyafetin detaylarını sergilemesi (slowly turning around to showcase outfit details), omuz ve el hareketleriyle kıyafeti sunması gibi zarif model hareketleri (elegant modeling gestures, smooth walking, natural poses) mutlaka hareket/eylem olarak eklenmelidir.
 - promptSuggestion Türkçe olmalı. Kıyafeti (türünü, rengini, giyim tipini, kumaşını, detaylarını), yukarıdaki kurallara uygun olarak belirlenen 3D mekanı ve önerilen dinamik hareketi birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kıyafetin hareket/akış durumunu, arka plan ortamını (yukarıdaki kurala göre önerilen 3D mekanı) ve rüzgar esintisi gibi detayları doğrudan bu promptSuggestion içerisinde eylem ve sahne olarak betimle. Kumaşın kalın, tok ve tamamen opak/iç göstermez olduğunu da metin içinde belirt.
 - Kadraj ve Odak Noktası Kuralları: Tespit edilen clothingType değerine göre promptSuggestion içinde kameranın kadrajı ve odak noktası mutlaka belirtilmelidir:
@@ -75,7 +64,6 @@ Yanıt formatı:
   "clothingType": "string",
   "fabric": "string",
   "motionId": "string",
-  "backgroundId": "string",
   "promptSuggestion": "string"
 }`;
 
@@ -144,12 +132,10 @@ Yanıt formatı:
     if (!VALID_MOTION_IDS.includes(result.motionId)) {
       result.motionId = 'rotation';
     }
-    const VALID_BACKGROUND_IDS = ['boutique', 'runway', 'street', 'garden', 'original'];
-    if (!VALID_BACKGROUND_IDS.includes(result.backgroundId)) {
-      result.backgroundId = 'original';
-    }
+    // backgroundId kaldırıldı — arka plan artık prompt mühendisliği ile sağlanıyor
+    delete result.backgroundId;
 
-    console.log('[Analyze Garment] Analysis complete:', result.categoryId, result.motionId, result.backgroundId);
+    console.log('[Analyze Garment] Analysis complete:', result.categoryId, result.motionId);
     return NextResponse.json(result);
 
   } catch (err) {

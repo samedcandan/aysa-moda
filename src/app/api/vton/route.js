@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { uploadToImgBB } from '@/lib/imgbb';
-import { runVirtualTryOn, removeBackground } from '@/lib/fal';
+import { runVirtualTryOn } from '@/lib/fal';
 import { Jimp } from 'jimp';
 import path from 'path';
 import fs from 'fs';
@@ -33,154 +33,7 @@ function getBottomPadding(jimpImage) {
   return transparentRows;
 }
 
-// Helper to add a contact shadow under the model's feet
-function addContactShadow(bgImg, targetW, targetH, offsetY, mannequinImg) {
-  try {
-    const bottomPadding = getBottomPadding(mannequinImg);
-    // Scan the bottom 100 pixels of the model body to find the horizontal boundaries of the feet
-    const scanStartY = Math.max(0, targetH - bottomPadding - 100);
-    const scanEndY = targetH - bottomPadding;
-    
-    let minX = targetW;
-    let maxX = 0;
-    
-    for (let y = scanStartY; y < scanEndY; y++) {
-      for (let x = 0; x < targetW; x++) {
-        const color = mannequinImg.getPixelColor(x, y);
-        const alpha = color & 0xff;
-        if (alpha > 50) {
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-        }
-      }
-    }
-    
-    if (maxX > minX) {
-      const centerX = Math.round((minX + maxX) / 2);
-      const shadowWidth = Math.round((maxX - minX) * 0.85);
-      const shadowHeight = 16;
-      
-      const shadowImg = new Jimp({ width: targetW, height: 60, color: 0x00000000 });
-      
-      const cx = centerX;
-      const cy = 30;
-      const rx = shadowWidth / 2;
-      const ry = shadowHeight / 2;
-      
-      for (let y = 0; y < 60; y++) {
-        for (let x = 0; x < targetW; x++) {
-          const dx = x - cx;
-          const dy = y - cy;
-          const ellipseVal = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
-          if (ellipseVal <= 1) {
-            const dist = Math.sqrt(ellipseVal);
-            const opacity = Math.round(110 * (1 - dist)); // Soft falloff (max 110 opacity)
-            shadowImg.setPixelColor(opacity, x, y);
-          }
-        }
-      }
-      
-      shadowImg.blur(6);
-      
-      // Composite the shadow just below the feet (offset by height/2 of the shadow canvas)
-      const feetY = scanEndY + offsetY;
-      bgImg.composite(shadowImg, 0, feetY - 33);
-    }
-  } catch (err) {
-    console.error('[Shadow] Failed to generate contact shadow:', err);
-  }
-}
 
-// Helper to composite transparent mannequin onto a selected stock background image using Jimp
-async function composeMannequinOnBackground({ mannequinBase64, backgroundId, customBg }) {
-  const backgrounds = {
-    boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
-    runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
-    street: 'https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?q=80&w=768&auto=format&fit=crop',
-    garden: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=768&auto=format&fit=crop',
-  };
-
-  let bgUrl = backgrounds[backgroundId];
-  if (backgroundId === 'custom' && customBg) {
-    bgUrl = customBg;
-  }
-
-  if (!bgUrl) {
-    return mannequinBase64;
-  }
-
-  try {
-    console.log(`[VTON Compositing] Composing mannequin on background: ${backgroundId}`);
-    const cleanBase64 = mannequinBase64.replace(/^data:image\/\w+;base64,/, '');
-    const mannequinBuffer = Buffer.from(cleanBase64, 'base64');
-
-    const [bgImg, mannequinImg] = await Promise.all([
-      Jimp.read(bgUrl),
-      Jimp.read(mannequinBuffer)
-    ]);
-
-    const targetW = mannequinImg.bitmap.width;
-    const targetH = mannequinImg.bitmap.height;
-    
-    // Shift model down to align feet at the bottom (leave 5px padding)
-    const offsetY = Math.max(0, getBottomPadding(mannequinImg) - 5);
-
-    bgImg.resize({ w: targetW, h: targetH });
-    addContactShadow(bgImg, targetW, targetH, offsetY, mannequinImg);
-    bgImg.composite(mannequinImg, 0, offsetY);
-
-    const outBuffer = await bgImg.getBuffer('image/jpeg');
-    return `data:image/jpeg;base64,${outBuffer.toString('base64')}`;
-
-  } catch (error) {
-    console.error(`[VTON Compositing] Error composing background:`, error);
-    return mannequinBase64;
-  }
-}
-
-// Helper to composite dressed mannequin (transparent) onto selected background using Jimp
-async function composeDressedOnBackground({ transparentDressedUrl, backgroundId, customBg }) {
-  const backgrounds = {
-    boutique: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=768&auto=format&fit=crop',
-    runway: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=768&auto=format&fit=crop',
-    street: 'https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?q=80&w=768&auto=format&fit=crop',
-    garden: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=768&auto=format&fit=crop',
-  };
-
-  let bgUrl = backgrounds[backgroundId];
-  if (backgroundId === 'custom' && customBg) {
-    bgUrl = customBg;
-  }
-
-  if (!bgUrl) {
-    return transparentDressedUrl;
-  }
-
-  try {
-    console.log(`[VTON Post-Compositing] Composing dressed mannequin on background: ${backgroundId}`);
-    const [bgImg, dressedImg] = await Promise.all([
-      Jimp.read(bgUrl),
-      Jimp.read(transparentDressedUrl)
-    ]);
-
-    const targetW = dressedImg.bitmap.width;
-    const targetH = dressedImg.bitmap.height;
-    
-    // Shift model down to align feet at the bottom (leave 5px padding)
-    const offsetY = Math.max(0, getBottomPadding(dressedImg) - 5);
-
-    bgImg.resize({ w: targetW, h: targetH });
-    addContactShadow(bgImg, targetW, targetH, offsetY, dressedImg);
-    bgImg.composite(dressedImg, 0, offsetY);
-
-    const outBuffer = await bgImg.getBuffer('image/jpeg');
-    const uploadUrl = await uploadToImgBB(outBuffer.toString('base64'));
-    return uploadUrl;
-  } catch (error) {
-    console.error(`[VTON Post-Compositing] Error composing background:`, error);
-    return transparentDressedUrl;
-  }
-}
 
 // Hijab masking helper (aynı route.js'teki gibi)
 async function maskHijab({ originalBase64, dressedImageUrl, modelId, bodySize, view }) {
@@ -255,8 +108,6 @@ export async function POST(request) {
       modelId,
       bodySize,
       motionType,
-      backgroundId,
-      customBg,
     } = await request.json();
 
     if (!humanFront || !garmentFront || !category) {
@@ -265,32 +116,21 @@ export async function POST(request) {
 
     const isRotation = motionType === 'rotation';
 
-    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}, backgroundId=${backgroundId}`);
-
-    // Pre-compose transparent mannequin onto selected background if applicable
-    let finalHumanFront = humanFront;
-    let finalHumanBack = humanBack;
-
-    if (backgroundId && backgroundId !== 'original') {
-      finalHumanFront = await composeMannequinOnBackground({ mannequinBase64: humanFront, backgroundId, customBg });
-      if (humanBack) {
-        finalHumanBack = await composeMannequinOnBackground({ mannequinBase64: humanBack, backgroundId, customBg });
-      }
-    }
+    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}`);
 
     // 1. Görselleri ImgBB'ye yükle
     console.log('[VTON] Uploading images to ImgBB...');
     const uploadTasks = [
-      uploadToImgBB(finalHumanFront),
+      uploadToImgBB(humanFront),
       uploadToImgBB(garmentFront),
     ];
-    if (isRotation && finalHumanBack) uploadTasks.push(uploadToImgBB(finalHumanBack));
+    if (isRotation && humanBack) uploadTasks.push(uploadToImgBB(humanBack));
     if (garmentBack) uploadTasks.push(uploadToImgBB(garmentBack));
 
     const uploadResults = await Promise.all(uploadTasks);
     const humanFrontUrl = uploadResults[0];
     const garmentFrontUrl = uploadResults[1];
-    const humanBackUrl = isRotation && finalHumanBack ? uploadResults[2] : null;
+    const humanBackUrl = isRotation && humanBack ? uploadResults[2] : null;
     const garmentBackUrl = garmentBack ? uploadResults[uploadTasks.length - 1] : null;
 
     console.log('[VTON] Images uploaded. Starting try-on...');
@@ -316,38 +156,20 @@ export async function POST(request) {
     if (modelId === 'huma') {
       console.log('[VTON] Applying hijab masking...');
       frontDressedUrl = await maskHijab({
-        originalBase64: finalHumanFront,
+        originalBase64: humanFront,
         dressedImageUrl: frontDressedUrl,
         modelId,
         bodySize,
         view: 'front',
       });
-      if (isRotation && backDressedUrl && finalHumanBack) {
+      if (isRotation && backDressedUrl && humanBack) {
         backDressedUrl = await maskHijab({
-          originalBase64: finalHumanBack,
+          originalBase64: humanBack,
           dressedImageUrl: backDressedUrl,
           modelId,
           bodySize,
           view: 'back',
         });
-      }
-    }
-
-    // 4. Post-compose background (remove white background of VTON output and composite on chosen background)
-    if (backgroundId && backgroundId !== 'original') {
-      try {
-        console.log(`[VTON Post-Compose] Removing background and post-compositing onto ${backgroundId}...`);
-        const [transparentFront, transparentBack] = await Promise.all([
-          removeBackground({ imageUrl: frontDressedUrl }),
-          backDressedUrl ? removeBackground({ imageUrl: backDressedUrl }) : Promise.resolve(null),
-        ]);
-
-        frontDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentFront, backgroundId, customBg });
-        if (backDressedUrl && transparentBack) {
-          backDressedUrl = await composeDressedOnBackground({ transparentDressedUrl: transparentBack, backgroundId, customBg });
-        }
-      } catch (bgError) {
-        console.error('[VTON Post-Compose] Failed post-compositing background:', bgError);
       }
     }
 

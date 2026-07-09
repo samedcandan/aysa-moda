@@ -53,7 +53,6 @@ export async function POST(request) {
       motionType,
       modelId,
       bodySize,
-      backgroundId,
       isDirectMode,
       isRetry,           // true ise: 2. run, kredi düşülmez
       fabric,            // Kumaş türü (örn: Keten)
@@ -123,7 +122,7 @@ export async function POST(request) {
             backGarmUrl: garmentBackUrl || garmentFrontUrl || humanFrontUrl || frontDressedUrl,
             modelId: isDirectMode ? 'own_model' : (modelId || 'melisa'),
             bodySize: bodySize || 'STANDARD',
-            backgroundId: backgroundId || 'own',
+            backgroundId: 'dynamic',
             status: 'PROCESSING',
             runCount: 1,
           },

@@ -151,7 +151,6 @@ export async function POST(request) {
       category,
       modelId,
       bodySize,
-      backgroundId,
       customPrompt,
       motionType,   // rotation | walk | pose | breeze
       directMode,   // boolean — true: skip VTON, animate user's own photo directly
@@ -313,7 +312,7 @@ export async function POST(request) {
           backGarmUrl: garmentBackUrl || garmentFrontUrl || humanFrontUrl, // DB constraint
           modelId: isDirectMode ? 'own_model' : (modelId || 'melisa'),
           bodySize: bodySize || 'STANDARD',
-          backgroundId: backgroundId || 'own',
+          backgroundId: 'dynamic',
           status: 'PROCESSING',
         },
       });

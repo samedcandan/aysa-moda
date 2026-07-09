@@ -46,21 +46,7 @@ const MODELS = [
   { id: 'cem', name: 'Cem', desc: 'Esmer', gender: 'MEN' },
 ];
 
-const BACKGROUNDS = [
-  { id: 'original', label: 'Sade Stüdyo', promptText: 'clean solid studio background, professional studio lighting, simple minimalist studio setting' },
-  { id: 'boutique', label: 'Lüks Butik', promptText: 'inside a luxury fashion boutique store with designer clothing racks, soft warm interior lighting, premium boutique atmosphere' },
-  { id: 'runway', label: 'Moda Podyumu', promptText: 'walking on a fashion show runway catwalk, dramatic stage spotlights, blurred audience in background, high fashion event setting' },
-  { id: 'street', label: 'Şık Sokak', promptText: 'walking on a stylish Parisian city street pavement, beautiful urban outdoor background, soft natural daylight, depth of field' },
-  { id: 'garden', label: 'Lüks Bahçe', promptText: 'walking along a lush green garden pathway, beautiful sun-dappled foliage, elegant outdoor nature background' },
-  { id: 'custom', label: 'Kendi Mağazam', promptText: '' },
-];
 
-const PROMPT_TAGS = [
-  { label: 'Rüzgarlı Hava', text: 'Rüzgarlı hava, kumaşta doğal uçuşma hareketi.' },
-  { label: 'Stüdyo Işığı', text: 'Stüdyo ışığı, sinematik aydınlatma.' },
-  { label: 'Yavaş Dönüş', text: 'Yavaş dönüş, manken kendi etrafında yavaşça döner.' },
-  { label: 'Yüksek Kalite', text: 'Yüksek kalite, ultra gerçekçi detaylar, 4K çözünürlük.' },
-];
 
 const FEEDBACK_CATEGORIES = [
   { id: 'giydirme_hatasi', label: 'Kıyafet doğru giydirilmedi' },
@@ -74,7 +60,7 @@ const FEEDBACK_CATEGORIES = [
 //  PROMPT ÜRETİCİ
 // ============================================================
 
-function buildPrompt({ category, backgroundId, motionType, modelId, generatorMode, isHijabDirect }) {
+function buildPrompt({ category, motionType, modelId, generatorMode, isHijabDirect }) {
   const trCategoryPrompts = {
     gelinlik: 'Gelinlik giyen bayan mankenin profesyonel moda tanıtım videosu. Gelinliğin tüm ince detayları, danteleri ve zarif dökümü ön planda.',
     abiye: 'Abiye giyen bayan mankenin lüks moda tanıtım videosu. Kumaş kalitesi, drapaleri ve şik detayları ön planda.',
@@ -117,9 +103,6 @@ function buildPrompt({ category, backgroundId, motionType, modelId, generatorMod
   }
 
   // VTON mode
-  const selectedBg = BACKGROUNDS.find(b => b.id === backgroundId);
-  const bgText = selectedBg?.promptText ? `Arka plan: ${selectedBg.label.toLowerCase()} ortamı.` : '';
-
   let catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
   if (modelId === 'huma') {
     catText = catText.replaceAll('bayan mankenin', 'tesettürlü bayan mankenin');
@@ -128,9 +111,9 @@ function buildPrompt({ category, backgroundId, motionType, modelId, generatorMod
 
   const motionText = trMotionPrompts[motionType] || trMotionPrompts.rotation;
   const framingText = trFramingPrompts[category] || 'Video üst vücuda odaklanmış yakın plan olarak başlar ve videonun sonuna doğru tüm vücudu gösterecek şekilde genişler.';
-  const fidelityText = 'Kıyafetin tasarımı, orijinal renkleri, kumaş dokusu, desenleri ve tüm detayları video boyunca %100 birebir korunur.';
+  const fidelityText = 'Kıyafetin tasarımı, orijinal renkleri, kumaş dokusu, desenleri and tüm detayları video boyunca %100 birebir korunur.';
 
-  return `${catText} ${bgText} ${motionText} ${framingText} ${fidelityText}`;
+  return `${catText} ${motionText} ${framingText} ${fidelityText}`;
 }
 
 // ============================================================
@@ -214,8 +197,6 @@ function HomePageContent() {
   const [garmentBack, setGarmentBack] = useState(null);
   const [category, setCategory] = useState('gelinlik');
   const [activeAccordion, setActiveAccordion] = useState('all_categories');
-  const [backgroundId, setBackgroundId] = useState('original');
-  const [customBg, setCustomBg] = useState(null);
   const [motionType, setMotionType] = useState('rotation');
   const [customPrompt, setCustomPrompt] = useState('');
   const [isPromptEdited, setIsPromptEdited] = useState(false);
@@ -266,16 +247,15 @@ function HomePageContent() {
       setCustomPrompt(analysisResult.promptSuggestion);
       return;
     }
-    const prompt = buildPrompt({ category, backgroundId, motionType, modelId, generatorMode, isHijabDirect });
+    const prompt = buildPrompt({ category, motionType, modelId, generatorMode, isHijabDirect });
     setCustomPrompt(prompt);
-  }, [category, backgroundId, motionType, modelId, generatorMode, isHijabDirect, isPromptEdited, analysisResult]);
+  }, [category, motionType, modelId, generatorMode, isHijabDirect, isPromptEdited, analysisResult]);
 
   // ---- Analiz sonucu gelince prompt/category/motion güncelle ----
   useEffect(() => {
     if (!analysisResult) return;
     if (analysisResult.categoryId) setCategory(analysisResult.categoryId);
     if (analysisResult.motionId) setMotionType(analysisResult.motionId);
-    if (analysisResult.backgroundId) setBackgroundId(analysisResult.backgroundId);
     if (analysisResult.promptSuggestion) {
       setCustomPrompt(analysisResult.promptSuggestion);
       setIsPromptEdited(false);
@@ -484,7 +464,7 @@ function HomePageContent() {
           humanBack: humanBackB64,
           garmentFront: garmentFront || garmentBack,
           garmentBack: garmentBack || garmentFront,
-          category, modelId, bodySize, motionType, backgroundId,
+          category, modelId, bodySize, motionType,
         }),
       });
 
@@ -515,13 +495,6 @@ function HomePageContent() {
     setProgressText(`${motionLabel} canlandırılıyor...`);
 
     try {
-      const studioKeywords = ["butik", "podyum", "sokak", "cadde", "bahçe", "runway", "catwalk", "street", "boutique", "garden", "palace", "balo", "salon", "caddede", "salonunda", "ortamı", "background", "indoor", "outdoor", "studio"];
-      const hasCustomBgText = studioKeywords.some(keyword => customPrompt.toLowerCase().includes(keyword));
-      const bgPromptText = (backgroundId === 'original' && hasCustomBgText)
-        ? ''
-        : (BACKGROUNDS.find(b => b.id === backgroundId)?.promptText || '');
-      const fullPrompt = [customPrompt, bgPromptText].filter(Boolean).join(' ');
-
       const isRotation = motionType === 'rotation';
       const res = await fetch('/api/video', {
         method: 'POST',
@@ -529,8 +502,8 @@ function HomePageContent() {
         body: JSON.stringify({
           frontDressedUrl: vtonResult.front,
           backDressedUrl: isRotation ? vtonResult.back : null,
-          category, customPrompt: fullPrompt, motionType,
-          modelId, bodySize, backgroundId,
+          category, customPrompt, motionType,
+          modelId, bodySize,
           isDirectMode: false,
           isRetry,
           fabric: analysisResult?.fabric,
@@ -562,13 +535,6 @@ function HomePageContent() {
     setErrorMsg('');
 
     try {
-      const studioKeywords = ["butik", "podyum", "sokak", "cadde", "bahçe", "runway", "catwalk", "street", "boutique", "garden", "palace", "balo", "salon", "caddede", "salonunda", "ortamı", "background", "indoor", "outdoor", "studio"];
-      const hasCustomBgText = studioKeywords.some(keyword => customPrompt.toLowerCase().includes(keyword));
-      const bgPromptText = (backgroundId === 'original' && hasCustomBgText)
-        ? ''
-        : (BACKGROUNDS.find(b => b.id === backgroundId)?.promptText || '');
-      const fullPrompt = [customPrompt, bgPromptText].filter(Boolean).join(' ');
-
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -576,7 +542,7 @@ function HomePageContent() {
           humanFront: directFront,
           humanBack: directBack || directFront,
           category: category || 'elbise',
-          customPrompt: fullPrompt,
+          customPrompt,
           motionType,
           directMode: true,
           isRetry,
@@ -690,7 +656,7 @@ function HomePageContent() {
     setRetryVideoUrl(null);
     setVtonResult({ front: null, back: null, garmentFrontUrl: null, humanFrontUrl: null });
     setErrorMsg('');
-    setBackgroundId('original');
+
     setCustomPrompt('');
     setIsPromptEdited(false);
     setAnalysisResult(null);
@@ -1091,7 +1057,7 @@ function HomePageContent() {
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                        {/* VTON */}
-                       <div onClick={() => { setGeneratorMode('vton'); setStep(3); setBackgroundId('boutique'); }} className="glass-panel"
+                       <div onClick={() => { setGeneratorMode('vton'); setStep(3); }} className="glass-panel"
                          style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(232,203,245,0.18)', background: 'linear-gradient(135deg, rgba(232,203,245,0.04), rgba(212,174,120,0.02))', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
                          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(232,203,245,0.08)'; }}
                          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(232,203,245,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}>
@@ -1103,7 +1069,7 @@ function HomePageContent() {
                          <span style={{ color: 'var(--text-gold)', fontSize: '20px', flexShrink: 0 }}>›</span>
                        </div>
                        {/* Direct */}
-                       <div onClick={() => { setGeneratorMode('direct'); setStep(3); setBackgroundId('original'); }} className="glass-panel"
+                       <div onClick={() => { setGeneratorMode('direct'); setStep(3); }} className="glass-panel"
                          style={{ padding: '20px 18px', cursor: 'pointer', border: '1.5px solid rgba(212,174,120,0.18)', background: 'linear-gradient(135deg, rgba(212,174,120,0.04), rgba(232,203,245,0.02))', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}
                          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.5)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(212,174,120,0.08)'; }}
                          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(212,174,120,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}>
