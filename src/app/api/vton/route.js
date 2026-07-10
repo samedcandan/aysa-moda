@@ -116,7 +116,9 @@ export async function POST(request) {
 
     const isRotation = motionType === 'rotation';
 
-    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}`);
+    // Hüma modeli için Fashn'a one-pieces gönder — tüm kıyafeti değiştirir, jean kalıntısı olmaz
+    const vtonCategory = modelId === 'huma' ? 'one-pieces' : category;
+    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}, vtonCategory=${vtonCategory}`);
 
     // 1. Görselleri ImgBB'ye yükle
     console.log('[VTON] Uploading images to ImgBB...');
@@ -135,26 +137,43 @@ export async function POST(request) {
 
     console.log('[VTON] Images uploaded. Starting try-on...');
 
-    // 2. VTON çalıştır
+    // 2. VTON çalıştır (Hüma için one-pieces kategorisi kullanılır)
     let frontDressedUrl;
     let backDressedUrl = null;
 
     if (isRotation && humanBackUrl) {
       const [frontRes, backRes] = await Promise.all([
-        runVirtualTryOn({ humanUrl: humanFrontUrl, garmentUrl: garmentFrontUrl, category }),
-        runVirtualTryOn({ humanUrl: humanBackUrl, garmentUrl: garmentBackUrl || garmentFrontUrl, category }),
+        runVirtualTryOn({ humanUrl: humanFrontUrl, garmentUrl: garmentFrontUrl, category: vtonCategory }),
+        runVirtualTryOn({ humanUrl: humanBackUrl, garmentUrl: garmentBackUrl || garmentFrontUrl, category: vtonCategory }),
       ]);
       frontDressedUrl = frontRes;
       backDressedUrl = backRes;
     } else {
-      frontDressedUrl = await runVirtualTryOn({ humanUrl: humanFrontUrl, garmentUrl: garmentFrontUrl, category });
+      frontDressedUrl = await runVirtualTryOn({ humanUrl: humanFrontUrl, garmentUrl: garmentFrontUrl, category: vtonCategory });
     }
 
     console.log('[VTON] Try-on complete:', { frontDressedUrl, backDressedUrl });
 
-    // NOT: Hijab maskeleme VTON aşamasında yapılmıyor.
-    // Hüma modeli Derin'in minimal template'ini kullanıyor, hijab video prompt'u ile sağlanıyor.
-    // Kling prompt mimarisinde güçlü tesettür talimatları mevcut (kling.js + analyze-garment).
+    // 3. Hijab masking (sadece Huma modeli için — aynı template olduğu için piksel hizalaması doğru çalışır)
+    if (modelId === 'huma') {
+      console.log('[VTON] Applying hijab masking...');
+      frontDressedUrl = await maskHijab({
+        originalBase64: humanFront,
+        dressedImageUrl: frontDressedUrl,
+        modelId,
+        bodySize,
+        view: 'front',
+      });
+      if (isRotation && backDressedUrl && humanBack) {
+        backDressedUrl = await maskHijab({
+          originalBase64: humanBack,
+          dressedImageUrl: backDressedUrl,
+          modelId,
+          bodySize,
+          view: 'back',
+        });
+      }
+    }
 
     return NextResponse.json({
       success: true,

@@ -447,13 +447,9 @@ function HomePageContent() {
         reader.readAsDataURL(blob);
       }));
 
-      // Hüma seçildiğinde VTON için Derin'in minimal template'ini kullan
-      // (Hüma'nın tam giyimli template'i VTON'u bozuyor, hijab maskeleme sonradan uygulanacak)
-      const vtonModelId = modelId === 'huma' ? 'derin' : modelId;
-
       const [humanFrontB64, humanBackB64] = await Promise.all([
-        loadAsBase64(`/models/${vtonModelId}_${sizeSuffix}_front.png?v=boxers`),
-        isRotation ? loadAsBase64(`/models/${vtonModelId}_${sizeSuffix}_back.png?v=boxers`) : Promise.resolve(null),
+        loadAsBase64(`/models/${modelId}_${sizeSuffix}_front.png?v=boxers`),
+        isRotation ? loadAsBase64(`/models/${modelId}_${sizeSuffix}_back.png?v=boxers`) : Promise.resolve(null),
       ]);
 
       setPhase('VTON');
