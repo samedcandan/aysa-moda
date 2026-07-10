@@ -2,9 +2,65 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { createVideo } from '@/lib/kling';
+import { uploadToImgBB } from '@/lib/imgbb';
+import { Jimp } from 'jimp';
 
-// Sadece Kling tetikleme — hızlı, 30s yeterli
-export const maxDuration = 60;
+// Kling tetikleme + 9:16 dönüşüm
+export const maxDuration = 120;
+
+/**
+ * Görseli 9:16 (1080x1920) Reels formatına dönüştürür.
+ * Kling image-to-video modunda görselin boyutlarını referans aldığı için
+ * görseli önceden dikey formata çevirmek video çıktısının Reels olmasını garanti eder.
+ */
+async function convertToReelsFormat(imageUrl) {
+  try {
+    const REELS_W = 1080;
+    const REELS_H = 1920;
+
+    const srcImg = await Jimp.read(imageUrl);
+    const srcW = srcImg.bitmap.width;
+    const srcH = srcImg.bitmap.height;
+    const srcRatio = srcW / srcH;
+    const targetRatio = REELS_W / REELS_H; // 0.5625
+
+    // Zaten 9:16'ya yakınsa dönüştürmeye gerek yok
+    if (Math.abs(srcRatio - targetRatio) < 0.05) {
+      console.log('[Video] Image already ~9:16, skipping conversion');
+      return imageUrl;
+    }
+
+    // Görseli 9:16 kanvasa sığdır (contain — kırpmadan)
+    let fitW, fitH;
+    if (srcRatio > targetRatio) {
+      // Görsel daha geniş — genişliğe sığdır
+      fitW = REELS_W;
+      fitH = Math.round(REELS_W / srcRatio);
+    } else {
+      // Görsel daha uzun — yüksekliğe sığdır
+      fitH = REELS_H;
+      fitW = Math.round(REELS_H * srcRatio);
+    }
+
+    srcImg.resize({ w: fitW, h: fitH });
+
+    // Siyah kanvas oluştur ve görseli alt-ortala (ayaklar tabanda)
+    const canvas = new Jimp({ width: REELS_W, height: REELS_H, color: 0x000000ff });
+    const offsetX = Math.round((REELS_W - fitW) / 2);
+    const offsetY = REELS_H - fitH; // alt hizalama
+    canvas.composite(srcImg, offsetX, offsetY);
+
+    // Buffer'a çevir ve ImgBB'ye yükle
+    const buffer = await canvas.getBuffer('image/jpeg');
+    const base64 = buffer.toString('base64');
+    const reelsUrl = await uploadToImgBB(base64);
+    console.log('[Video] Converted to 9:16 Reels format');
+    return reelsUrl;
+  } catch (err) {
+    console.error('[Video] Reels conversion failed, using original:', err.message);
+    return imageUrl; // Hata durumunda orijinal görseli kullan
+  }
+}
 
 async function translateToEnglish(text) {
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -82,12 +138,16 @@ export async function POST(request) {
     const finalPrompt = `${translatedPrompt} ${cinematicSuffix}`.trim();
     console.log('[Video] Final prompt:', finalPrompt);
 
-    // Kling'e gönderilecek görseller
-    const imagesToPass = (isRotation && backDressedUrl)
+    // Görselleri 9:16 (Reels) formatına dönüştür
+    // Kling image-to-video modunda görselin boyutlarını referans alır,
+    // bu yüzden görseli önceden 9:16'ya dönüştürmeliyiz
+    const rawImages = (isRotation && backDressedUrl)
       ? [frontDressedUrl, backDressedUrl]
       : [frontDressedUrl];
 
-    console.log('[Video] Triggering Kling with', imagesToPass.length, 'image(s)...');
+    const imagesToPass = await Promise.all(rawImages.map(url => convertToReelsFormat(url)));
+
+    console.log('[Video] Triggering Kling with', imagesToPass.length, '9:16 image(s)...');
     const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId, fabric);
     console.log('[Video] Kling task created:', taskId);
 
