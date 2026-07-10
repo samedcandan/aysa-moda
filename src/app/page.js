@@ -1117,14 +1117,17 @@ function HomePageContent() {
                       </div>
                     </div>
 
-                    {/* Tesettür toggle */}
-                    <div onClick={() => setIsHijabDirect(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: isHijabDirect ? 'rgba(212,174,120,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isHijabDirect ? 'rgba(212,174,120,0.4)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '10px', cursor: 'pointer', marginBottom: '20px', transition: 'all 0.2s' }}>
-                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, border: `2px solid ${isHijabDirect ? 'var(--text-gold)' : 'rgba(255,255,255,0.2)'}`, background: isHijabDirect ? 'var(--text-gold)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
-                        {isHijabDirect && <span style={{ color: '#1a1a1a', fontSize: '11px', fontWeight: 700 }}>✓</span>}
+                    {/* Tesettür toggle — iOS-style switch */}
+                    <div onClick={() => setIsHijabDirect(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', background: isHijabDirect ? 'rgba(212,174,120,0.12)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${isHijabDirect ? 'rgba(212,174,120,0.5)' : 'rgba(255,255,255,0.12)'}`, borderRadius: '12px', cursor: 'pointer', marginBottom: '20px', transition: 'all 0.3s ease', userSelect: 'none' }}>
+                      {/* Toggle Switch */}
+                      <div style={{ width: '44px', height: '24px', borderRadius: '12px', flexShrink: 0, background: isHijabDirect ? 'var(--text-gold)' : 'rgba(255,255,255,0.15)', position: 'relative', transition: 'all 0.3s ease', boxShadow: isHijabDirect ? '0 0 8px rgba(212,174,120,0.4)' : 'inset 0 1px 3px rgba(0,0,0,0.3)' }}>
+                        <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: isHijabDirect ? '#1a1a1a' : 'rgba(255,255,255,0.5)', position: 'absolute', top: '2px', left: isHijabDirect ? '22px' : '2px', transition: 'all 0.3s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isHijabDirect && <span style={{ fontSize: '10px', color: 'var(--text-gold)' }}>✓</span>}
+                        </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Mankenim Tesettürlü (Başörtülü)</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Saç, boyun korunması için prompt güncellenir</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: isHijabDirect ? 'var(--text-gold)' : 'var(--text-primary)', transition: 'color 0.3s' }}>🧕 Mankenim Tesettürlü (Başörtülü)</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{isHijabDirect ? '✅ Aktif — Saç, boyun korunması sağlanır' : 'Saç, boyun korunması için etkinleştirin'}</div>
                       </div>
                     </div>
 
