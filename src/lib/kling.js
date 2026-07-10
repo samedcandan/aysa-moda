@@ -120,21 +120,21 @@ export async function createVideo(imageUrls, category, customPrompt, modelId, fa
                         lowerPrompt.includes('pamuk') ||
                         lowerPrompt.includes('kot');
 
-  // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits, cleavage and outfit morphing
-  let negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, added details, removed details, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast, undergarment visible, exposed skin';
+  // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits, cleavage, plain backgrounds and outfit morphing
+  let negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, added details, removed details, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast, undergarment visible, exposed skin, white background, plain background, studio background, blank background, solid color background';
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
-    negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair, deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast, undergarment visible';
+    negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair, deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast, undergarment visible, white background, plain background, studio background, blank background, solid color background';
   }
 
   // === PROMPT ARCHITECTURE ===
   // Kling AI pays most attention to the BEGINNING of the prompt.
   // Strategy: IMAGE_FIDELITY_PREFIX + customPrompt + short quality suffix
   
-  // 1. PREPEND: Image fidelity prefix — this is what Kling sees FIRST
-  const fidelityPrefix = 'Strictly preserve every detail of the garment exactly as shown in the input image: same design, same length, same width, same proportions, same fabric texture, same color, same pattern, completely opaque and non-transparent.';
+  // 1. PREPEND: Image fidelity prefix + immediate scene start — this is what Kling sees FIRST
+  const fidelityPrefix = 'FROM THE VERY FIRST FRAME, the model is ALREADY inside the described environment — there is NO white background, NO plain background, NO studio background at ANY point in the video. The scene starts IMMEDIATELY in the rich 3D environment. Strictly preserve every detail of the garment exactly as shown in the input image: same design, same length, same width, same proportions, same fabric texture, same color, same pattern, completely opaque and non-transparent.';
   
   // 2. APPEND: Short quality suffix
-  const qualitySuffix = ' Photorealistic, 8K, cinematic lighting.';
+  const qualitySuffix = ' Photorealistic, 8K, cinematic lighting. The background environment is fully established from frame 1.';
   
   // Final prompt: fidelity first, then content, then quality
   prompt = `${fidelityPrefix} ${prompt}${qualitySuffix}`;

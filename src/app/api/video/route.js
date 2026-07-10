@@ -78,7 +78,7 @@ async function translateToEnglish(text) {
         messages: [
           {
             role: 'system',
-            content: 'You are a fashion video prompt translator. Translate Turkish to English for an AI video generator. RULES: 1) The garment in the video must be IDENTICAL to the input image - same design, buttons, seams, pleats, length, proportions. Never describe the garment differently from what is shown. 2) Fabric must be 100% opaque, solid, non-transparent. NEVER use: chiffon, sheer, tulle, lace, organza, transparent, see-through. Replace with: solid crepe, thick satin, opaque cotton. 3) If hijab/tesettür mentioned, ensure hair/neck/arms remain fully covered. 4) Keep the translation concise and direct. Output ONLY the English translation.',
+            content: 'You are a fashion video prompt translator. Translate Turkish to English for an AI video generator. RULES: 1) The garment in the video must be IDENTICAL to the input image - same design, buttons, seams, pleats, length, proportions. Never describe the garment differently from what is shown. 2) Fabric must be 100% opaque, solid, non-transparent. NEVER use: chiffon, sheer, tulle, lace, organza, transparent, see-through. Replace with: solid crepe, thick satin, opaque cotton. 3) If hijab/tesettür mentioned, ensure hair/neck/arms remain fully covered. 4) CRITICAL: Put the environment/scene description at the VERY BEGINNING of the translated prompt, before the model/garment description. The scene must be established from frame 1. 5) Keep the translation concise and direct. Output ONLY the English translation.',
           },
           { role: 'user', content: text },
         ],
@@ -132,8 +132,8 @@ export async function POST(request) {
     // Prompt hazırlama
     const translatedPrompt = await translateToEnglish(customPrompt);
     const cinematicSuffix = isDirectMode
-      ? 'Photorealistic video, natural environment lighting, cinematic depth of field, realistic shadows on ground, 8K quality.'
-      : 'Photorealistic, cinematic depth of field, natural environmental lighting, realistic depth and parallax, natural shadows and ground contact, 8K quality.';
+      ? 'From the very first frame, the model is already inside the described environment with NO white or plain background visible at any point. Photorealistic video, natural environment lighting, cinematic depth of field, realistic shadows on ground, 8K quality.'
+      : 'From the very first frame, the model is already inside the described environment with NO white or plain background visible at any point. Photorealistic, cinematic depth of field, natural environmental lighting, realistic depth and parallax, natural shadows and ground contact, 8K quality.';
 
     const finalPrompt = `${translatedPrompt} ${cinematicSuffix}`.trim();
     console.log('[Video] Final prompt:', finalPrompt);
