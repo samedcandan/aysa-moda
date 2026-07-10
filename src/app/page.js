@@ -1094,27 +1094,15 @@ function HomePageContent() {
                       <button onClick={() => { setStep(2); setGeneratorMode(null); }} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
                     <input type="file" ref={fileInputDirectFrontRef} accept="image/*" style={{ display: 'none' }} onChange={e => handleImageSelect(e, setDirectFront)} />
-                    <input type="file" ref={fileInputDirectBackRef} accept="image/*" style={{ display: 'none' }} onChange={e => handleImageSelect(e, setDirectBack)} />
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                      <div onClick={() => fileInputDirectFrontRef.current?.click()} style={{ aspectRatio: '3/4', borderRadius: '12px', border: `2px dashed ${directFront ? 'var(--text-gold)' : 'rgba(255,255,255,0.15)'}`, background: directFront ? 'none' : 'rgba(255,255,255,0.02)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
-                        {directFront ? <img src={directFront} alt="Ön" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (
-                          <div style={{ textAlign: 'center', padding: '16px' }}>
-                            <div style={{ fontSize: '28px', marginBottom: '8px' }}>📷</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Ön Görünüm</div>
-                            <div style={{ fontSize: '10px', color: '#ff8888', marginTop: '4px' }}>Zorunlu</div>
-                          </div>
-                        )}
-                      </div>
-                      <div onClick={() => fileInputDirectBackRef.current?.click()} style={{ aspectRatio: '3/4', borderRadius: '12px', border: `2px dashed ${directBack ? 'rgba(212,174,120,0.7)' : 'rgba(255,255,255,0.1)'}`, background: directBack ? 'none' : 'rgba(255,255,255,0.01)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
-                        {directBack ? <img src={directBack} alt="Arka" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (
-                          <div style={{ textAlign: 'center', padding: '16px' }}>
-                            <div style={{ fontSize: '28px', marginBottom: '8px' }}>🔄</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Arka Görünüm</div>
-                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '4px' }}>360° için isteğe bağlı</div>
-                          </div>
-                        )}
-                      </div>
+                    <div onClick={() => fileInputDirectFrontRef.current?.click()} style={{ aspectRatio: '3/4', maxWidth: '260px', margin: '0 auto 20px', borderRadius: '14px', border: `2px dashed ${directFront ? 'var(--text-gold)' : 'rgba(255,255,255,0.15)'}`, background: directFront ? 'none' : 'rgba(255,255,255,0.02)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
+                      {directFront ? <img src={directFront} alt="Ön" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (
+                        <div style={{ textAlign: 'center', padding: '20px' }}>
+                          <div style={{ fontSize: '36px', marginBottom: '10px' }}>📷</div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>Fotoğraf Yükle</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px' }}>Mankenli kıyafet fotoğrafınızı seçin</div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Tesettür toggle — iOS-style switch */}
