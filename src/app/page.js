@@ -40,7 +40,6 @@ const MOTION_TYPES = [
 const MODELS = [
   { id: 'melisa', name: 'Melisa', desc: 'Sarışın', gender: 'WOMEN' },
   { id: 'derin', name: 'Derin', desc: 'Esmer', gender: 'WOMEN' },
-  { id: 'huma', name: 'Hüma', desc: 'Tesettürlü', gender: 'WOMEN' },
   { id: 'can', name: 'Can', desc: 'Kumral', gender: 'MEN' },
   { id: 'ayaz', name: 'Ayaz', desc: 'Sarışın', gender: 'MEN' },
   { id: 'cem', name: 'Cem', desc: 'Esmer', gender: 'MEN' },
@@ -60,7 +59,7 @@ const FEEDBACK_CATEGORIES = [
 //  PROMPT ÜRETİCİ
 // ============================================================
 
-function buildPrompt({ category, motionType, modelId, generatorMode, isHijabDirect }) {
+function buildPrompt({ category, motionType, modelId, generatorMode, isHijabDirect, isHijabVton }) {
   const trCategoryPrompts = {
     gelinlik: 'Gelinlik giyen bayan mankenin profesyonel moda tanıtım videosu. Gelinliğin tüm ince detayları, danteleri ve zarif dökümü ön planda.',
     abiye: 'Abiye giyen bayan mankenin lüks moda tanıtım videosu. Kumaş kalitesi, drapaleri ve şik detayları ön planda.',
@@ -104,7 +103,7 @@ function buildPrompt({ category, motionType, modelId, generatorMode, isHijabDire
 
   // VTON mode
   let catText = trCategoryPrompts[category] || trCategoryPrompts.tisort;
-  if (modelId === 'huma') {
+  if (modelId === 'huma' || isHijabVton) {
     catText = catText.replaceAll('bayan mankenin', 'tesettürlü bayan mankenin');
     catText += ' Manken şik ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır. Manken, İslami tesettür kurallarına %100 uygun şekilde giyinmiştir. Kollar tamamen uzun, yaka kapalıdır; boyun, saçlar, omuzlar ve kollar tüm video boyunca, her açıdan (ön, yan, arka) tamamen örtülüdür, kesinlikle ten görünmez. Başörtüsü, manken dönerken de her açıdan saçları ve boynu kusursuz şekilde kapatmaya devam eder.';
   }
@@ -200,6 +199,7 @@ function HomePageContent() {
   const [motionType, setMotionType] = useState('rotation');
   const [customPrompt, setCustomPrompt] = useState('');
   const [isPromptEdited, setIsPromptEdited] = useState(false);
+  const [isHijabVton, setIsHijabVton] = useState(false);
 
   // --- Direct Mod ---
   const [directFront, setDirectFront] = useState(null);
@@ -247,9 +247,9 @@ function HomePageContent() {
       setCustomPrompt(analysisResult.promptSuggestion);
       return;
     }
-    const prompt = buildPrompt({ category, motionType, modelId, generatorMode, isHijabDirect });
+    const prompt = buildPrompt({ category, motionType, modelId, generatorMode, isHijabDirect, isHijabVton });
     setCustomPrompt(prompt);
-  }, [category, motionType, modelId, generatorMode, isHijabDirect, isPromptEdited, analysisResult]);
+  }, [category, motionType, modelId, generatorMode, isHijabDirect, isHijabVton, isPromptEdited, analysisResult]);
 
   // ---- Analiz sonucu gelince prompt/category/motion güncelle ----
   useEffect(() => {
@@ -378,7 +378,7 @@ function HomePageContent() {
       const res = await fetch('/api/analyze-garment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, gender: genderSelection, modelId: generatorMode === 'direct' ? (isHijabDirect ? 'huma' : null) : modelId }),
+        body: JSON.stringify({ imageBase64, gender: genderSelection, modelId: generatorMode === 'direct' ? (isHijabDirect ? 'huma' : null) : (isHijabVton ? 'huma' : modelId) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Analiz başarısız.');
@@ -503,7 +503,7 @@ function HomePageContent() {
           frontDressedUrl: vtonResult.front,
           backDressedUrl: isRotation ? vtonResult.back : null,
           category, customPrompt, motionType,
-          modelId, bodySize,
+          modelId: isHijabVton ? 'huma' : modelId, bodySize,
           isDirectMode: false,
           isRetry,
           fabric: analysisResult?.fabric,
@@ -652,6 +652,7 @@ function HomePageContent() {
     setDirectFront(null);
     setDirectBack(null);
     setIsHijabDirect(false);
+    setIsHijabVton(false);
     setGeneratedVideo(null);
     setRetryVideoUrl(null);
     setVtonResult({ front: null, back: null, garmentFrontUrl: null, humanFrontUrl: null });
@@ -1223,7 +1224,7 @@ function HomePageContent() {
                     </div>
 
                     {/* Beden */}
-                    <div style={{ marginTop: '20px', marginBottom: '24px' }}>
+                    <div style={{ marginTop: '20px', marginBottom: '20px' }}>
                       <label style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block', fontWeight: 500 }}>Manken Bedeni</label>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <button className={`btn-outline ${bodySize === 'STANDARD' ? 'selected' : ''}`} onClick={() => setBodySize('STANDARD')} style={{ padding: '12px', fontSize: '12px' }}>
@@ -1234,6 +1235,22 @@ function HomePageContent() {
                         </button>
                       </div>
                     </div>
+
+                    {/* Tesettür toggle — iOS-style switch */}
+                    {genderSelection === 'WOMEN' && (
+                      <div onClick={() => setIsHijabVton(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 18px', background: isHijabVton ? 'rgba(212,174,120,0.15)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isHijabVton ? 'rgba(212,174,120,0.6)' : 'rgba(255,255,255,0.18)'}`, borderRadius: '14px', cursor: 'pointer', marginBottom: '24px', transition: 'all 0.3s ease', userSelect: 'none' }}>
+                        {/* Toggle Switch */}
+                        <div style={{ width: '52px', height: '28px', borderRadius: '14px', flexShrink: 0, background: isHijabVton ? 'var(--text-gold)' : 'rgba(255,255,255,0.22)', position: 'relative', transition: 'all 0.3s ease', boxShadow: isHijabVton ? '0 0 12px rgba(212,174,120,0.5)' : 'inset 0 2px 4px rgba(0,0,0,0.4)', border: isHijabVton ? 'none' : '1px solid rgba(255,255,255,0.15)' }}>
+                          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: isHijabVton ? '#1a1a1a' : '#1a3a6b', position: 'absolute', top: '2px', left: isHijabVton ? '26px' : '2px', transition: 'all 0.3s ease', boxShadow: '0 2px 6px rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {isHijabVton && <span style={{ fontSize: '12px', color: 'var(--text-gold)', fontWeight: 700 }}>✓</span>}
+                          </div>
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'left' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: isHijabVton ? 'var(--text-gold)' : 'var(--text-primary)', transition: 'color 0.3s' }}>🧕 Mankenim Tesettürlü (Başörtülü)</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '3px' }}>{isHijabVton ? '✅ Aktif — Videoda tesettür kuralları uygulanır' : 'Videoda tesettür kuralları uygulanması için etkinleştirin'}</div>
+                        </div>
+                      </div>
+                    )}
 
                     <button className="btn-gold" onClick={() => setStep(4)}>Devam Et ›</button>
                   </div>
