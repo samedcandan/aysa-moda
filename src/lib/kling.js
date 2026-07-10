@@ -120,10 +120,10 @@ export async function createVideo(imageUrls, category, customPrompt, modelId, fa
                         lowerPrompt.includes('pamuk') ||
                         lowerPrompt.includes('kot');
 
-  // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits and outfit morphing
-  let negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, added details, removed details, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing';
+  // Dynamic negative prompt to prevent fabric transparency, exposed skin/slits, cleavage and outfit morphing
+  let negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, added details, removed details, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast, undergarment visible, exposed skin';
   if (modelId === 'huma' || lowerPrompt.includes('hijab') || lowerPrompt.includes('headscarf') || lowerPrompt.includes('tesettür')) {
-    negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair';
+    negativePrompt = 'changed garment details, modified design, altered pattern, different buttons, different seams, transparent clothing, see-through fabric, sheer fabric, chiffon, tulle, lace, organza, changed outfit, modified clothing, altered proportions, changed garment length, nudity, revealing, slit, torn clothing, exposed skin, exposed hair, exposed neck, bare arms, bare shoulders, removed headscarf, removed hijab, uncovered hair, deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast, undergarment visible';
   }
 
   // === PROMPT ARCHITECTURE ===

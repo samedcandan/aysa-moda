@@ -39,21 +39,48 @@ Sadece JSON döndür, başka hiçbir şey yazma.
 Kurallar:
 - categoryId şunlardan biri olmalı: gelinlik, abiye, elbise, gomlek, straplez, askili, tisort, kazak, ceket, trenckot, mont, pelus, kurk, pantolon, etek
 - motionId şunlardan biri olmalı: rotation (360° dönüş), walk (podyum yürüyüşü), pose (zarif pozlar), breeze (rüzgar duruşu)
-- Ortam (Mekan) Kuralı: promptSuggestion içinde kıyafetin tarzına, rengine, mevsimine ve amacına en uygun yaratıcı 3D mekanı serbestçe belirle ve betimle (örn: lüks otel lobisi, karlı Paris caddeleri, kumsalda gün batımı, modern bir tenis kortu, minimalist bir sanat galerisi, şık bir butik iç mekanı, moda podyumu, lüks bahçe yolu vb.). Ortamı düz bir "arka plan görseli" gibi değil; derinlik hissi veren, gölgelerin zemine düştüğü, hacimsel ışıklandırmalı gerçek bir 3 boyutlu uzay/mekan olarak detaylıca betimle.
 - productType Türkçe, kıyafetin genel adı (örn: Gömlek, Ceket, Pantolon, Abiye Elbise)
 - color Türkçe, ana renk (örn: Lacivert, Siyah, Kırmızı, Haki)
 - clothingType Türkçe, giyim türü. Sadece şu üç değerden biri olmalı: "Üst Giyim", "Alt Giyim", "Full Giyim"
 - fabric Türkçe, kumaş türü (örn: Keten, Pamuk, İpek, Kot, Saten, Kadife, Yün). Kesinlikle "Şifon", "Tül", "Dantel", "Organze", "File" gibi transparan kumaş isimleri seçilmemeli ve yazılmamalıdır.
-- Opaklık ve Kumaş Dokusu Kuralları: Kıyafetin kumaşı kesinlikle transparan (iç gösteren, tül, transparan, file, tülbent, şifon gibi) yapılmamalı, tamamen opak, tok, kalın ve kapalı olmalıdır. promptSuggestion içerisinde kesinlikle "şifon", "tül", "transparan", "file", "dantel", "organze", "iç gösteren", "yarı şeffaf" kelimelerini kullanma! Bunun yerine kumaşı "opak krep", "tok saten", "kalın dokuma", "opak pamuk" gibi tok ve opak kumaş kelimeleriyle betimle. Bu kuralı promptSuggestion içinde de vurgula (örn: "kumaş tamamen opaktır, iç göstermez, orijinal kalın dokusunu korur").
-- Ortam (Mekan) Önerisi Kuralı: promptSuggestion içinde mankenin/modelin bulunduğu ortam MUTLAKA betimlenmelidir. Kıyafetin tarzına, türüne ve mevsimine en uygun 3 boyutlu (3D) gerçekçi bir ortam belirle. Bu ortamı promptSuggestion içerisinde düz bir "arka plan görseli" gibi değil; modelin ve kıyafetin doğrudan içinde bulunduğu, derinlik hissi veren, gölgelerin zemine düştüğü, hacimsel ışıklandırmalı gerçek bir 3 boyutlu uzay/mekan (three-dimensional space with depth, realistic shadows cast on floor, volumetric lighting, parallax motion) olarak detaylıca betimle.
-- Hareket ve Aksiyon Kuralları: promptSuggestion içinde model kesinlikle durağan veya sadece ayakta sabit duruyor şekilde betimlenmemelidir. Modelin hareketleri doğal, dinamik ve zarif olmalıdır. Modelin podyumda yürümesi (walking on a runway), kameraya doğru zarif adımlarla yaklaşması (walking gracefully towards the camera), kendi etrafında yavaşça dönerek kıyafetin detaylarını sergilemesi (slowly turning around to showcase outfit details), omuz ve el hareketleriyle kıyafeti sunması gibi zarif model hareketleri (elegant modeling gestures, smooth walking, natural poses) mutlaka hareket/eylem olarak eklenmelidir.
-- promptSuggestion Türkçe olmalı. Kıyafeti (türünü, rengini, giyim tipini, kumaşını, detaylarını), yukarıdaki kurallara uygun olarak belirlenen 3D mekanı ve önerilen dinamik hareketi birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kıyafetin hareket/akış durumunu, arka plan ortamını (yukarıdaki kurala göre önerilen 3D mekanı) ve rüzgar esintisi gibi detayları doğrudan bu promptSuggestion içerisinde eylem ve sahne olarak betimle. Kumaşın kalın, tok ve tamamen opak/iç göstermez olduğunu da metin içinde belirt.
-- KRİTİK BOYUT KORUMA KURALI: promptSuggestion içinde kıyafetin orijinal boyutlarının (uzunluğu, genişliği, oranları) video boyunca %100 birebir korunması gerektiğini mutlaka vurgula. "Kıyafetin orijinal boyutları, uzunluğu ve oranları birebir korunur, kesinlikle uzatılmaz, kısaltılmaz veya değiştirilmez" gibi bir ifade ekle.
-- Kadraj ve Odak Noktası Kuralları: Tespit edilen clothingType değerine göre promptSuggestion içinde kameranın kadrajı ve odak noktası mutlaka belirtilmelidir:
-  * "Üst Giyim" için: Video üst vücuda odaklanmış yakın/orta çekim (upper body focus, medium close-up, chest-up details) olarak betimlenmeli, yaka/omuz detayları vurgulanmalıdır.
-  * "Alt Giyim" için: Video alt vücuda odaklanmış bacak/pantolon/etek yakın çekim (lower body focus, waist-down showcase) olarak betimlenmeli, kalıp/kesim detayları vurgulanmalıdır.
-  * "Full Giyim" için: Video baştan ayağa tüm vücudu ve elbisenin tamamını gösteren boydan çekim (full body showcase, head-to-toe framing) as betimlenmeli, genel silüet vurgulanmalıdır.
-  Bu kadraj yönlendirmesini promptSuggestion metninin içerisine doğal ve akıcı bir şekilde yerleştir.
+
+🔒 DEKOLTAJ VE AÇIKLIK YASAĞI (KRİTİK):
+- promptSuggestion içinde model kesinlikle edepli, kapalı ve profesyonel giyinmiş olarak betimlenmelidir.
+- Derin dekolte, açık göğüs, meme ucu belirginliği, aşırı açıklık kesinlikle YASAKTIR.
+- Straplez veya askılı kıyafetlerde bile göğüs bölgesi tamamen kapalı ve düzgün örtülmüş olarak betimlenmeli, hiçbir şekilde derin yırtmaç veya göğüs açıklığı önerilmemelidir.
+- promptSuggestion'a şu tarz ifadeler mutlaka ekle: "göğüs bölgesi tamamen kapalı, edepli ve profesyonel duruş"
+- Negative prompt yönergesi olarak videoda kesinlikle şunlar olmamalı: deep neckline, exposed cleavage, visible nipples, revealing top, low-cut, plunging neckline, bare chest, exposed breast
+
+👕➡️👖 KOMBİN KURALI — ÜST GİYİM (KRİTİK):
+- Eğer clothingType "Üst Giyim" ise: promptSuggestion'da modele bu üst giyime yakışan şık ve uyumlu bir ALT GİYİM (pantolon, etek, jean vb.) kombinlenmeli.
+- ÖNEMLİ: Kombinlenen alt giyim, satılan üst giyimi kesinlikle KAPATMAMALI veya ÖRTMEMELİDİR. Üstüne ceket, mont, hırka, palto gibi üst giyimi kapatan parçalar ÖNERİLMEMELİDİR.
+- Alt giyim sade, nötr ve üst giyimi ön plana çıkaracak şekilde seçilmeli (örn: "sade yüksek bel siyah pantolon", "şık koyu renk slim-fit jean", "zarif kalem etek").
+- Üst giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
+
+👖➡️👕 KOMBİN KURALI — ALT GİYİM (KRİTİK):
+- Eğer clothingType "Alt Giyim" ise: promptSuggestion'da modele bu alt giyime yakışan şık ve uyumlu bir ÜST GİYİM (bluz, tişört, gömlek vb.) kombinlenmeli.
+- ÖNEMLİ: Kombinlenen üst giyim, satılan alt giyimi kesinlikle KAPATMAMALI veya ÖRTMEMELİDİR. Uzun ceket, palto, uzun hırka gibi alt giyimi kapatan/örten parçalar ÖNERİLMEMELİDİR.
+- Üst giyim sade, nötr ve alt giyimi ön plana çıkaracak şekilde seçilmeli (örn: "sade beyaz basic tişört", "şık siyah crop bluz", "düz renk ince gömlek").
+- Alt giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
+
+👗 FULL GİYİM KURALI:
+- Eğer clothingType "Full Giyim" (elbise, gelinlik, abiye vb.) ise: Ek kombin parçası gerekmez, kıyafetin tamamı zaten tek parça. Modelin aksesuarları (ayakkabı, çanta vb.) sade ve kıyafete uygun olmalı.
+
+🌍 ORTAM VE MEKAN KURALI (KRİTİK VE ZORUNLU):
+- promptSuggestion içinde kıyafetin tarzına, rengine, mevsimine ve amacına en uygun yaratıcı 3D mekanı MUTLAKA hayal et ve detaylıca betimle.
+- Bu kural ZORUNLUDUR, ortamsız prompt kabul edilmez!
+- Ortam örnekleri: lüks otel lobisi, karlı Paris caddeleri, kumsalda gün batımı, modern tenis kortu, minimalist sanat galerisi, şık butik iç mekanı, moda podyumu, lüks bahçe yolu, yağmurlu sokak, Boğaz manzaralı teras vb.
+- Ortamı düz bir "arka plan görseli" gibi DEĞİL; derinlik hissi veren, gölgelerin zemine düştüğü, hacimsel ışıklandırmalı gerçek bir 3 boyutlu uzay/mekan (three-dimensional space with depth, realistic shadows cast on floor, volumetric lighting, parallax motion) olarak detaylıca betimle.
+- Kıyafetin ruhu ve ortam uyumu çok önemlidir: spor kıyafete şehir sokağı, abiyeye gala salonu, gelinliğe saray bahçesi gibi mantıklı eşleşmeler yap.
+
+- Opaklık ve Kumaş Dokusu Kuralları: Kıyafetin kumaşı kesinlikle transparan yapılmamalı, tamamen opak, tok, kalın ve kapalı olmalıdır. promptSuggestion içerisinde kesinlikle "şifon", "tül", "transparan", "file", "dantel", "organze" kelimelerini kullanma! Bunun yerine "opak krep", "tok saten", "kalın dokuma", "opak pamuk" gibi tok kumaş kelimeleriyle betimle.
+- Hareket ve Aksiyon Kuralları: promptSuggestion içinde model kesinlikle durağan olmamalıdır. Podyumda yürümesi, kameraya zarif adımlarla yaklaşması, kendi etrafında yavaşça dönerek kıyafeti sergilemesi gibi dinamik ve zarif hareketler mutlaka eklenmelidir.
+- promptSuggestion Türkçe olmalı. Kıyafeti, ortamı, kombini ve hareketi birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kumaşın kalın, tok ve opak olduğunu da metin içinde belirt.
+- KRİTİK BOYUT KORUMA KURALI: promptSuggestion içinde kıyafetin orijinal boyutlarının video boyunca %100 korunması gerektiğini mutlaka vurgula. "Kıyafetin orijinal boyutları, uzunluğu ve oranları birebir korunur" ifadesini ekle.
+- Kadraj ve Odak Noktası Kuralları:
+  * "Üst Giyim" için: Üst vücuda odaklanmış yakın/orta çekim, yaka/omuz detayları vurgulanmalı.
+  * "Alt Giyim" için: Alt vücuda odaklanmış bacak/kalıp yakın çekim, kesim detayları vurgulanmalı.
+  * "Full Giyim" için: Baştan ayağa boydan çekim, genel silüet vurgulanmalı.
 
 ${genderNote}
 
