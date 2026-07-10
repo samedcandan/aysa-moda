@@ -242,7 +242,7 @@ export async function POST(request) {
     console.log('[Generate Route] Dressed URLs ready:', { frontDressedUrl, backDressedUrl, isDirectMode });
 
     // Apply Hijab Masking if model is Huma (tesettürlü)
-    if (modelId === 'huma') {
+    if (modelId === 'huma' && !isDirectMode) {
       console.log('[Generate Route] Applying Hijab Masking for Huma model...');
       const maskingPromises = [
         maskHijab({
