@@ -153,18 +153,31 @@ export async function POST(request) {
     console.log('[VTON] Try-on complete:', { frontDressedUrl, backDressedUrl });
 
     // 3. Hijab masking (sadece Huma modeli için)
+    // Artık VTON Derin'in minimal template'ini kullanıyor, bu yüzden maskeleme için
+    // Hüma'nın kendi başörtülü template'ini dosyadan okuyoruz
     if (modelId === 'huma') {
-      console.log('[VTON] Applying hijab masking...');
+      console.log('[VTON] Applying hijab masking with Hüma original template...');
+      const sizeSuffix = bodySize?.toLowerCase() === 'plus_size' ? 'plus' : 'standard';
+      
+      // Hüma'nın orijinal başörtülü template'ini oku
+      const humaFrontPath = path.join(process.cwd(), 'public', 'models', `huma_${sizeSuffix}_front.png`);
+      const humaFrontBuffer = fs.readFileSync(humaFrontPath);
+      const humaFrontBase64 = `data:image/png;base64,${humaFrontBuffer.toString('base64')}`;
+
       frontDressedUrl = await maskHijab({
-        originalBase64: humanFront,
+        originalBase64: humaFrontBase64,
         dressedImageUrl: frontDressedUrl,
         modelId,
         bodySize,
         view: 'front',
       });
-      if (isRotation && backDressedUrl && humanBack) {
+      if (isRotation && backDressedUrl) {
+        const humaBackPath = path.join(process.cwd(), 'public', 'models', `huma_${sizeSuffix}_back.png`);
+        const humaBackBuffer = fs.readFileSync(humaBackPath);
+        const humaBackBase64 = `data:image/png;base64,${humaBackBuffer.toString('base64')}`;
+        
         backDressedUrl = await maskHijab({
-          originalBase64: humanBack,
+          originalBase64: humaBackBase64,
           dressedImageUrl: backDressedUrl,
           modelId,
           bodySize,
