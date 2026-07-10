@@ -378,7 +378,7 @@ function HomePageContent() {
       const res = await fetch('/api/analyze-garment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, gender: genderSelection }),
+        body: JSON.stringify({ imageBase64, gender: genderSelection, modelId: generatorMode === 'direct' ? (isHijabDirect ? 'huma' : null) : modelId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Analiz başarısız.');

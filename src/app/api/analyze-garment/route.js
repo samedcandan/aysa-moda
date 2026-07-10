@@ -13,7 +13,7 @@ const VALID_MOTION_IDS = ['rotation', 'walk', 'pose', 'breeze'];
 
 export async function POST(request) {
   try {
-    const { imageBase64, gender } = await request.json();
+    const { imageBase64, gender, modelId } = await request.json();
 
     if (!imageBase64) {
       return NextResponse.json({ error: 'Görsel gereklidir.' }, { status: 400 });
@@ -29,9 +29,21 @@ export async function POST(request) {
       ? imageBase64.split(';')[0].replace('data:', '') 
       : 'image/jpeg';
 
-    const genderNote = gender === 'MEN' 
+    let genderNote = gender === 'MEN' 
       ? 'Bu erkek giyim bir kıyafettir.' 
       : 'Bu kadın giyim bir kıyafettir.';
+
+    // Hüma modeli (tesettürlü) seçildiğinde güçlü tesettür kuralları ekle
+    if (modelId === 'huma') {
+      genderNote += `
+
+🧕 TESETTÜR KURALI (KRİTİK VE ZORUNLU — HÜMA MODELİ SEÇİLDİ):
+- Model kesinlikle tesettürlü olmalıdır. Şık ve modern bir tesettür başörtüsü (şal/eşarp) takmaktadır.
+- Saçlar, boyun, omuzlar ve kollar TÜM VİDEO BOYUNCA, HER AÇIDAN (ön, yan, arka) TAMAMEN ÖRTÜLÜDÜR.
+- Kollar tamamen uzun kollu olmalıdır, yaka kapalıdır, kesinlikle ten görünmez.
+- promptSuggestion'da MUTLAKA şunu belirt: "Model şık bir tesettür başörtüsü takmaktadır, saçlar ve boyun tamamen örtülüdür, kollar uzun kolludur, yaka kapalıdır"
+- Bu kural her şeyin üstündedir ve promptSuggestion'da mutlaka yer almalıdır!`;
+    }
 
     const systemPrompt = `Sen bir moda uzmanısın. Sana verilen kıyafet görselini analiz et ve aşağıdaki JSON formatında yanıt ver.
 Sadece JSON döndür, başka hiçbir şey yazma.
