@@ -116,9 +116,9 @@ export async function POST(request) {
 
     const isRotation = motionType === 'rotation';
 
-    // Hüma modeli için Fashn'a one-pieces gönder — tüm kıyafeti değiştirir, jean kalıntısı olmaz
-    const vtonCategory = modelId === 'huma' ? 'one-pieces' : category;
-    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}, vtonCategory=${vtonCategory}`);
+    // Yeni Hüma template'i nötr bodysuit olduğu için kategori override'a gerek yok
+    const vtonCategory = category;
+    console.log(`[VTON] Starting for user ${session.userId}. isRotation=${isRotation}, vtonCategory=${vtonCategory}, modelId=${modelId}`);
 
     // 1. Görselleri ImgBB'ye yükle
     console.log('[VTON] Uploading images to ImgBB...');
@@ -137,7 +137,7 @@ export async function POST(request) {
 
     console.log('[VTON] Images uploaded. Starting try-on...');
 
-    // 2. VTON çalıştır (Hüma için one-pieces kategorisi kullanılır)
+    // 2. VTON çalıştır (kategori bazlı — tops, bottoms, one-pieces)
     let frontDressedUrl;
     let backDressedUrl = null;
 
