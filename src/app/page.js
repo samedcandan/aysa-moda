@@ -1249,41 +1249,25 @@ function HomePageContent() {
                       <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
                     <input type="file" ref={fileInputFrontRef} accept="image/*" style={{ display: 'none' }} onChange={e => handleImageSelect(e, setGarmentFront)} />
-                    <input type="file" ref={fileInputBackRef} accept="image/*" style={{ display: 'none' }} onChange={e => handleImageSelect(e, setGarmentBack)} />
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={() => fileInputFrontRef.current?.click()} style={{ minHeight: '180px' }}>
-                        {!garmentFront ? (
-                          <>
-                            <span className="upload-icon" style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>📸</span>
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-gold)' }}>Ön Görünüm</div>
-                            <SVGOutline category={category} />
-                          </>
-                        ) : (
-                          <div className="preview-container" style={{ margin: 0 }}>
-                            <img src={garmentFront} alt="Front" className="preview-img" style={{ maxHeight: '160px' }} />
-                            <button className="remove-btn" onClick={e => { e.stopPropagation(); setGarmentFront(null); }}>✕</button>
-                          </div>
-                        )}
-                      </div>
-                      <div className={`upload-area ${garmentBack ? 'has-image' : ''}`} onClick={() => fileInputBackRef.current?.click()} style={{ minHeight: '180px' }}>
-                        {!garmentBack ? (
-                          <>
-                            <span className="upload-icon" style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>📸</span>
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-gold)' }}>Arka Görünüm</div>
-                            <SVGOutline category={category} />
-                          </>
-                        ) : (
-                          <div className="preview-container" style={{ margin: 0 }}>
-                            <img src={garmentBack} alt="Back" className="preview-img" style={{ maxHeight: '160px' }} />
-                            <button className="remove-btn" onClick={e => { e.stopPropagation(); setGarmentBack(null); }}>✕</button>
-                          </div>
-                        )}
-                      </div>
+                    <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={() => fileInputFrontRef.current?.click()} style={{ minHeight: '220px', maxWidth: '280px', margin: '0 auto' }}>
+                      {!garmentFront ? (
+                        <>
+                          <span className="upload-icon" style={{ fontSize: '36px', display: 'block', marginBottom: '10px' }}>📸</span>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-gold)' }}>Ürün Fotoğrafı Yükle</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px' }}>Kıyafetin ön görünümünü seçin</div>
+                          <SVGOutline category={category} />
+                        </>
+                      ) : (
+                        <div className="preview-container" style={{ margin: 0 }}>
+                          <img src={garmentFront} alt="Front" className="preview-img" style={{ maxHeight: '200px' }} />
+                          <button className="remove-btn" onClick={e => { e.stopPropagation(); setGarmentFront(null); }}>✕</button>
+                        </div>
+                      )}
                     </div>
                     <button className="btn-gold" style={{ marginTop: '24px' }}
-                      disabled={!garmentFront && !garmentBack}
-                      onClick={() => { if (garmentFront || garmentBack) { setStep(5); analyzeGarment(garmentFront || garmentBack); } }}>
-                      {(garmentFront || garmentBack) ? '🤖 Ürünü Analiz Et ›' : 'Önce görsel yükleyin'}
+                      disabled={!garmentFront}
+                      onClick={() => { if (garmentFront) { setStep(5); analyzeGarment(garmentFront); } }}>
+                      {garmentFront ? '🤖 Ürünü Analiz Et ›' : 'Önce görsel yükleyin'}
                     </button>
                   </div>
                 )}
