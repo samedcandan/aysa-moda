@@ -233,7 +233,7 @@ function HomePageContent() {
 
   const isTopWear = ['tisort', 'ceket', 'trenckot', 'kazak', 'gomlek', 'askili', 'mont', 'pelus', 'kurk'].includes(category);
   const modelSubFolder = isTopWear ? 'jeans/' : '';
-  const modelVersion = isTopWear ? 'jeans' : 'boxers';
+  const modelVersion = isTopWear ? 'jeans' : 'atlet';
 
   // --- Refs ---
   const fileInputFrontRef = useRef(null);
