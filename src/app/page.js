@@ -1179,7 +1179,7 @@ function HomePageContent() {
                         <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
-                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} rows={6}
+                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} rows={10}
                           style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '12px', transition: 'border-color 0.3s' }} />
 
                         <button className="btn-gold" onClick={() => handleDirectGenerate(false)}
@@ -1325,7 +1325,7 @@ function HomePageContent() {
                         <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
-                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={6}
+                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={10}
                           style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s', marginBottom: '12px' }} />
 
 
