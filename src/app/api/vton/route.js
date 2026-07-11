@@ -1,10 +1,52 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { uploadToImgBB } from '@/lib/imgbb';
-import { runVirtualTryOn } from '@/lib/fal';
+import { runVirtualTryOn, generateBackground, removeBackground } from '@/lib/fal';
+import { extractBackgroundPrompt } from '@/lib/prompt-helper';
 import { Jimp } from 'jimp';
 import path from 'path';
 import fs from 'fs';
+
+// Helper to composite transparent mannequin onto a generated background
+async function compositeModelOnBackground({ transparentImageUrl, backgroundImageUrl }) {
+  try {
+    const REELS_W = 1080;
+    const REELS_H = 1920;
+
+    const [bgImg, srcImg] = await Promise.all([
+      Jimp.read(backgroundImageUrl),
+      Jimp.read(transparentImageUrl)
+    ]);
+
+    const srcW = srcImg.bitmap.width;
+    const srcH = srcImg.bitmap.height;
+    const srcRatio = srcW / srcH;
+    const targetRatio = REELS_W / REELS_H;
+
+    let fitW, fitH;
+    if (srcRatio > targetRatio) {
+      fitW = REELS_W;
+      fitH = Math.round(REELS_W / srcRatio);
+    } else {
+      fitH = REELS_H;
+      fitW = Math.round(REELS_H * srcRatio);
+    }
+
+    srcImg.resize({ w: fitW, h: fitH });
+
+    const offsetX = Math.round((REELS_W - fitW) / 2);
+    const offsetY = REELS_H - fitH; // alt hizalama (ayaklar yerde)
+
+    bgImg.composite(srcImg, offsetX, offsetY);
+
+    const buffer = await bgImg.getBuffer('image/jpeg');
+    const base64 = buffer.toString('base64');
+    return await uploadToImgBB(base64);
+  } catch (err) {
+    console.error('[VTON Compositing] Compositing error, falling back to original:', err.message);
+    throw err;
+  }
+}
 
 // Vercel Pro: 5 dakikaya kadar çalışabilir
 export const maxDuration = 300;
@@ -108,6 +150,7 @@ export async function POST(request) {
       modelId,
       bodySize,
       motionType,
+      customPrompt,
     } = await request.json();
 
     if (!humanFront || !garmentFront || !category) {
@@ -172,6 +215,36 @@ export async function POST(request) {
           bodySize,
           view: 'back',
         });
+      }
+    }
+
+    // 4. Dinamik arka plan üretimi ve manken compositing
+    if (customPrompt) {
+      try {
+        console.log('[VTON] Starting dynamic background generation and compositing...');
+        // 1. Ortam tanımını ayıkla
+        const bgPrompt = await extractBackgroundPrompt(customPrompt);
+        // 2. Flux ile 9:16 arka plan üret
+        const bgUrl = await generateBackground({ prompt: bgPrompt });
+        // 3. Manken arka planlarını Bria ile sil ve üretilen arka plana bindir
+        const [transparentFront, transparentBack] = await Promise.all([
+          removeBackground({ imageUrl: frontDressedUrl }),
+          backDressedUrl ? removeBackground({ imageUrl: backDressedUrl }) : Promise.resolve(null),
+        ]);
+
+        frontDressedUrl = await compositeModelOnBackground({
+          transparentImageUrl: transparentFront,
+          backgroundImageUrl: bgUrl,
+        });
+        if (backDressedUrl && transparentBack) {
+          backDressedUrl = await compositeModelOnBackground({
+            transparentImageUrl: transparentBack,
+            backgroundImageUrl: bgUrl,
+          });
+        }
+        console.log('[VTON] Dynamic background compositing completed successfully!');
+      } catch (bgError) {
+        console.error('[VTON] Dynamic background compositing failed:', bgError);
       }
     }
 

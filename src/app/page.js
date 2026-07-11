@@ -468,6 +468,7 @@ function HomePageContent() {
           garmentFront: garmentFront || garmentBack,
           garmentBack: garmentBack || garmentFront,
           category, modelId, bodySize, motionType,
+          customPrompt,
         }),
       });
 
@@ -512,6 +513,7 @@ function HomePageContent() {
           fabric: analysisResult?.fabric,
           garmentFrontUrl: vtonResult.garmentFrontUrl,
           humanFrontUrl: vtonResult.humanFrontUrl,
+          isAlreadyComposited: true,
         }),
       });
 
@@ -840,12 +842,12 @@ function HomePageContent() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: vtonResult.back ? '1fr 1fr' : '1fr', gap: '12px', marginBottom: '20px' }}>
                   <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid rgba(212,174,120,0.3)' }}>
-                    <img src={vtonResult.front} alt="Ön Görünüm" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block' }} />
+                    <img src={vtonResult.front} alt="Ön Görünüm" style={{ width: '100%', aspectRatio: '9/16', objectFit: 'cover', display: 'block' }} />
                     <div style={{ padding: '6px', textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.3)' }}>Ön Görünüm</div>
                   </div>
                   {vtonResult.back && (
                     <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1.5px solid rgba(212,174,120,0.3)' }}>
-                      <img src={vtonResult.back} alt="Arka Görünüm" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block' }} />
+                      <img src={vtonResult.back} alt="Arka Görünüm" style={{ width: '100%', aspectRatio: '9/16', objectFit: 'cover', display: 'block' }} />
                       <div style={{ padding: '6px', textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.3)' }}>Arka Görünüm</div>
                     </div>
                   )}

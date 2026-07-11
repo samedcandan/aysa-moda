@@ -161,6 +161,7 @@ export async function POST(request) {
       garmentFrontUrl,
       humanFrontUrl,
       garmentBackUrl,
+      isAlreadyComposited,
     } = await request.json();
 
     const user = await prisma.modaUser.findUnique({ where: { id: session.userId } });
@@ -191,26 +192,31 @@ export async function POST(request) {
       : [frontDressedUrl];
 
     let imagesToPass;
-    try {
-      console.log('[Video] Starting dynamic background generation and compositing...');
-      // 1. Ortam tanımını ayıkla
-      const bgPrompt = await extractBackgroundPrompt(customPrompt);
-      // 2. Flux ile 9:16 arka plan üret
-      const bgUrl = await generateBackground({ prompt: bgPrompt });
-      // 3. Manken arka planlarını Bria ile sil ve üretilen arka plana bindir
-      imagesToPass = await Promise.all(rawImages.map(async (imgUrl) => {
-        console.log('[Video] Removing background for VTON output:', imgUrl);
-        const transparentUrl = await removeBackground({ imageUrl: imgUrl });
-        console.log('[Video] Compositing model onto dynamic background...');
-        return await compositeModelOnBackground({
-          transparentImageUrl: transparentUrl,
-          backgroundImageUrl: bgUrl
-        });
-      }));
-      console.log('[Video] Dynamic background compositing completed successfully!');
-    } catch (err) {
-      console.error('[Video] Dynamic background compositing failed. Falling back to black canvas:', err.message);
-      imagesToPass = await Promise.all(rawImages.map(url => convertToReelsFormat(url)));
+    if (isAlreadyComposited) {
+      console.log('[Video] Images are already composited on dynamic background.');
+      imagesToPass = rawImages;
+    } else {
+      try {
+        console.log('[Video] Starting dynamic background generation and compositing...');
+        // 1. Ortam tanımını ayıkla
+        const bgPrompt = await extractBackgroundPrompt(customPrompt);
+        // 2. Flux ile 9:16 arka plan üret
+        const bgUrl = await generateBackground({ prompt: bgPrompt });
+        // 3. Manken arka planlarını Bria ile sil ve üretilen arka plana bindir
+        imagesToPass = await Promise.all(rawImages.map(async (imgUrl) => {
+          console.log('[Video] Removing background for VTON output:', imgUrl);
+          const transparentUrl = await removeBackground({ imageUrl: imgUrl });
+          console.log('[Video] Compositing model onto dynamic background...');
+          return await compositeModelOnBackground({
+            transparentImageUrl: transparentUrl,
+            backgroundImageUrl: bgUrl
+          });
+        }));
+        console.log('[Video] Dynamic background compositing completed successfully!');
+      } catch (err) {
+        console.error('[Video] Dynamic background compositing failed. Falling back to black canvas:', err.message);
+        imagesToPass = await Promise.all(rawImages.map(url => convertToReelsFormat(url)));
+      }
     }
 
     console.log('[Video] Triggering Kling with', imagesToPass.length, '9:16 image(s)...');
