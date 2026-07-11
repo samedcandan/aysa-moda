@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { uploadToImgBB } from '@/lib/imgbb';
-import { runVirtualTryOn } from '@/lib/fal';
+import { runVirtualTryOn, generateBackground, removeBackground } from '@/lib/fal';
+import { extractBackgroundPrompt } from '@/lib/prompt-helper';
 import { createVideo } from '@/lib/kling';
 import { Jimp } from 'jimp';
 import path from 'path';
@@ -123,6 +124,92 @@ async function translateToEnglish(text) {
     console.error('[Translate] Translation failed:', err);
   }
   return text;
+}
+
+/**
+ * Görseli 9:16 (1080x1920) Reels formatına dönüştürür (Siyah kanvas fallback).
+ */
+async function convertToReelsFormat(imageUrl) {
+  try {
+    const REELS_W = 1080;
+    const REELS_H = 1920;
+
+    const srcImg = await Jimp.read(imageUrl);
+    const srcW = srcImg.bitmap.width;
+    const srcH = srcImg.bitmap.height;
+    const srcRatio = srcW / srcH;
+    const targetRatio = REELS_W / REELS_H;
+
+    if (Math.abs(srcRatio - targetRatio) < 0.05) {
+      return imageUrl;
+    }
+
+    let fitW, fitH;
+    if (srcRatio > targetRatio) {
+      fitW = REELS_W;
+      fitH = Math.round(REELS_W / srcRatio);
+    } else {
+      fitH = REELS_H;
+      fitW = Math.round(REELS_H * srcRatio);
+    }
+
+    srcImg.resize({ w: fitW, h: fitH });
+
+    const canvas = new Jimp({ width: REELS_W, height: REELS_H, color: 0x000000ff });
+    const offsetX = Math.round((REELS_W - fitW) / 2);
+    const offsetY = REELS_H - fitH;
+    canvas.composite(srcImg, offsetX, offsetY);
+
+    const buffer = await canvas.getBuffer('image/jpeg');
+    const base64 = buffer.toString('base64');
+    return await uploadToImgBB(base64);
+  } catch (err) {
+    console.error('[Generate Route] Reels conversion failed:', err.message);
+    return imageUrl;
+  }
+}
+
+/**
+ * Şeffaf mankeni dinamik arka plana yerleştirir.
+ */
+async function compositeModelOnBackground({ transparentImageUrl, backgroundImageUrl }) {
+  try {
+    const REELS_W = 1080;
+    const REELS_H = 1920;
+
+    const [bgImg, srcImg] = await Promise.all([
+      Jimp.read(backgroundImageUrl),
+      Jimp.read(transparentImageUrl)
+    ]);
+
+    const srcW = srcImg.bitmap.width;
+    const srcH = srcImg.bitmap.height;
+    const srcRatio = srcW / srcH;
+    const targetRatio = REELS_W / REELS_H;
+
+    let fitW, fitH;
+    if (srcRatio > targetRatio) {
+      fitW = REELS_W;
+      fitH = Math.round(REELS_W / srcRatio);
+    } else {
+      fitH = REELS_H;
+      fitW = Math.round(REELS_H * srcRatio);
+    }
+
+    srcImg.resize({ w: fitW, h: fitH });
+
+    const offsetX = Math.round((REELS_W - fitW) / 2);
+    const offsetY = REELS_H - fitH; // alt hizalama
+
+    bgImg.composite(srcImg, offsetX, offsetY);
+
+    const buffer = await bgImg.getBuffer('image/jpeg');
+    const base64 = buffer.toString('base64');
+    return await uploadToImgBB(base64);
+  } catch (err) {
+    console.error('[Generate Route] Compositing error, falling back:', err.message);
+    throw err;
+  }
 }
 
 export async function POST(request) {
@@ -288,8 +375,31 @@ export async function POST(request) {
 
     // 6. Trigger Kling video generation with start (and optional end) frames
     console.log('[Generate Route] Triggering Kling AI video generation...');
-    // For rotation: pass both front and back. For direct mode: pass whatever views user uploaded.
-    const imagesToPass = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
+    const rawImages = isRotation ? [frontDressedUrl, backDressedUrl] : [frontDressedUrl];
+
+    let imagesToPass;
+    try {
+      console.log('[Generate Route] Starting dynamic background generation and compositing...');
+      // 1. Ortam tanımını ayıkla
+      const bgPrompt = await extractBackgroundPrompt(customPrompt);
+      // 2. Flux ile 9:16 arka plan üret
+      const bgUrl = await generateBackground({ prompt: bgPrompt });
+      // 3. Manken arka planlarını Bria ile sil ve üretilen arka plana bindir
+      imagesToPass = await Promise.all(rawImages.map(async (imgUrl) => {
+        console.log('[Generate Route] Removing background for input:', imgUrl);
+        const transparentUrl = await removeBackground({ imageUrl: imgUrl });
+        console.log('[Generate Route] Compositing model onto dynamic background...');
+        return await compositeModelOnBackground({
+          transparentImageUrl: transparentUrl,
+          backgroundImageUrl: bgUrl
+        });
+      }));
+      console.log('[Generate Route] Dynamic background compositing completed successfully!');
+    } catch (err) {
+      console.error('[Generate Route] Dynamic background compositing failed. Falling back to black canvas:', err.message);
+      imagesToPass = await Promise.all(rawImages.map(url => convertToReelsFormat(url)));
+    }
+
     const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId, fabric);
 
     console.log('[Generate Route] Video generation task created. TaskID:', taskId);

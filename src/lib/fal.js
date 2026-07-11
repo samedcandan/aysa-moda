@@ -171,3 +171,85 @@ export async function removeBackground({ imageUrl }) {
   throw new Error('Fal.ai arka plan temizleme işlemi zaman aşımına uğradı.');
 }
 
+/**
+ * Fal.ai Flux Schnell API Client
+ * 
+ * 1080x1920 (9:16) boyutunda boş, yüksek kaliteli ve derin 3D arka plan üretir.
+ * @param {object} params
+ * @param {string} params.prompt - Arka planın betimlemesi
+ * @returns {Promise<string>} Generated image URL
+ */
+export async function generateBackground({ prompt }) {
+  const FAL_API_KEY = process.env.FAL_API_KEY;
+  if (!FAL_API_KEY) {
+    throw new Error('FAL_API_KEY ortam değişkeni tanımlı değil. Lütfen .env.local dosyasını güncelleyin.');
+  }
+
+  // Kaliteli ortam üretimi için ek direktifler enjekte ediyoruz (insan, manken veya yazı olmamalıdır)
+  const cleanPrompt = (prompt || 'empty minimalist high-end studio showroom, cinematic volumetric lighting, soft depth of field, photorealistic, 8k').trim();
+  const enhancedPrompt = `${cleanPrompt}, empty scene, no people, no models, no mannequin, no text, clean floor, highly detailed architecture, cinematic volumetric lighting, realistic shadows, photorealistic, 8k quality, 3d space with depth.`;
+
+  console.log(`[Fal Background Generate] Submitting job to flux/schnell. Prompt: ${enhancedPrompt}`);
+
+  const response = await fetch('https://queue.fal.run/fal-ai/flux/schnell', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Key ${FAL_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt: enhancedPrompt,
+      image_size: { width: 1080, height: 1920 },
+      sync_mode: false,
+      num_inference_steps: 4,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || 'Fal.ai arka plan üretimi başlatma hatası.');
+  }
+
+  const statusUrl = data.status_url;
+  console.log(`[Fal Background Generate] Task queued. Status URL: ${statusUrl}`);
+
+  // Polling queue status
+  let attempts = 0;
+  const maxAttempts = 30; // 30 * 1.5s = 45s max
+  while (attempts < maxAttempts) {
+    attempts++;
+    const statusRes = await fetch(statusUrl, {
+      headers: {
+        'Authorization': `Key ${FAL_API_KEY}`,
+      },
+    });
+
+    const statusData = await statusRes.json();
+
+    if (statusData.status === 'COMPLETED') {
+      console.log(`[Fal Background Generate] Success after ${attempts} attempts.`);
+      let result = statusData.outputs;
+      if (!result && statusData.response_url) {
+        const responseRes = await fetch(statusData.response_url, {
+          headers: {
+            'Authorization': `Key ${FAL_API_KEY}`,
+          },
+        });
+        result = await responseRes.json();
+      }
+      if (result) {
+        const bgUrl = result.image?.url || result.images?.[0]?.url;
+        if (bgUrl) return bgUrl;
+      }
+      throw new Error('Fal.ai arka plan üretimi çıktısı alınamadı.');
+    } else if (statusData.status === 'FAILED') {
+      throw new Error(`Fal.ai arka plan üretimi başarısız oldu: ${statusData.error || 'Bilinmeyen hata'}`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
+
+  throw new Error('Fal.ai arka plan üretimi zaman aşımına uğradı.');
+}
+

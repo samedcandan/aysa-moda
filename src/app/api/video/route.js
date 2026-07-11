@@ -4,6 +4,8 @@ import { getSession } from '@/lib/auth';
 import { createVideo } from '@/lib/kling';
 import { uploadToImgBB } from '@/lib/imgbb';
 import { Jimp } from 'jimp';
+import { generateBackground, removeBackground } from '@/lib/fal';
+import { extractBackgroundPrompt } from '@/lib/prompt-helper';
 
 // Kling tetikleme + 9:16 dönüşüm
 export const maxDuration = 120;
@@ -59,6 +61,49 @@ async function convertToReelsFormat(imageUrl) {
   } catch (err) {
     console.error('[Video] Reels conversion failed, using original:', err.message);
     return imageUrl; // Hata durumunda orijinal görseli kullan
+  }
+}
+
+/**
+ * Şeffaf manken görselini üretilen dinamik arka plana yerleştirir.
+ */
+async function compositeModelOnBackground({ transparentImageUrl, backgroundImageUrl }) {
+  try {
+    const REELS_W = 1080;
+    const REELS_H = 1920;
+
+    const [bgImg, srcImg] = await Promise.all([
+      Jimp.read(backgroundImageUrl),
+      Jimp.read(transparentImageUrl)
+    ]);
+
+    const srcW = srcImg.bitmap.width;
+    const srcH = srcImg.bitmap.height;
+    const srcRatio = srcW / srcH;
+    const targetRatio = REELS_W / REELS_H;
+
+    let fitW, fitH;
+    if (srcRatio > targetRatio) {
+      fitW = REELS_W;
+      fitH = Math.round(REELS_W / srcRatio);
+    } else {
+      fitH = REELS_H;
+      fitW = Math.round(REELS_H * srcRatio);
+    }
+
+    srcImg.resize({ w: fitW, h: fitH });
+
+    const offsetX = Math.round((REELS_W - fitW) / 2);
+    const offsetY = REELS_H - fitH; // alt hizalama (ayaklar yerde)
+
+    bgImg.composite(srcImg, offsetX, offsetY);
+
+    const buffer = await bgImg.getBuffer('image/jpeg');
+    const base64 = buffer.toString('base64');
+    return await uploadToImgBB(base64);
+  } catch (err) {
+    console.error('[Video] Compositing error, falling back to original:', err.message);
+    throw err; // retry logic handles it by falling back to black canvas
   }
 }
 
@@ -145,7 +190,28 @@ export async function POST(request) {
       ? [frontDressedUrl, backDressedUrl]
       : [frontDressedUrl];
 
-    const imagesToPass = await Promise.all(rawImages.map(url => convertToReelsFormat(url)));
+    let imagesToPass;
+    try {
+      console.log('[Video] Starting dynamic background generation and compositing...');
+      // 1. Ortam tanımını ayıkla
+      const bgPrompt = await extractBackgroundPrompt(customPrompt);
+      // 2. Flux ile 9:16 arka plan üret
+      const bgUrl = await generateBackground({ prompt: bgPrompt });
+      // 3. Manken arka planlarını Bria ile sil ve üretilen arka plana bindir
+      imagesToPass = await Promise.all(rawImages.map(async (imgUrl) => {
+        console.log('[Video] Removing background for VTON output:', imgUrl);
+        const transparentUrl = await removeBackground({ imageUrl: imgUrl });
+        console.log('[Video] Compositing model onto dynamic background...');
+        return await compositeModelOnBackground({
+          transparentImageUrl: transparentUrl,
+          backgroundImageUrl: bgUrl
+        });
+      }));
+      console.log('[Video] Dynamic background compositing completed successfully!');
+    } catch (err) {
+      console.error('[Video] Dynamic background compositing failed. Falling back to black canvas:', err.message);
+      imagesToPass = await Promise.all(rawImages.map(url => convertToReelsFormat(url)));
+    }
 
     console.log('[Video] Triggering Kling with', imagesToPass.length, '9:16 image(s)...');
     const { taskId } = await createVideo(imagesToPass, category, finalPrompt, modelId, fabric);
