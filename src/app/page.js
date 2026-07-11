@@ -778,7 +778,7 @@ function HomePageContent() {
       </header>
 
       {/* ---- Tabs ---- */}
-      <nav style={{ display: 'flex', gap: '4px', margin: '24px 0 12px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}>
+      <nav style={{ display: 'flex', gap: '4px', margin: '12px 0 6px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}>
         {[
           { id: 'generate', label: 'Video Üret' },
           { id: 'history', label: 'Geçmiş' },
@@ -795,7 +795,7 @@ function HomePageContent() {
         ))}
       </nav>
 
-      <main style={{ flex: 1, width: '100%', maxWidth: '540px', padding: '12px 20px 48px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <main style={{ flex: 1, width: '100%', maxWidth: '540px', padding: '2px 20px 12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
         {/* ================================================================
             TAB: VIDEO ÜRET
@@ -833,7 +833,7 @@ function HomePageContent() {
 
             {/* ---- VTON Önizleme ---- */}
             {phase === 'vton_preview' && (
-              <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+              <div className="glass-panel main-panel animate-in">
                 <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                   <div style={{ fontSize: '20px', marginBottom: '6px' }}>✅ Kıyafet Giydirme Tamamlandı</div>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
@@ -880,7 +880,7 @@ function HomePageContent() {
 
             {/* ---- SONUÇ EKRANI ---- */}
             {phase === 'done' && activeVideo && (
-              <div className="glass-panel result-panel animate-in" style={{ padding: '24px' }}>
+              <div className="glass-panel result-panel main-panel animate-in">
                 <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                   <div style={{ fontSize: '42px', marginBottom: '8px' }}>🎬</div>
                   <h3 className="font-display" style={{ fontSize: '18px', color: 'var(--text-gold)', fontWeight: 700 }}>
@@ -980,7 +980,7 @@ function HomePageContent() {
             {phase === 'idle' && (
               <>
                 {/* ---- Progress Bar ---- */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '0 4px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '0 4px', marginBottom: '4px' }}>
                   {generatorMode === 'direct' ? (
                     ['Cinsiyet', 'Yöntem', 'Fotoğraf', 'Analiz', 'Üret'].map((label, i) => {
                       const stepNum = i + 1;
@@ -1014,7 +1014,7 @@ function HomePageContent() {
                     ADIM 1: CİNSİYET SEÇİMİ
                 ================================================================ */}
                 {step === 1 && (
-                  <div className="glass-panel animate-in" style={{ padding: '32px 24px', textAlign: 'center' }}>
+                  <div className="glass-panel main-panel animate-in" style={{ textAlign: 'center' }}>
                     <h2 className="font-display" style={{ fontSize: '20px', color: 'var(--text-gold)', marginBottom: '8px', fontWeight: 700 }}>
                       Giyim Türünü Seçin
                     </h2>
@@ -1052,7 +1052,7 @@ function HomePageContent() {
                     ADIM 2: YÖNTEM SEÇİMİ
                 ================================================================ */}
                 {step === 2 && (
-                  <div className="glass-panel animate-in" style={{ padding: '28px 24px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <h2 style={{ fontSize: '16px', color: 'var(--text-gold)', fontWeight: 700 }}>Nasıl Üretmek İstersiniz?</h2>
                       <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1093,7 +1093,7 @@ function HomePageContent() {
                     ADIM 3 — DIRECT: Fotoğraf Yükle
                 ================================================================ */}
                 {step === 3 && generatorMode === 'direct' && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Mankenli Fotoğrafınızı Yükleyin</h2>
                       <button onClick={() => { setStep(2); setGeneratorMode(null); }} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1136,7 +1136,7 @@ function HomePageContent() {
                     ADIM 4 — DIRECT: GPT-4o Analiz Sonucu
                 ================================================================ */}
                 {step === 4 && generatorMode === 'direct' && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Ürün Analizi &amp; Hareket Önerisi</h2>
                       <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1179,8 +1179,8 @@ function HomePageContent() {
                         <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
-                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} rows={4}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '20px', transition: 'border-color 0.3s' }} />
+                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} rows={6}
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: '12px', transition: 'border-color 0.3s' }} />
 
                         <button className="btn-gold" onClick={() => handleDirectGenerate(false)}
                           disabled={customPrompt.trim().length < 20}
@@ -1202,7 +1202,7 @@ function HomePageContent() {
                     ADIM 3 — VTON: Manken Seç
                 ================================================================ */}
                 {step === 3 && generatorMode === 'vton' && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Manken Seçin</h2>
                       <button onClick={() => { setStep(2); setGeneratorMode(null); }} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1250,7 +1250,7 @@ function HomePageContent() {
                     ADIM 4 — VTON: Ürün Görselleri Yükle
                 ================================================================ */}
                 {step === 4 && generatorMode === 'vton' && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Ürün Fotoğrafları Yükleyin</h2>
                       <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1283,7 +1283,7 @@ function HomePageContent() {
                     ADIM 5 — VTON: GPT-4o Analiz + Kategori Seç
                 ================================================================ */}
                 {step === 5 && generatorMode === 'vton' && (
-                  <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Ürün Analizi &amp; Kategori</h2>
                       <button onClick={() => setStep(4)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1325,8 +1325,8 @@ function HomePageContent() {
                         <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '2px', width: `${Math.min((customPrompt.trim().length / 20) * 100, 100)}%`, background: customPrompt.trim().length < 20 ? 'linear-gradient(90deg, #ff6666, #ffaa44)' : 'linear-gradient(90deg, #66cc88, #44bbaa)', transition: 'width 0.3s' }} />
                         </div>
-                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={3}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s', marginBottom: '20px' }} />
+                        <textarea value={customPrompt} onChange={e => { setCustomPrompt(e.target.value); setIsPromptEdited(true); }} placeholder="Manken açıklamasını girin..." rows={6}
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: `1.5px solid ${customPrompt.trim().length >= 20 ? 'rgba(102,204,136,0.35)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13px', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, fontFamily: 'inherit', boxSizing: 'border-box', transition: 'border-color 0.3s', marginBottom: '12px' }} />
 
 
                         <button className="btn-gold" onClick={handleVTONGenerate}
@@ -1343,7 +1343,7 @@ function HomePageContent() {
                     ADIM 6 — VTON SONRASI: Arka Plan & Prompt (ayrı panel)
                 ================================================================ */}
                 {step === 6 && generatorMode === 'vton' && (
-                  <div className="glass-panel animate-in" style={{ padding: '20px' }}>
+                  <div className="glass-panel main-panel animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                       <h2 style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: 600 }}>Stüdyo Arka Planı &amp; Prompt</h2>
                       <button onClick={() => setStep(5)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
@@ -1362,7 +1362,7 @@ function HomePageContent() {
             TAB: GEÇMİŞ
         ================================================================ */}
         {activeTab === 'history' && (
-          <div className="glass-panel animate-in" style={{ padding: '20px' }}>
+          <div className="glass-panel main-panel animate-in">
             <h2 style={{ fontSize: '16px', color: 'var(--text-gold)', marginBottom: '16px', fontWeight: 600 }}>Üretim Geçmişi</h2>
             {history.length === 0 ? (
               <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '24px 0', fontSize: '13px' }}>Henüz video üretilmemiş.</div>
@@ -1399,7 +1399,7 @@ function HomePageContent() {
         {activeTab === 'settings' && (
           <>
             {/* Filigran */}
-            <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+            <div className="glass-panel main-panel animate-in">
               <h2 style={{ fontSize: '15px', color: 'var(--text-gold)', marginBottom: '12px', fontWeight: 600 }}>Filigran (Logo) Ayarı</h2>
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.6 }}>
                 Videolarınızın sağ alt köşesine otomatik olarak eklenecek yarı-şeffaf butik logonuzu yükleyin.
@@ -1417,7 +1417,7 @@ function HomePageContent() {
             </div>
 
             {/* Kredi Paketleri */}
-            <div className="glass-panel animate-in" style={{ padding: '24px' }}>
+            <div className="glass-panel main-panel animate-in">
               <h2 style={{ fontSize: '15px', color: 'var(--text-gold)', marginBottom: '18px', fontWeight: 600 }}>Kredi Yükleme Paketleri</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[

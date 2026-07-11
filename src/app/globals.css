@@ -583,7 +583,7 @@ body {
    Alt Bilgi (Footer)
    ============================================ */
 .footer {
-  padding: 32px 24px;
+  padding: 16px 20px;
   text-align: center;
   font-size: 12px;
   color: var(--text-secondary);
@@ -1023,5 +1023,15 @@ body {
   .credit-pkg-card .pkg-buy-btn {
     width: 100% !important;
     text-align: center;
+  }
+}
+
+.main-panel {
+  padding: 24px;
+}
+
+@media (max-width: 480px) {
+  .main-panel {
+    padding: 16px !important;
   }
 }
