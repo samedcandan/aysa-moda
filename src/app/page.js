@@ -231,9 +231,8 @@ function HomePageContent() {
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [lastGenerationId, setLastGenerationId] = useState(null);
 
-  const isTopWear = ['tisort', 'ceket', 'trenckot', 'kazak', 'gomlek', 'askili', 'mont', 'pelus', 'kurk'].includes(category);
-  const modelSubFolder = isTopWear ? 'jeans/' : '';
-  const modelVersion = isTopWear ? 'jeans' : 'atlet';
+  const modelSubFolder = '';
+  const modelVersion = 'atlet';
 
   // --- Refs ---
   const fileInputFrontRef = useRef(null);
