@@ -50,7 +50,7 @@ Sadece JSON döndür, başka hiçbir şey yazma.
 
 Kurallar:
 - categoryId şunlardan biri olmalı: gelinlik, abiye, elbise, gomlek, straplez, askili, tisort, kazak, ceket, trenckot, mont, pelus, kurk, pantolon, etek
-- motionId şunlardan biri olmalı: rotation (360° dönüş), walk (podyum yürüyüşü), pose (zarif pozlar), breeze (rüzgar duruşu)
+- motionId şunlardan biri olmalı (Yürüyüş ve dönüş hareketleri, arka plan derinlik uyumu ve gerçekçilik açısından her zaman önceliklidir): walk (podyum yürüyüşü - en çok tercih edilen), rotation (360° dönüş - tüm kombini göstermek için), pose (zarif pozlar), breeze (rüzgar duruşu)
 - productType Türkçe, kıyafetin genel adı (örn: Gömlek, Ceket, Pantolon, Abiye Elbise)
 - color Türkçe, ana renk (örn: Lacivert, Siyah, Kırmızı, Haki)
 - clothingType Türkçe, giyim türü. Sadece şu üç değerden biri olmalı: "Üst Giyim", "Alt Giyim", "Full Giyim"
@@ -91,8 +91,8 @@ Kurallar:
 - Kıyafetin ruhu ve ortam uyumu çok önemlidir: spor kıyafete şehir sokağı, abiyeye gala salonu, gelinliğe saray bahçesi gibi mantıklı eşleşmeler yap.
 
 - Opaklık ve Kumaş Dokusu Kuralları: Kıyafetin kumaşı kesinlikle transparan yapılmamalı, tamamen opak, tok, kalın ve kapalı olmalıdır. promptSuggestion içerisinde kesinlikle "şifon", "tül", "transparan", "file", "dantel", "organze" kelimelerini kullanma! Bunun yerine "opak krep", "tok saten", "kalın dokuma", "opak pamuk" gibi tok kumaş kelimeleriyle betimle.
-- Hareket ve Aksiyon Kuralları: promptSuggestion içinde model kesinlikle durağan olmamalıdır. Podyumda yürümesi, kameraya zarif adımlarla yaklaşması, kendi etrafında yavaşça dönerek kıyafeti sergilemesi gibi dinamik ve zarif hareketler mutlaka eklenmelidir.
-- promptSuggestion Türkçe olmalı. Kıyafeti, ortamı, kombini ve hareketi birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kumaşın kalın, tok ve opak olduğunu da metin içinde belirt.
+- Hareket ve Aksiyon Kuralları (KRİTİK): Modelin durağan pozlar vermesi (sabit duruşlar) arka planla olan 3D derinlik ve paralaks (parallax) uyumunu bozmaktadır. Bu yüzden model KESİNLİKLE durağan durmamalı, ezici çoğunlukla YÜRÜYÜŞ halinde olmalıdır.
+- Yürüyüş ve Hareket Kuralları: Modelin podyumda, sokakta veya seçilen ortamda zarif, kendinden emin ve yavaş adımlarla yürüdüğünü, kameraya doğru yaklaştığını, yürürken kıyafetin salınımını (örn: eteğin hafifçe uçuşması, ceket ve kollardaki doğal hareketler) ve ellerinin zarif hareketlerini detaylıca betimle. Yürüyüş esnasında hafif omuz dönüşleri veya omuz üstü bakışlar gibi şık manken hareketleri ekle. promptSuggestion Türkçe, kıyafeti, ortamı, kombini ve hareketi birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kumaşın kalın, tok ve opak olduğunu da metin içinde belirt.
 - KRİTİK BOYUT KORUMA KURALI: promptSuggestion içinde kıyafetin orijinal boyutlarının video boyunca %100 korunması gerektiğini mutlaka vurgula. "Kıyafetin orijinal boyutları, uzunluğu ve oranları birebir korunur" ifadesini ekle.
 - Kadraj ve Odak Noktası Kuralları:
   * "Üst Giyim" için: Üst vücuda odaklanmış yakın/orta çekim, yaka/omuz detayları vurgulanmalı.
@@ -175,7 +175,7 @@ Yanıt formatı:
       result.categoryId = gender === 'MEN' ? 'tisort' : 'elbise';
     }
     if (!VALID_MOTION_IDS.includes(result.motionId)) {
-      result.motionId = 'rotation';
+      result.motionId = 'walk';
     }
     // backgroundId kaldırıldı — arka plan artık prompt mühendisliği ile sağlanıyor
     delete result.backgroundId;
