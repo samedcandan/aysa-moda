@@ -30,8 +30,8 @@ export async function POST(request) {
       : 'image/jpeg';
 
     let genderNote = gender === 'MEN' 
-      ? 'Bu erkek giyim bir kıyafettir.' 
-      : 'Bu kadın giyim bir kıyafettir.';
+      ? 'Bu erkek giyim bir kıyafettir. Model mutlaka ayağına kıyafetin tarzına uygun şık erkek ayakkabıları (şık deri makosenler, oxford ayakkabılar veya spor şık sneakers) giymelidir. promptSuggestion içinde bunu mutlaka belirt: "kombine ve tarza uygun şık erkek ayakkabıları giymektedir".' 
+      : 'Bu kadın giyim bir kıyafettir. Model mutlaka ayağına kıyafetin tarzına ve ortama uyumlu zarif yüksek topuklu ayakkabılar (stilettolar veya şık yüksek topuklu ayakkabılar) giymelidir. promptSuggestion içinde bunu mutlaka belirt: "şık ve zarif yüksek topuklu ayakkabılar giymektedir".';
 
     // Hüma modeli (tesettürlü) seçildiğinde güçlü tesettür kuralları ekle
     if (modelId === 'huma') {
@@ -76,7 +76,12 @@ Kurallar:
 - Alt giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
 
 👗 FULL GİYİM KURALI:
-- Eğer clothingType "Full Giyim" (elbise, gelinlik, abiye vb.) ise: Ek kombin parçası gerekmez, kıyafetin tamamı zaten tek parça. Modelin aksesuarları (ayakkabı, çanta vb.) sade ve kıyafete uygun olmalı.
+- Eğer clothingType "Full Giyim" (elbise, gelinlik, abiye vb.) ise: Ek kombin parçası gerekmez, kıyafetin tamamı zaten tek parça. Modelin aksesuarları (çanta vb.) sade ve kıyafete uygun olmalı.
+
+👠 AYAKKABI KURALI (KRİTİK):
+- Modelin çıplak ayaklı görünmesini veya ayakkabısız olmasını kesinlikle engellemek için promptSuggestion içinde giydiği ayakkabılar MUTLAKA tanımlanmalıdır.
+- Eğer model kadınsa (WOMEN): Model mutlaka kıyafetle uyumlu zarif yüksek topuklu ayakkabılar (stilettolar veya şık yüksek topuklu ayakkabılar) giyiyor olmalıdır. promptSuggestion'a "şık ve zarif yüksek topuklu ayakkabılar giymektedir" ibaresini ekle.
+- Eğer model erkekse (MEN): Model kıyafete ve ortama uygun şık erkek ayakkabıları (deri makosen, oxford veya spor şık sneakers) giyiyor olmalıdır. promptSuggestion'a "kombine ve tarza uygun şık erkek ayakkabıları giymektedir" ibaresini ekle.
 
 🌍 ORTAM VE MEKAN KURALI (KRİTİK VE ZORUNLU):
 - promptSuggestion içinde kıyafetin tarzına, rengine, mevsimine ve amacına en uygun yaratıcı 3D mekanı MUTLAKA hayal et ve detaylıca betimle.
