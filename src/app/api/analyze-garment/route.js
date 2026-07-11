@@ -94,10 +94,10 @@ Kurallar:
 - Hareket ve Aksiyon Kuralları (KRİTİK): Modelin durağan pozlar vermesi (sabit duruşlar) arka planla olan 3D derinlik ve paralaks (parallax) uyumunu bozmaktadır. Bu yüzden model KESİNLİKLE durağan durmamalı, ezici çoğunlukla YÜRÜYÜŞ halinde olmalıdır.
 - Yürüyüş ve Hareket Kuralları: Modelin podyumda, sokakta veya seçilen ortamda zarif, kendinden emin ve yavaş adımlarla yürüdüğünü, kameraya doğru yaklaştığını, yürürken kıyafetin salınımını (örn: eteğin hafifçe uçuşması, ceket ve kollardaki doğal hareketler) ve ellerinin zarif hareketlerini detaylıca betimle. Yürüyüş esnasında hafif omuz dönüşleri veya omuz üstü bakışlar gibi şık manken hareketleri ekle. promptSuggestion Türkçe, kıyafeti, ortamı, kombini ve hareketi birleştiren doğal, akıcı ve profesyonel bir video tanıtım promptu olmalıdır. Kumaşın kalın, tok ve opak olduğunu da metin içinde belirt.
 - KRİTİK BOYUT KORUMA KURALI: promptSuggestion içinde kıyafetin orijinal boyutlarının video boyunca %100 korunması gerektiğini mutlaka vurgula. "Kıyafetin orijinal boyutları, uzunluğu ve oranları birebir korunur" ifadesini ekle.
-- Kadraj ve Odak Noktası Kuralları:
-  * "Üst Giyim" için: Üst vücuda odaklanmış yakın/orta çekim, yaka/omuz detayları vurgulanmalı.
-  * "Alt Giyim" için: Alt vücuda odaklanmış bacak/kalıp yakın çekim, kesim detayları vurgulanmalı.
-  * "Full Giyim" için: Baştan ayağa boydan çekim, genel silüet vurgulanmalı.
+- Kadraj ve Odak Noktası Kuralları (KRİTİK): Satışı yapılan ürünün (üst giyim veya alt giyim) hiçbir parçası video boyunca kesinlikle kadrajın (ekranın) dışına taşmamalı ve kesilmemelidir. promptSuggestion içinde bunu mutlaka belirt ("tüm kıyafet kadrajın içinde tam olarak görünür").
+  * "Üst Giyim" (Tişört, Gömlek, Ceket vb.) için: Kalça hizasından yukarısını gösteren orta çekim (hip-up medium shot). Ürünün omuzları, kolları, yakası ve etek ucu (alt bitiş çizgisi) her zaman tamamen kadrajın içinde ve net olarak görünmelidir. Üst giyimin altı veya yanları kesinlikle kesilmemelidir.
+  * "Alt Giyim" (Pantolon, Etek vb.) için: Bel hizasından ayaklara kadar olan alt vücut çekimi veya tam boy çekim. Ürünün beli, kalçası, paçaları/etek ucu ve ayakkabılarla birleştiği yer her zaman tamamen kadrajın içinde ve görünür olmalıdır. Ürünün altı veya üstü kesinlikle kesilmemelidir.
+  * "Full Giyim" (Elbise, Gelinlik vb.) için: Baştan ayağa tam boy çekim (full-body shot). Elbisenin tamamı her zaman kadrajın içinde olmalıdır.
 
 ${genderNote}
 
