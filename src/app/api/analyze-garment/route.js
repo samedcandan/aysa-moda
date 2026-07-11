@@ -66,12 +66,14 @@ Kurallar:
 👕➡️👖 KOMBİN KURALI — ÜST GİYİM (KRİTİK):
 - Eğer clothingType "Üst Giyim" ise: promptSuggestion'da modele bu üst giyime yakışan şık ve uyumlu bir ALT GİYİM (pantolon, etek, jean vb.) kombinlenmeli.
 - ÖNEMLİ: Kombinlenen alt giyim, satılan üst giyimi kesinlikle KAPATMAMALI veya ÖRTMEMELİDİR. Üstüne ceket, mont, hırka, palto gibi üst giyimi kapatan parçalar ÖNERİLMEMELİDİR.
+- Satılan üst giyim kesinlikle alt giyimin (pantolon/jean) içine sokulmamalı, dışarıya salınmış olmalıdır (untucked). promptSuggestion içinde bunu mutlaka belirt: "ürün pantolonun dışına salınmıştır (untucked) ve alt bitiş detayları tamamen görünmektedir".
 - Alt giyim sade, nötr ve üst giyimi ön plana çıkaracak şekilde seçilmeli (örn: "sade yüksek bel siyah pantolon", "şık koyu renk slim-fit jean", "zarif kalem etek").
 - Üst giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
 
 👖➡️👕 KOMBİN KURALI — ALT GİYİM (KRİTİK):
 - Eğer clothingType "Alt Giyim" ise: promptSuggestion'da modele bu alt giyime yakışan şık ve uyumlu bir ÜST GİYİM (bluz, tişört, gömlek vb.) kombinlenmeli.
-- ÖNEMLİ: Kombinlenen üst giyim, satılan alt giyimi kesinlikle KAPATMAMALI veya ÖRTMEMELİDİR. Uzun ceket, palto, uzun hırka gibi alt giyimi kapatan/örten parçalar ÖNERİLMEMELİDİR.
+- ÖNEMLİ: Kombinlenen üst giyim, satılan alt giyimi (pantolon/etek) kesinlikle KAPATMAMALI veya ÖRTMEMELİDİR. Uzun ceket, palto, uzun hırka gibi alt giyimi kapatan/örten parçalar ÖNERİLMEMELİDİR.
+- Satılan alt giyimin bel, düğme ve cep detaylarını kapatmaması için kombinlenen üst giyim mutlaka pantolonun/eteğin içine sokulmuş (tucked-in) veya kısa crop tarzında olmalıdır. promptSuggestion içinde bunu mutlaka belirt: "kombinlenen üst giyim pantolonun içine sokulmuştur (tucked-in)".
 - Üst giyim sade, nötr ve alt giyimi ön plana çıkaracak şekilde seçilmeli (örn: "sade beyaz basic tişört", "şık siyah crop bluz", "düz renk ince gömlek").
 - Alt giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
 
