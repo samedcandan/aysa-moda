@@ -1425,12 +1425,12 @@ function HomePageContent() {
                   { name: 'GOLD', label: 'Gold Paket (60 Kredi) 🌟', desc: 'Her gün 2 video hakkı', price: '899 TL', featured: true },
                   { name: 'PLATINUM', label: 'Platinum Paket (150 Kredi)', desc: 'Her gün 5 video hakkı', price: '1.999 TL', featured: false },
                 ].map(pkg => (
-                  <div key={pkg.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: pkg.featured ? 'linear-gradient(135deg, rgba(212,174,120,0.12), rgba(232,203,245,0.06))' : 'rgba(255,255,255,0.01)', border: pkg.featured ? '1.5px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', boxShadow: pkg.featured ? '0 0 15px rgba(212,174,120,0.08)' : 'none', transition: 'all 0.3s' }}>
-                    <div>
+                  <div key={pkg.name} className={`credit-pkg-card ${pkg.featured ? 'featured' : 'standard'}`}>
+                    <div className="pkg-info">
                       <div style={{ fontSize: '14px', fontWeight: 700, color: pkg.featured ? 'var(--text-gold)' : 'var(--text-primary)' }}>{pkg.label}</div>
                       <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{pkg.desc}</div>
                     </div>
-                    <button onClick={() => handleBuyCredits(pkg.name)} style={{ padding: '8px 16px', color: '#17120a', background: 'var(--gradient-gold)', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', boxShadow: pkg.featured ? '0 4px 15px rgba(212,174,120,0.2)' : 'none' }}>
+                    <button onClick={() => handleBuyCredits(pkg.name)} className="pkg-buy-btn" style={{ padding: '8px 16px', color: '#17120a', background: 'var(--gradient-gold)', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', boxShadow: pkg.featured ? '0 4px 15px rgba(212,174,120,0.2)' : 'none' }}>
                       {pkg.price}
                     </button>
                   </div>
