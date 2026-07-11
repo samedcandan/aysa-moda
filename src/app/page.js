@@ -232,7 +232,7 @@ function HomePageContent() {
   const [lastGenerationId, setLastGenerationId] = useState(null);
 
   const modelSubFolder = '';
-  const modelVersion = 'atlet';
+  const modelVersion = 'atlet_tucked';
 
   // --- Refs ---
   const fileInputFrontRef = useRef(null);
