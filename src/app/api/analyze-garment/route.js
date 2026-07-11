@@ -71,11 +71,10 @@ Kurallar:
 - Üst giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
 
 👖➡️👕 KOMBİN KURALI — ALT GİYİM (KRİTİK):
-- Eğer clothingType "Alt Giyim" ise: promptSuggestion'da modele bu alt giyime yakışan şık ve uyumlu bir ÜST GİYİM (bluz, tişört, gömlek vb.) kombinlenmeli.
-- ÖNEMLİ: Kombinlenen üst giyim, satılan alt giyimi (pantolon/etek) kesinlikle KAPATMAMALI veya ÖRTMEMELİDİR. Uzun ceket, palto, uzun hırka gibi alt giyimi kapatan/örten parçalar ÖNERİLMEMELİDİR.
-- Satılan alt giyimin bel, düğme ve cep detaylarını kapatmaması için kombinlenen üst giyim mutlaka pantolonun/eteğin içine sokulmuş (tucked-in) veya kısa crop tarzında olmalıdır. promptSuggestion içinde bunu mutlaka belirt: "kombinlenen üst giyim pantolonun içine sokulmuştur (tucked-in)".
-- Üst giyim sade, nötr ve alt giyimi ön plana çıkaracak şekilde seçilmeli (örn: "sade beyaz basic tişört", "şık siyah crop bluz", "düz renk ince gömlek").
-- Alt giyim videonun YILDIZI olmalı, kombin onu desteklemeli.
+- Eğer clothingType "Alt Giyim" (Pantolon, Etek vb.) ise:
+  * Kadın modeller (WOMEN) için: Manken şablonunda spor büstiyer olduğu için promptSuggestion içinde modelin üstünde "gri spor crop top / spor büstiyer" (grey sports crop top) olduğunu betimle. Başka bir üst giyim (gömlek, bluz vb.) ekleme!
+  * Erkek modeller (MEN) için: Manken şablonunda spor atlet olduğu için promptSuggestion içinde modelin üstünde "şık koyu gri/siyah spor atlet" (dark grey athletic tank top) olduğunu betimle. Başka bir üst giyim (gömlek, tişört vb.) ekleme!
+  * Ortaya çıkan görüntü: Modelin üstünde büstiyer/atlet, altında ise denenen alt giyim (pantolon/etek) olmalıdır. Ürün (alt giyim) videonun asıl yıldızı olmalıdır. Bel ve basen detaylarının görünmesi için üstteki büstiyerin/atletin alt giyimi kapatmadığını belirt. Giyimlerin birbiriyle çakışmadan tam olarak uyumlu birleştiğini betimle.
 
 👗 FULL GİYİM KURALI:
 - Eğer clothingType "Full Giyim" (elbise, gelinlik, abiye vb.) ise: Ek kombin parçası gerekmez, kıyafetin tamamı zaten tek parça. Modelin aksesuarları (çanta vb.) sade ve kıyafete uygun olmalı.
