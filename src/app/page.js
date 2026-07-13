@@ -698,7 +698,7 @@ function HomePageContent() {
             <img src="/icons/logo.png" alt="Aysa Moda Logo" style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,255,255,0.1)', boxShadow: '0 0 20px rgba(232,203,245,0.2)' }} onError={e => e.target.style.display='none'} />
           </div>
           <h1 className="font-display" style={{ fontSize: '32px', background: 'var(--gradient-lavender-gold)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: 700, marginBottom: '8px', letterSpacing: '-0.5px' }}>
-            AI Moda Stüdyosu
+            Aysa Moda Giydirme
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '28px' }}>
             Butiğinizi yapay zeka ile canlandırın
@@ -761,7 +761,7 @@ function HomePageContent() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src="/icons/logo.png" alt="Logo" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} onError={e => e.target.style.display='none'} />
           <h1 className="font-display" style={{ fontSize: '22px', fontWeight: 700, background: 'var(--gradient-lavender-gold)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.3px' }}>
-            AI Moda Stüdyosu
+            Aysa Moda Giydirme
           </h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1443,7 +1443,7 @@ function HomePageContent() {
 
       </main>
 
-      <footer className="footer">Karneyn Yazılım — AI Moda Stüdyosu</footer>
+      <footer className="footer">Karneyn Yazılım — Aysa Moda Giydirme</footer>
     </div>
     </>
   );

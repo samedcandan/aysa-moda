@@ -1,7 +1,7 @@
 {
-  "name": "Aysa Moda",
-  "short_name": "Aysa Moda",
-  "description": "Gelinlik Video Üretici",
+  "name": "Aysa Moda Giydirme",
+  "short_name": "Aysa Moda Giydirme",
+  "description": "Gelinlik ve Kıyafet Video Üretici",
   "start_url": "/aysa-moda/",
   "display": "standalone",
   "background_color": "#fff5f8",
