@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { hashPassword, setSessionCookie } from '@/lib/auth';
+import { verifyPassword, hashPassword, setSessionCookie } from '@/lib/auth';
 
 export async function POST(request) {
   try {
@@ -15,8 +15,22 @@ export async function POST(request) {
       where: { email },
     });
 
-    if (!user || user.password !== hashPassword(password)) {
+    if (!user || !verifyPassword(password, user.password)) {
       return NextResponse.json({ error: 'E-posta veya şifre hatalı.' }, { status: 401 });
+    }
+
+    // Auto-upgrade legacy SHA-256 passwords to Bcrypt on successful login
+    if (!user.password.startsWith('$2')) {
+      try {
+        const newHash = hashPassword(password);
+        await prisma.modaUser.update({
+          where: { id: user.id },
+          data: { password: newHash },
+        });
+        console.log(`[Auth Login] Automatically upgraded password hash to Bcrypt for user: ${email}`);
+      } catch (err) {
+        console.error('[Auth Login] Failed to auto-upgrade password hash:', err);
+      }
     }
 
     // Set auth cookie

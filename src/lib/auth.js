@@ -1,11 +1,22 @@
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
+import bcrypt from 'bcryptjs';
 
 const AUTH_COOKIE_NAME = 'aysamoda_session';
 const SECRET_KEY = process.env.SESSION_SECRET || 'aysa-moda-super-secret-key-2024';
 
 export function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
+  return bcrypt.hashSync(password, 10);
+}
+
+export function verifyPassword(password, hash) {
+  if (!hash) return false;
+  if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
+    return bcrypt.compareSync(password, hash);
+  }
+  // Fallback to legacy SHA-256
+  const sha256 = crypto.createHash('sha256').update(password).digest('hex');
+  return sha256 === hash;
 }
 
 function sign(payload) {
