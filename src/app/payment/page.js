@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/api';
 
 function PaymentPageContent() {
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ function PaymentPageContent() {
 
   const initPayment = async (selectedPlanCode) => {
     try {
-      const res = await fetch('/api/payment/create', {
+      const res = await apiFetch('/api/payment/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: selectedPlanCode })

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { apiFetch, saveAuthToken, clearAuthToken } from '@/lib/api';
 
 // ============================================================
 //  SABİT VERİLER
@@ -290,7 +291,7 @@ function HomePageContent() {
   // ---- Kullanıcı session ----
   const fetchUserSession = async () => {
     try {
-      const res = await fetch('/api/auth/me');
+      const res = await apiFetch('/api/auth/me');
       const data = await res.json();
       if (data.authenticated) {
         setUser(data.user);
@@ -318,14 +319,14 @@ function HomePageContent() {
     }
     setAuthError('');
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       console.log("handleLogin API result:", { status: res.status, ok: res.ok, data });
-      if (res.ok) { fetchUserSession(); }
+      if (res.ok) { if (data.token) saveAuthToken(data.token); fetchUserSession(); }
       else { setAuthError(data.error || 'Giriş yapılamadı.'); }
     } catch (err) {
       console.error("handleLogin connection error:", err);
@@ -342,14 +343,14 @@ function HomePageContent() {
     }
     setAuthError('');
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await apiFetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       console.log("handleRegister API result:", { status: res.status, ok: res.ok, data });
-      if (res.ok) { fetchUserSession(); }
+      if (res.ok) { if (data.token) saveAuthToken(data.token); fetchUserSession(); }
       else { setAuthError(data.error || 'Kayıt yapılamadı.'); }
     } catch (err) {
       console.error("handleRegister connection error:", err);
@@ -359,8 +360,8 @@ function HomePageContent() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) });
-    } finally { setUser(null); setHistory([]); }
+      await apiFetch('/api/auth/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) });
+    } finally { clearAuthToken(); setUser(null); setHistory([]); }
   };
 
   // ---- Image upload helper ----
@@ -378,7 +379,7 @@ function HomePageContent() {
     setAnalyzeError('');
     setAnalysisResult(null);
     try {
-      const res = await fetch('/api/analyze-garment', {
+      const res = await apiFetch('/api/analyze-garment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64, gender: genderSelection, modelId: generatorMode === 'direct' ? (isHijabDirect ? 'huma' : null) : modelId }),
@@ -407,7 +408,7 @@ function HomePageContent() {
         return;
       }
       try {
-        const statusRes = await fetch('/api/status', {
+        const statusRes = await apiFetch('/api/status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ taskId }),
@@ -459,7 +460,7 @@ function HomePageContent() {
       setProgressStep(2);
       setProgressText('Yapay zeka kıyafeti mankene giydiriyor... (45-90 saniye)');
 
-      const res = await fetch('/api/vton', {
+      const res = await apiFetch('/api/vton', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -500,7 +501,7 @@ function HomePageContent() {
 
     try {
       const isRotation = motionType === 'rotation';
-      const res = await fetch('/api/video', {
+      const res = await apiFetch('/api/video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -540,7 +541,7 @@ function HomePageContent() {
     setErrorMsg('');
 
     try {
-      const res = await fetch('/api/generate', {
+      const res = await apiFetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -591,7 +592,7 @@ function HomePageContent() {
     if (!feedbackCategory) return alert('Lütfen bir kategori seçin.');
     setIsSendingFeedback(true);
     try {
-      const res = await fetch('/api/feedback', {
+      const res = await apiFetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -616,7 +617,7 @@ function HomePageContent() {
   // ---- Filigran ----
   const saveWatermark = async (base64) => {
     try {
-      const res = await fetch('/api/auth/me', {
+      const res = await apiFetch('/api/auth/me', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update_watermark', watermarkUrl: base64 }),
