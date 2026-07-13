@@ -424,4 +424,6 @@ model ModaFeedback {
   @@index([userId])
   @@index([generationId])
   @@index([status])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
 }
