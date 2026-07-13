@@ -33,11 +33,12 @@ export async function POST(request) {
       },
     });
 
-    // Set auth cookie
-    await setSessionCookie(newUser.id, newUser.email);
+    // Set auth cookie AND return token for mobile clients
+    const token = await setSessionCookie(newUser.id, newUser.email);
 
     return NextResponse.json({
       success: true,
+      token, // Mobil istemciler bu token'ı saklayıp Authorization header ile gönderir
       user: { id: newUser.id, email: newUser.email, credits: newUser.credits, plan: newUser.plan },
     });
 

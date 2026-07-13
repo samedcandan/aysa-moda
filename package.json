@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:mobile": "set MOBILE_BUILD=true&& set NEXT_PUBLIC_API_BASE=https://aysamoda.karneyn.com&& next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -13,6 +14,7 @@
     "@vercel/blob": "^0.27.1",
     "bcryptjs": "^2.4.3",
     "jimp": "^1.6.1",
+    "jose": "^6.2.3",
     "next": "16.2.6",
     "prisma": "^5.22.0",
     "react": "19.2.4",
