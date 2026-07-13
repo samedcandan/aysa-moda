@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { cookies } from 'next/headers';
 
 const AUTH_COOKIE_NAME = 'aysamoda_session';
-const SECRET_KEY = 'aysa-moda-super-secret-key-2024';
+const SECRET_KEY = process.env.SESSION_SECRET || 'aysa-moda-super-secret-key-2024';
 
 export function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');

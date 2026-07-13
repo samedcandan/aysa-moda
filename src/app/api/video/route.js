@@ -241,10 +241,13 @@ export async function POST(request) {
     } else {
       // 1. run — kredi düş + yeni kayıt
       await prisma.$transaction(async (tx) => {
-        await tx.modaUser.update({
+        const updatedUser = await tx.modaUser.update({
           where: { id: user.id },
           data: { credits: { decrement: 1 } },
         });
+        if (updatedUser.credits < 0) {
+          throw new Error('Yetersiz bakiye.');
+        }
         const gen = await tx.modaGeneration.create({
           data: {
             id: taskId,
@@ -273,6 +276,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('[Video] Error:', error);
+    if (error.message === 'Yetersiz bakiye.') {
+      return NextResponse.json({ error: 'Yetersiz bakiye.' }, { status: 403 });
+    }
     return NextResponse.json(
       { error: error.message || 'Video oluşturma sırasında hata oluştu.' },
       { status: 500 }
