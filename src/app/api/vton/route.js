@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { uploadToImgBB } from '@/lib/imgbb';
+import { uploadImage } from '@/lib/storage';
 import { runVirtualTryOn, generateBackground, removeBackground } from '@/lib/fal';
 import { extractBackgroundPrompt } from '@/lib/prompt-helper';
 import { Jimp } from 'jimp';
@@ -41,7 +41,7 @@ async function compositeModelOnBackground({ transparentImageUrl, backgroundImage
 
     const buffer = await bgImg.getBuffer('image/jpeg');
     const base64 = buffer.toString('base64');
-    return await uploadToImgBB(base64);
+    return await uploadImage(base64);
   } catch (err) {
     console.error('[VTON Compositing] Compositing error, falling back to original:', err.message);
     throw err;
@@ -126,7 +126,7 @@ async function maskHijab({ originalBase64, dressedImageUrl, modelId, bodySize, v
     }
 
     const outBuffer = await dressedImg.getBuffer('image/jpeg');
-    const newUrl = await uploadToImgBB(outBuffer.toString('base64'));
+    const newUrl = await uploadImage(outBuffer.toString('base64'));
     return newUrl;
   } catch (err) {
     console.error(`[Hijab] Masking error:`, err);
@@ -166,11 +166,11 @@ export async function POST(request) {
     // 1. Görselleri ImgBB'ye yükle
     console.log('[VTON] Uploading images to ImgBB...');
     const uploadTasks = [
-      uploadToImgBB(humanFront),
-      uploadToImgBB(garmentFront),
+      uploadImage(humanFront),
+      uploadImage(garmentFront),
     ];
-    if (isRotation && humanBack) uploadTasks.push(uploadToImgBB(humanBack));
-    if (garmentBack) uploadTasks.push(uploadToImgBB(garmentBack));
+    if (isRotation && humanBack) uploadTasks.push(uploadImage(humanBack));
+    if (garmentBack) uploadTasks.push(uploadImage(garmentBack));
 
     const uploadResults = await Promise.all(uploadTasks);
     const humanFrontUrl = uploadResults[0];

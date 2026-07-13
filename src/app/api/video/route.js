@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { createVideo } from '@/lib/kling';
-import { uploadToImgBB } from '@/lib/imgbb';
+import { uploadImage } from '@/lib/storage';
 import { Jimp } from 'jimp';
 import { generateBackground, removeBackground } from '@/lib/fal';
 import { extractBackgroundPrompt } from '@/lib/prompt-helper';
@@ -55,7 +55,7 @@ async function convertToReelsFormat(imageUrl) {
     // Buffer'a çevir ve ImgBB'ye yükle
     const buffer = await canvas.getBuffer('image/jpeg');
     const base64 = buffer.toString('base64');
-    const reelsUrl = await uploadToImgBB(base64);
+    const reelsUrl = await uploadImage(base64);
     console.log('[Video] Converted to 9:16 Reels format');
     return reelsUrl;
   } catch (err) {
@@ -100,7 +100,7 @@ async function compositeModelOnBackground({ transparentImageUrl, backgroundImage
 
     const buffer = await bgImg.getBuffer('image/jpeg');
     const base64 = buffer.toString('base64');
-    return await uploadToImgBB(base64);
+    return await uploadImage(base64);
   } catch (err) {
     console.error('[Video] Compositing error, falling back to original:', err.message);
     throw err; // retry logic handles it by falling back to black canvas

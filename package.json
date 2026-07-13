@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@vercel/blob": "^0.27.1",
     "bcryptjs": "^2.4.3",
     "jimp": "^1.6.1",
     "next": "16.2.6",

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { uploadToImgBB } from '@/lib/imgbb';
+import { uploadImage } from '@/lib/storage';
 import { runVirtualTryOn, generateBackground, removeBackground } from '@/lib/fal';
 import { extractBackgroundPrompt } from '@/lib/prompt-helper';
 import { createVideo } from '@/lib/kling';
@@ -72,7 +72,7 @@ async function maskHijab({ originalComposedBase64, dressedImageUrl, modelId, bod
     // Get buffer and upload to ImgBB
     const outBuffer = await dressedImg.getBuffer('image/jpeg');
     const outBase64 = outBuffer.toString('base64');
-    const newUrl = await uploadToImgBB(outBase64);
+    const newUrl = await uploadImage(outBase64);
     
     console.log(`[Hijab Masking] Successfully masked & uploaded: ${newUrl}`);
     return newUrl;
@@ -162,7 +162,7 @@ async function convertToReelsFormat(imageUrl) {
 
     const buffer = await canvas.getBuffer('image/jpeg');
     const base64 = buffer.toString('base64');
-    return await uploadToImgBB(base64);
+    return await uploadImage(base64);
   } catch (err) {
     console.error('[Generate Route] Reels conversion failed:', err.message);
     return imageUrl;
@@ -205,7 +205,7 @@ async function compositeModelOnBackground({ transparentImageUrl, backgroundImage
 
     const buffer = await bgImg.getBuffer('image/jpeg');
     const base64 = buffer.toString('base64');
-    return await uploadToImgBB(base64);
+    return await uploadImage(base64);
   } catch (err) {
     console.error('[Generate Route] Compositing error, falling back:', err.message);
     throw err;
@@ -274,8 +274,8 @@ export async function POST(request) {
       // Direct mode: upload only user's own photos, no garment images needed
       console.log('[Generate Route] [Direct Mode] Uploading user photos only (VTON skipped)...');
       const uploadPromises = [
-        uploadToImgBB(humanFront),
-        humanBack ? uploadToImgBB(humanBack) : Promise.resolve(null),
+        uploadImage(humanFront),
+        humanBack ? uploadImage(humanBack) : Promise.resolve(null),
       ];
       [humanFrontUrl, humanBackUrl] = await Promise.all(uploadPromises);
       garmentFrontUrl = null;
@@ -284,10 +284,10 @@ export async function POST(request) {
       // VTON mode: upload mannequin template + garment images
       console.log('[Generate Route] [VTON Mode] Uploading mannequin and garment images...');
       const uploadPromises = [
-        uploadToImgBB(humanFront),
-        isRotation ? uploadToImgBB(humanBack) : Promise.resolve(null),
-        uploadToImgBB(garmentFront),
-        garmentBack ? uploadToImgBB(garmentBack) : Promise.resolve(null),
+        uploadImage(humanFront),
+        isRotation ? uploadImage(humanBack) : Promise.resolve(null),
+        uploadImage(garmentFront),
+        garmentBack ? uploadImage(garmentBack) : Promise.resolve(null),
       ];
       [humanFrontUrl, humanBackUrl, garmentFrontUrl, garmentBackUrl] = await Promise.all(uploadPromises);
     }
