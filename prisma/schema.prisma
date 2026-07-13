@@ -376,7 +376,9 @@ model PushToken {
 model ModaUser {
   id             Int              @id @default(autoincrement())
   email          String           @unique
-  password       String
+  password       String?
+  googleId       String?          @unique
+  name           String?
   credits        Int              @default(10) // Bronze default 10 credits
   plan           String           @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
   subscriptionId String?

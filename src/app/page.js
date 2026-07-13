@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiFetch, saveAuthToken, clearAuthToken } from '@/lib/api';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import GoogleAuthButton from '@/components/GoogleAuthButton';
 
 // ============================================================
 //  SABİT VERİLER
@@ -723,6 +724,19 @@ function HomePageContent() {
               {authMode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
             </button>
           </form>
+          
+          <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: '10px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.08)' }}></div>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>veya</span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.08)' }}></div>
+          </div>
+
+          <GoogleAuthButton 
+            onSuccess={fetchUserSession}
+            onError={(err) => setAuthError(err)}
+            text={authMode === 'login' ? "Google ile Giriş Yap" : "Google ile Kayıt Ol"}
+          />
+
           <div style={{ marginTop: '24px', fontSize: '13px', color: 'var(--text-secondary)' }}>
             {authMode === 'login'
               ? <><span>Hesabınız yok mu? </span><span onClick={() => setAuthMode('register')} style={{ color: 'var(--text-gold)', cursor: 'pointer', fontWeight: 600 }}>Kayıt Olun</span></>
