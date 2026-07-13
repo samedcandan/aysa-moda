@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Aysa Moda Giydirme</string>
+    <string name="title_activity_main">Aysa Moda Giydirme</string>
+    <string name="package_name">com.karneyn.aysamoda</string>
+    <string name="custom_url_scheme">com.karneyn.aysamoda</string>
+</resources>
