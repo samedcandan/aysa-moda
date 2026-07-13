@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiFetch, saveAuthToken, clearAuthToken } from '@/lib/api';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 // ============================================================
 //  SABİT VERİLER
@@ -172,7 +173,7 @@ function SearchParamsHandler({ setActiveTab, fetchUserSession }) {
 
 function HomePageContent() {
   const router = useRouter();
-
+  usePushNotifications(); // Mobilde FCM push notification başlat
   // --- Auth ---
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState('login');

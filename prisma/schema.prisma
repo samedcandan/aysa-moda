@@ -385,6 +385,18 @@ model ModaUser {
   updatedAt      DateTime         @updatedAt
   generations    ModaGeneration[]
   feedbacks      ModaFeedback[]
+  pushTokens     ModaPushToken[]
+}
+
+model ModaPushToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      ModaUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model ModaGeneration {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { checkVideoStatus } from '@/lib/kling';
+import { notifyVideoReady } from '@/lib/fcm';
 
 export async function POST(request) {
   try {
@@ -50,6 +51,8 @@ export async function POST(request) {
           videoUrl: result.videoUrl,
         },
       });
+      // Push bildirim gönder (fire-and-forget)
+      notifyVideoReady(session.userId, taskId).catch(() => {});
     } else if (result.status === 'error') {
       console.error(`[Status Route] Video FAILED for task: ${taskId}, error: ${result.error}`);
       await prisma.modaGeneration.update({
