@@ -38,9 +38,10 @@ export async function POST(request) {
 
       // Kredi miktarlarını belirle
       const planCredits = {
+        BRONZE: 10,
         SILVER: 30,
-        GOLD: 60,
-        PLATINUM: 150
+        GOLD: 50,
+        PLATINUM: 100
       };
 
       const addedCredits = planCredits[planCode] || 0;

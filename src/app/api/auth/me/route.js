@@ -65,9 +65,10 @@ export async function POST(request) {
     if (action === 'upgrade_plan') {
       // Mock upgrade for testing credits (in production, called after successful iyzico checkout)
       let addedCredits = 0;
-      if (plan === 'SILVER') addedCredits = 30;
-      else if (plan === 'GOLD') addedCredits = 60;
-      else if (plan === 'PLATINUM') addedCredits = 150;
+      if (plan === 'BRONZE') addedCredits = 10;
+      else if (plan === 'SILVER') addedCredits = 30;
+      else if (plan === 'GOLD') addedCredits = 50;
+      else if (plan === 'PLATINUM') addedCredits = 100;
 
       const updatedUser = await prisma.modaUser.update({
         where: { id: session.userId },

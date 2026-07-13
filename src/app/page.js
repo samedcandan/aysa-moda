@@ -1421,9 +1421,10 @@ function HomePageContent() {
               <h2 style={{ fontSize: '15px', color: 'var(--text-gold)', marginBottom: '18px', fontWeight: 600 }}>Kredi Yükleme Paketleri</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
-                  { name: 'SILVER', label: 'Silver Paket (30 Kredi)', desc: 'Her gün 1 video hakkı', price: '499 TL', featured: false },
-                  { name: 'GOLD', label: 'Gold Paket (60 Kredi) 🌟', desc: 'Her gün 2 video hakkı', price: '899 TL', featured: true },
-                  { name: 'PLATINUM', label: 'Platinum Paket (150 Kredi)', desc: 'Her gün 5 video hakkı', price: '1.999 TL', featured: false },
+                  { name: 'BRONZE', label: 'Bronz Paket (10 Kredi)', desc: 'Test ve başlangıç için ideal', price: '500 TL', featured: false },
+                  { name: 'SILVER', label: 'Silver Paket (30 Kredi)', desc: 'Standart butikler için (Günde 1 Video)', price: '1.200 TL', featured: false },
+                  { name: 'GOLD', label: 'Gold Paket (50 Kredi) 🌟', desc: 'Aktif butikler için (Günde 2 Video)', price: '1.800 TL', featured: true },
+                  { name: 'PLATINUM', label: 'Platinum Paket (100 Kredi)', desc: 'Yoğun paylaşım yapan butikler için', price: '3.250 TL', featured: false },
                 ].map(pkg => (
                   <div key={pkg.name} className={`credit-pkg-card ${pkg.featured ? 'featured' : 'standard'}`}>
                     <div className="pkg-info">

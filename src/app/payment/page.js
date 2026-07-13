@@ -13,9 +13,10 @@ function PaymentPageContent() {
   const plan = searchParams.get('plan') || 'SILVER';
 
   const planDetails = {
-    SILVER: { name: 'Gümüş (Silver)', price: 500, credits: 30, desc: 'Standart butikler için ideal (Günde 1 Video)' },
-    GOLD: { name: 'Altın (Gold)', price: 1000, credits: 60, desc: 'Aktif butikler için ideal (Günde 2 Video)' },
-    PLATINUM: { name: 'Platin (Platinum)', price: 2000, credits: 150, desc: 'Zincir butikler ve ajanslar (Günde 5 Video)' },
+    BRONZE: { name: 'Bronz (Bronze)', price: 416.67, credits: 10, desc: 'Test ve başlangıç için ideal' },
+    SILVER: { name: 'Gümüş (Silver)', price: 1000.00, credits: 30, desc: 'Standart butikler için ideal (Günde 1 Video)' },
+    GOLD: { name: 'Altın (Gold)', price: 1500.00, credits: 50, desc: 'Aktif butikler için ideal (Günde 2 Video)' },
+    PLATINUM: { name: 'Platin (Platinum)', price: 2708.33, credits: 100, desc: 'Yoğun paylaşım yapan butikler için' },
   };
 
   const selectedPlan = planDetails[plan] || planDetails.SILVER;

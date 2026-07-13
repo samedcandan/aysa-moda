@@ -23,9 +23,10 @@ export async function POST(request) {
 
     // Fiyatlandırma tanımları
     const planDetails = {
-      SILVER: { name: 'Gümüş (Silver)', price: 500, credits: 30 },
-      GOLD: { name: 'Altın (Gold)', price: 1000, credits: 60 },
-      PLATINUM: { name: 'Platin (Platinum)', price: 2000, credits: 150 },
+      BRONZE: { name: 'Bronz (Bronze)', price: 416.67, credits: 10 },
+      SILVER: { name: 'Gümüş (Silver)', price: 1000.00, credits: 30 },
+      GOLD: { name: 'Altın (Gold)', price: 1500.00, credits: 50 },
+      PLATINUM: { name: 'Platin (Platinum)', price: 2708.33, credits: 100 },
     };
 
     const selectedPlan = planDetails[plan];
