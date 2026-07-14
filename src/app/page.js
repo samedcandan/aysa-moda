@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { apiFetch, saveAuthToken, clearAuthToken } from '@/lib/api';
+import { apiFetch, saveAuthToken, clearAuthToken, isNativePlatform } from '@/lib/api';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import GoogleAuthButton from '@/components/GoogleAuthButton';
 
@@ -373,6 +373,24 @@ function HomePageContent() {
     const reader = new FileReader();
     reader.onload = (ev) => setter(ev.target.result);
     reader.readAsDataURL(file);
+  };
+
+  // ---- Native Kamera Yardımcısı ----
+  const capturePhoto = async (setter, sourceName = 'camera') => {
+    try {
+      const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: sourceName === 'camera' ? CameraSource.Camera : CameraSource.Photos
+      });
+      if (image && image.dataUrl) {
+        setter(image.dataUrl);
+      }
+    } catch (err) {
+      console.error("Kamera/Galeri açma hatası:", err);
+    }
   };
 
   // ---- GPT-4o Analiz ----
@@ -1116,13 +1134,42 @@ function HomePageContent() {
                     </div>
                     <input type="file" ref={fileInputDirectFrontRef} accept="image/*" style={{ display: 'none' }} onChange={e => handleImageSelect(e, setDirectFront)} />
 
-                    <div onClick={() => fileInputDirectFrontRef.current?.click()} style={{ aspectRatio: '3/4', maxWidth: '260px', margin: '0 auto 20px', borderRadius: '14px', border: `2px dashed ${directFront ? 'var(--text-gold)' : 'rgba(255,255,255,0.15)'}`, background: directFront ? 'none' : 'rgba(255,255,255,0.02)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
-                      {directFront ? <img src={directFront} alt="Ön" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (
-                        <div style={{ textAlign: 'center', padding: '20px' }}>
-                          <div style={{ fontSize: '36px', marginBottom: '10px' }}>📷</div>
-                          <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>Fotoğraf Yükle</div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px' }}>Mankenli kıyafet fotoğrafınızı seçin</div>
+                    <div onClick={(!directFront && !isNativePlatform()) ? () => fileInputDirectFrontRef.current?.click() : undefined} style={{ aspectRatio: '3/4', maxWidth: '260px', margin: '0 auto 20px', borderRadius: '14px', border: `2px dashed ${directFront ? 'var(--text-gold)' : 'rgba(255,255,255,0.15)'}`, background: directFront ? 'none' : 'rgba(255,255,255,0.02)', cursor: directFront ? 'default' : 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
+                      {directFront ? (
+                        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                          <img src={directFront} alt="Ön" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setDirectFront(null); }} style={{ position: 'absolute', top: '10px', right: '10px', width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', zIndex: 10 }}>✕</button>
                         </div>
+                      ) : (
+                        isNativePlatform() ? (
+                          <div style={{ textAlign: 'center', padding: '20px', width: '100%' }}>
+                            <div style={{ fontSize: '36px', marginBottom: '14px' }}>📷</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '80%', margin: '0 auto' }}>
+                              <button 
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); capturePhoto(setDirectFront, 'camera'); }} 
+                                className="btn-gold"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', fontSize: '13px' }}
+                              >
+                                📸 Fotoğraf Çek
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); capturePhoto(setDirectFront, 'photos'); }} 
+                                className="btn-outline"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', fontSize: '13px' }}
+                              >
+                                📁 Galeriden Seç
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ textAlign: 'center', padding: '20px' }}>
+                            <div style={{ fontSize: '36px', marginBottom: '10px' }}>📷</div>
+                            <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>Fotoğraf Yükle</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px' }}>Mankenli kıyafet fotoğrafınızı seçin</div>
+                          </div>
+                        )
                       )}
                     </div>
 
@@ -1272,14 +1319,38 @@ function HomePageContent() {
                       <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: 'var(--text-gold)', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>← Geri</button>
                     </div>
                     <input type="file" ref={fileInputFrontRef} accept="image/*" style={{ display: 'none' }} onChange={e => handleImageSelect(e, setGarmentFront)} />
-                    <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={() => fileInputFrontRef.current?.click()} style={{ minHeight: '220px', maxWidth: '280px', margin: '0 auto' }}>
+                    <div className={`upload-area ${garmentFront ? 'has-image' : ''}`} onClick={(!garmentFront && !isNativePlatform()) ? () => fileInputFrontRef.current?.click() : undefined} style={{ minHeight: '220px', maxWidth: '280px', margin: '0 auto', cursor: garmentFront ? 'default' : 'pointer' }}>
                       {!garmentFront ? (
-                        <>
-                          <span className="upload-icon" style={{ fontSize: '36px', display: 'block', marginBottom: '10px' }}>📸</span>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-gold)' }}>Ürün Fotoğrafı Yükle</div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px' }}>Kıyafetin ön görünümünü seçin</div>
-                          <SVGOutline category={category} />
-                        </>
+                        isNativePlatform() ? (
+                          <div style={{ textAlign: 'center', padding: '20px', width: '100%' }}>
+                            <span className="upload-icon" style={{ fontSize: '36px', display: 'block', marginBottom: '14px' }}>📸</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '80%', margin: '0 auto' }}>
+                              <button 
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); capturePhoto(setGarmentFront, 'camera'); }} 
+                                className="btn-gold"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', fontSize: '13px' }}
+                              >
+                                📸 Fotoğraf Çek
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); capturePhoto(setGarmentFront, 'photos'); }} 
+                                className="btn-outline"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', fontSize: '13px' }}
+                              >
+                                📁 Galeriden Seç
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="upload-icon" style={{ fontSize: '36px', display: 'block', marginBottom: '10px' }}>📸</span>
+                            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-gold)' }}>Ürün Fotoğrafı Yükle</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px' }}>Kıyafetin ön görünümünü seçin</div>
+                            <SVGOutline category={category} />
+                          </>
+                        )
                       ) : (
                         <div className="preview-container" style={{ margin: 0 }}>
                           <img src={garmentFront} alt="Front" className="preview-img" style={{ maxHeight: '200px' }} />
