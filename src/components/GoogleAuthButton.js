@@ -6,7 +6,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
   const [loading, setLoading] = useState(false);
   const tokenClientRef = useRef(null);
 
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '500994075326-ruodl4sphj8rftsbp1a6furrcl5qgqrk.apps.googleusercontent.com';
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '234971790392-k20f960qdr2gc200gv12ge4tsqmhtcnv.apps.googleusercontent.com';
 
   const handleServerAuth = async (credentialToken) => {
     setLoading(true);
