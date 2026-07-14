@@ -5,7 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Aysa Moda Giydirme',
   webDir: 'out',
   server: {
-    androidScheme: 'https',
+    url: 'https://aysamoda.karneyn.com',
+    allowNavigation: [
+      'accounts.google.com',
+      '*.google.com'
+    ],
+    cleartext: true
   },
   plugins: {
     PushNotifications: {
