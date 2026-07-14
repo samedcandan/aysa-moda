@@ -410,6 +410,8 @@ model ModaGeneration {
   modelId      String
   bodySize     String         @default("STANDARD") // STANDARD or PLUS_SIZE
   backgroundId String         @default("dynamic")
+  promptTr     String?        // Kullanıcının girdiği orijinal Türkçe prompt
+  promptEn     String?        // OpenAI ile çevrilen İngilizce final prompt
   videoUrl     String?
   status       String         @default("PROCESSING") // PROCESSING, SUCCESS, FAILED, FEEDBACK_SENT
   error        String?

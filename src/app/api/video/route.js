@@ -258,6 +258,8 @@ export async function POST(request) {
             modelId: isDirectMode ? 'own_model' : (modelId || 'melisa'),
             bodySize: bodySize || 'STANDARD',
             backgroundId: 'dynamic',
+            promptTr: customPrompt || null,
+            promptEn: finalPrompt || null,
             status: 'PROCESSING',
             runCount: 1,
           },
