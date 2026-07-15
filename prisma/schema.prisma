@@ -443,3 +443,43 @@ model ModaFeedback {
   @@index([userId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
 }
+
+model AdCampaign {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  format        String    @default("REELS")
+  status        String    @default("DRAFT")
+  musicUrl      String?
+  musicPrompt   String?
+  finalVideoUrl String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  scenes        AdScene[]
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+}
+
+model AdScene {
+  id              String     @id @default(uuid())
+  campaignId      String
+  orderIndex      Int        @default(0)
+  title           String?
+  referenceImgUrl String?
+  prompt          String?
+  voiceoverText   String?
+  displayMode     String     @default("ANIMATE")
+  duration        Int        @default(5)
+  transition      String     @default("FADE")
+  videoUrl        String?
+  voiceoverUrl    String?
+  status          String     @default("PENDING")
+  error           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  campaign        AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([campaignId, orderIndex])
+}
