@@ -469,17 +469,34 @@ model AdScene {
   referenceImgUrl String?
   prompt          String?
   voiceoverText   String?
+  aspectRatio     String?
   displayMode     String     @default("ANIMATE")
   duration        Int        @default(5)
   transition      String     @default("FADE")
   videoUrl        String?
   voiceoverUrl    String?
+  taskId          String?
   status          String     @default("PENDING")
   error           String?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   campaign        AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  media           AdMedia[]
 
   @@index([campaignId])
   @@index([campaignId, orderIndex])
 }
+
+model AdMedia {
+  id         String   @id @default(uuid())
+  sceneId    String
+  url        String
+  filename   String?
+  orderIndex Int      @default(0)
+  createdAt  DateTime @default(now())
+  scene      AdScene  @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+
+  @@index([sceneId])
+  @@index([sceneId, orderIndex])
+}
+
