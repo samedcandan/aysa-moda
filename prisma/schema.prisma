@@ -445,17 +445,33 @@ model ModaFeedback {
 }
 
 model AdCampaign {
-  id            String    @id @default(uuid())
-  title         String
-  description   String?
-  format        String    @default("REELS")
-  status        String    @default("DRAFT")
-  musicUrl      String?
-  musicPrompt   String?
-  finalVideoUrl String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  scenes        AdScene[]
+  id                String    @id @default(uuid())
+  title             String
+  description       String?
+  format            String    @default("REELS")
+  status            String    @default("DRAFT")
+  musicUrl          String?
+  musicPrompt       String?
+  finalVideoUrl     String?
+  // — Producer Entegrasyonu —
+  sourceUrl         String?              // E-ticaret ürün linki
+  brandResearch     String?   @db.Text   // Perplexity araştırma sonucu
+  category          String?              // Ürün kategorisi
+  targetAudience    String?              // Hedef kitle
+  narrativeHook     String?              // Çekirdek hook fikri
+  hookPattern       String?              // Hook formülü
+  narrativePattern  String?              // linear / before_after / transformation
+  characterGender   String?              // kadın / erkek
+  voiceName         String?              // TTS ses adı (Ahu / Filiz / İrem)
+  characterImageUrl String?              // Ana karakter portresi URL
+  estimatedCostUsd  Float?               // Tahmini maliyet ($)
+  videoModel        String?   @default("seedance-2.0")  // seedance-2.0 / kling-3.0
+  producerTaskId    String?              // Railway production task ID
+  producerStatus    String?              // Railway üretim durumu
+  // — Tarihler —
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  scenes            AdScene[]
 
   @@index([status])
   @@index([createdAt(sort: Desc)])
