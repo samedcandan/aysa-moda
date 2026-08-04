@@ -117,6 +117,21 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
   const handleCustomButtonClick = () => {
     setLoading(true);
 
+    // WebView tespiti — Google GSI kütüphanesi WebView'da çalışmaz
+    const ua = navigator.userAgent || '';
+    const isWebView = /; wv\)/.test(ua) || /Android.*Version\/[\d.]+/.test(ua) || 
+                      ua.includes('DamlaCRM-App') || ua.includes('AysaModa-App') ||
+                      (ua.includes('Android') && !ua.includes('Chrome/'));
+    
+    // WebView'da redirect akışı kullan (popup açılamaz)
+    if (isWebView || !window.google?.accounts) {
+      const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+      const scope = encodeURIComponent('email profile openid');
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=select_account`;
+      window.location.href = googleAuthUrl;
+      return;
+    }
+
     const executeTokenFlow = () => {
       if (window.google?.accounts?.oauth2) {
         try {
@@ -151,8 +166,11 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
           setLoading(false);
         }
       } else {
-        setLoading(false);
-        if (onError) onError("Google servisi henüz hazır değil. Lütfen 1-2 saniye sonra tekrar deneyin.");
+        // Fallback: GSI yüklenemediyse redirect akışına geç
+        const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+        const scope = encodeURIComponent('email profile openid');
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=select_account`;
+        window.location.href = googleAuthUrl;
       }
     };
 
@@ -165,8 +183,12 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
         attempts++;
         setTimeout(checkAndExecute, 500);
       } else {
+        // Timeout — redirect akışına geç
         setLoading(false);
-        if (onError) onError("Google servisine ulaşılamadı. Lütfen sayfayı yenileyip tekrar deneyin.");
+        const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+        const scope = encodeURIComponent('email profile openid');
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=select_account`;
+        window.location.href = googleAuthUrl;
       }
     };
 
