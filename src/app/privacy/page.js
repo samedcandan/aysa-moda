@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Gizlilik Politikası — Aysa Moda Giydirme',
-  description: 'Aysa Moda Giydirme uygulamasının gizlilik politikası, KVKK uyumu ve veri güvenliği bilgileri.',
+  title: 'Gizlilik Politikası — Aysa Moda Stüdyo',
+  description: 'Aysa Moda Stüdyo uygulamasının gizlilik politikası, KVKK uyumu ve veri güvenliği bilgileri.',
   robots: { index: false, follow: false },
 };
 
@@ -46,13 +46,13 @@ export default function PrivacyPolicyPage() {
           borderBottom: '1px solid rgba(255,255,255,0.1)',
           paddingBottom: '1rem',
         }}>
-          Gizlilik Politikası — Aysa Moda Giydirme
+          Gizlilik Politikası — Aysa Moda Stüdyo
         </h1>
 
         <div style={{ lineHeight: '1.8', fontSize: '0.95rem' }}>
 
           <h3 style={{ color: '#fff', marginTop: '2rem', marginBottom: '1rem' }}>1. AMAÇ VE KAPSAM</h3>
-          <p>Karneyn Yazılım Hizmetleri Ltd. Şti. (&ldquo;Şirket&rdquo;) olarak, <strong>Aysa Moda Giydirme</strong> uygulaması (web ve mobil) aracılığıyla sunduğumuz hizmetlerden faydalanan kullanıcılarımızın kişisel verilerinin Türkiye Cumhuriyeti Anayasası ve 6698 sayılı Kişisel Verilerin Korunması Kanunu (&ldquo;KVKK&rdquo;) başta olmak üzere ilgili mevzuata uygun olarak işlenmesi ve verilerin güvenliğinin sağlanması en önemli önceliklerimizdendir.</p>
+          <p>Karneyn Yazılım Hizmetleri Ltd. Şti. (&ldquo;Şirket&rdquo;) olarak, <strong>Aysa Moda Stüdyo</strong> uygulaması (web ve mobil) aracılığıyla sunduğumuz hizmetlerden faydalanan kullanıcılarımızın kişisel verilerinin Türkiye Cumhuriyeti Anayasası ve 6698 sayılı Kişisel Verilerin Korunması Kanunu (&ldquo;KVKK&rdquo;) başta olmak üzere ilgili mevzuata uygun olarak işlenmesi ve verilerin güvenliğinin sağlanması en önemli önceliklerimizdendir.</p>
           <p>Bu politika, <strong>aysamoda.karneyn.com</strong> web sitesi ve Google Play Store&apos;dan indirilen mobil uygulama için geçerlidir.</p>
 
           <h3 style={{ color: '#fff', marginTop: '2rem', marginBottom: '1rem' }}>2. TOPLANAN BİLGİLER</h3>

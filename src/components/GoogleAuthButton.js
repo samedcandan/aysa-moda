@@ -156,17 +156,17 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
       }
     };
 
-    // Google kütüphanesi hazır olana kadar 2 saniyeye kadar bekle
+    // Google kütüphanesi hazır olana kadar 5 saniyeye kadar bekle
     let attempts = 0;
     const checkAndExecute = () => {
       if (window.google?.accounts) {
         executeTokenFlow();
-      } else if (attempts < 6) {
+      } else if (attempts < 10) {
         attempts++;
-        setTimeout(checkAndExecute, 300);
+        setTimeout(checkAndExecute, 500);
       } else {
         setLoading(false);
-        if (onError) onError("Google servisine ulaşılamadı. Lütfen internet bağlantınızı kontrol edin.");
+        if (onError) onError("Google servisine ulaşılamadı. Lütfen sayfayı yenileyip tekrar deneyin.");
       }
     };
 

@@ -1,13 +1,13 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Aysa Moda Giydirme — Kıyafet Fotoğraflarını Videoya Dönüştür',
+  title: 'Aysa Moda Stüdyo — Kıyafet Fotoğraflarını Videoya Dönüştür',
   description: 'E-ticaret siteleri ve butikler için statik kıyafet fotoğraflarını saniyeler içinde canlı yapay zeka manken videolarına dönüştüren jeneratif AI çözümü.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Aysa Moda Giydirme',
+    title: 'Aysa Moda Stüdyo',
   },
 };
 
