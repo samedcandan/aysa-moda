@@ -125,7 +125,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
     
     // WebView'da redirect akışı kullan (popup açılamaz)
     if (isWebView || !window.google?.accounts) {
-      const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+      const redirectUri = encodeURIComponent(window.location.origin);
       const scope = encodeURIComponent('email profile openid');
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=select_account`;
       window.location.href = googleAuthUrl;
@@ -167,7 +167,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
         }
       } else {
         // Fallback: GSI yüklenemediyse redirect akışına geç
-        const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+        const redirectUri = encodeURIComponent(window.location.origin);
         const scope = encodeURIComponent('email profile openid');
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=select_account`;
         window.location.href = googleAuthUrl;
@@ -185,7 +185,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = "Google il
       } else {
         // Timeout — redirect akışına geç
         setLoading(false);
-        const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+        const redirectUri = encodeURIComponent(window.location.origin);
         const scope = encodeURIComponent('email profile openid');
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=select_account`;
         window.location.href = googleAuthUrl;
