@@ -44,6 +44,7 @@ next-env.d.ts
 scripts/setup-vercel-env.js
 scripts/manage-users.js
 scripts/test-tryon.js
+*.mjs
 
 # Android / Capacitor
 *.aab
