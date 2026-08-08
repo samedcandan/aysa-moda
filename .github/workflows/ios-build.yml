@@ -42,20 +42,6 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: Create Export Options Plist
-        run: |
-          cat << 'EOF' > exportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>manageAppVersionAndBuildNumber</key>
-              <true/>
-          </dict>
-          EOF
-
       - name: Build and Sign Xcode Archive
         run: |
           PROJ_FLAG="-project ios/App/App.xcodeproj"
@@ -66,8 +52,7 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 || \
-          xcodebuild $PROJ_FLAG -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       - name: Export Signed IPA Package
         run: |
@@ -78,7 +63,7 @@ jobs:
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
             -archivePath $PWD/build/AysaModa.xcarchive \
             -exportOptionsPlist exportOptions.plist \
-            -exportPath build/ || (mkdir -p build/Payload && cp -r build/AysaModa.xcarchive/Products/Applications/App.app build/Payload/ && cd build && zip -r App.ipa Payload)
+            -exportPath build/
 
       - name: Find IPA File
         run: |
