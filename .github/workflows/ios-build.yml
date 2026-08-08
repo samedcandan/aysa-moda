@@ -42,17 +42,13 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: Build and Sign Xcode Archive
+      - name: Build Xcode Archive
         run: |
           PROJ_FLAG="-project ios/App/App.xcodeproj"
           if [ -d "ios/App/App.xcworkspace" ]; then
             PROJ_FLAG="-workspace ios/App/App.xcworkspace"
           fi
-          xcodebuild $PROJ_FLAG -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive \
-            -allowProvisioningUpdates \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+          xcodebuild $PROJ_FLAG -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Export Signed IPA Package
         run: |
