@@ -1,0 +1,24 @@
+{
+  "appId": "com.karneyn.aysamoda",
+  "appName": "Aysa Moda Giydirme",
+  "webDir": "out",
+  "server": {
+    "url": "https://aysamoda.karneyn.com",
+    "allowNavigation": [
+      "accounts.google.com",
+      "*.google.com"
+    ],
+    "cleartext": true
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  },
+  "ios": {
+    "contentInset": "always",
+    "allowsLinkPreview": false,
+    "scrollEnabled": true,
+    "scheme": "Aysa Moda"
+  }
+}
