@@ -1,4 +1,4 @@
-name: Aysa Moda - iOS Build Pipeline
+name: Aysa Moda iOS Build Pipeline
 
 on:
   push:
@@ -37,17 +37,9 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Build Xcode Archive (.xcarchive)
+      - name: Build Xcode Archive
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace \
-                     -scheme App \
-                     -sdk iphoneos \
-                     -configuration Release \
-                     -archivePath $PWD/build/AysaModa.xcarchive \
-                     clean archive \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Create IPA Package
         run: |
@@ -61,9 +53,8 @@ jobs:
           name: AysaModa-iOS-Archive
           path: build/AysaModa.ipa
 
-      - name: Upload to App Store Connect / TestFlight
+      - name: Upload to App Store Connect TestFlight
         uses: apple-actions/upload-testflight-build@v1
-        if: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' }}
         with:
           app-path: build/AysaModa.ipa
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
