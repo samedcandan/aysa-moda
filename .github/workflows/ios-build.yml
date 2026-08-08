@@ -49,17 +49,23 @@ jobs:
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGNING_ALLOWED=NO
 
+      - name: Create IPA Package
+        run: |
+          mkdir -p build/Payload
+          cp -r build/AysaModa.xcarchive/Products/Applications/App.app build/Payload/
+          cd build && zip -r AysaModa.ipa Payload
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AysaModa-iOS-Archive
-          path: build/AysaModa.xcarchive
+          path: build/AysaModa.ipa
 
       - name: Upload to App Store Connect / TestFlight
         uses: apple-actions/upload-testflight-build@v1
         if: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' }}
         with:
-          app-path: build/AysaModa.xcarchive
+          app-path: build/AysaModa.ipa
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-private-key: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
