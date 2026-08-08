@@ -48,7 +48,7 @@ jobs:
           if [ -d "ios/App/App.xcworkspace" ]; then
             PROJ_FLAG="-workspace ios/App/App.xcworkspace"
           fi
-          xcodebuild $PROJ_FLAG -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          xcodebuild $PROJ_FLAG -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive DEVELOPMENT_TEAM=S79285KHV9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Export Signed IPA Package
         run: |
