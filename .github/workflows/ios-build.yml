@@ -42,24 +42,33 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: Build Xcode Archive
+      - name: Build & Export Signed IPA
         run: |
           PROJ_FLAG="-project ios/App/App.xcodeproj"
           if [ -d "ios/App/App.xcworkspace" ]; then
             PROJ_FLAG="-workspace ios/App/App.xcworkspace"
           fi
-          xcodebuild $PROJ_FLAG -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/AysaModa.xcarchive clean archive DEVELOPMENT_TEAM=S79285KHV9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-
-      - name: Export Signed IPA Package
-        run: |
-          xcodebuild -exportArchive \
+          
+          xcodebuild $PROJ_FLAG \
+            -scheme App \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath $PWD/build/AysaModa.xcarchive \
             -allowProvisioningUpdates \
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
+            DEVELOPMENT_TEAM=S79285KHV9 \
+            clean archive
+
+          xcodebuild -exportArchive \
             -archivePath $PWD/build/AysaModa.xcarchive \
             -exportOptionsPlist exportOptions.plist \
-            -exportPath build/
+            -exportPath build/ \
+            -allowProvisioningUpdates \
+            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       - name: Find IPA File
         run: |
