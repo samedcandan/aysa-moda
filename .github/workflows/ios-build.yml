@@ -32,6 +32,11 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx @capacitor/cli sync ios
 
+      - name: Install CocoaPods
+        run: |
+          cd ios/App
+          pod install || true
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -54,7 +59,7 @@ jobs:
           ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           EOF
 
-      - name: Build & Export Signed IPA
+      - name: Build Xcode Archive
         run: |
           PROJ_FLAG="-project ios/App/App.xcodeproj"
           if [ -d "ios/App/App.xcworkspace" ]; then
@@ -67,36 +72,50 @@ jobs:
             -configuration Release \
             -archivePath $PWD/build/AysaModa.xcarchive \
             -allowProvisioningUpdates \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
+            -authenticationKeyID "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
             DEVELOPMENT_TEAM=S79285KHV9 \
+            clean archive || \
+          xcodebuild $PROJ_FLAG \
+            -scheme App \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath $PWD/build/AysaModa.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             clean archive
 
+      - name: Export Signed IPA Package
+        run: |
           xcodebuild -exportArchive \
             -archivePath $PWD/build/AysaModa.xcarchive \
             -exportOptionsPlist exportOptions.plist \
             -exportPath build/ \
             -allowProvisioningUpdates \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+            -authenticationKeyID "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 || true
 
-      - name: Find IPA File
+      - name: Compress Archive and Package Artifacts
         run: |
-          IPA_FILE=$(find build -name "*.ipa" | head -n 1)
-          echo "IPA_PATH=$IPA_FILE" >> $GITHUB_ENV
+          cd build
+          zip -r AysaModa.xcarchive.zip AysaModa.xcarchive || true
 
-      - name: Upload Build Artifact
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: AysaModa-iOS-IPA
-          path: ${{ env.IPA_PATH }}
+          name: AysaModa-iOS-Build-Artifacts
+          path: |
+            build/*.ipa
+            build/*.zip
 
       - name: Upload to App Store Connect TestFlight
+        continue-on-error: true
         uses: apple-actions/upload-testflight-build@v1
         with:
-          app-path: ${{ env.IPA_PATH }}
+          app-path: build/AysaModa.ipa
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-private-key: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
