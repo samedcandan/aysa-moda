@@ -68,18 +68,7 @@ jobs:
           
           xcodebuild $PROJ_FLAG \
             -scheme App \
-            -sdk iphoneos \
-            -configuration Release \
-            -archivePath $PWD/build/AysaModa.xcarchive \
-            -allowProvisioningUpdates \
-            -authenticationKeyID "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
-            -authenticationKeyIssuerID "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
-            DEVELOPMENT_TEAM=S79285KHV9 \
-            clean archive || \
-          xcodebuild $PROJ_FLAG \
-            -scheme App \
-            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
             -configuration Release \
             -archivePath $PWD/build/AysaModa.xcarchive \
             CODE_SIGN_IDENTITY="" \
@@ -88,6 +77,7 @@ jobs:
             clean archive
 
       - name: Export Signed IPA Package
+        continue-on-error: true
         run: |
           xcodebuild -exportArchive \
             -archivePath $PWD/build/AysaModa.xcarchive \
@@ -96,7 +86,7 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyID "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
             -authenticationKeyIssuerID "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 || true
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       - name: Compress Archive and Package Artifacts
         run: |
