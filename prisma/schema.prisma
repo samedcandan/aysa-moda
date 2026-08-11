@@ -385,6 +385,7 @@ model ModaUser {
   subscriptionId String?
   watermarkUrl   String?          // Opsiyonel butik logosu filigranı
   createdAt      DateTime         @default(now())
+  lastLoginAt    DateTime?
   updatedAt      DateTime         @updatedAt
   generations    ModaGeneration[]
   feedbacks      ModaFeedback[]

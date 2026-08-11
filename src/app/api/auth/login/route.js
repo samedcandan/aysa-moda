@@ -42,6 +42,12 @@ export async function POST(request) {
       }
     }
 
+    // Son giriş zamanını kaydet (Admin panelde kullanılacak)
+    await prisma.modaUser.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+
     // Set auth cookie AND return token for mobile clients
     const token = await setSessionCookie(user.id, user.email);
 
