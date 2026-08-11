@@ -376,6 +376,7 @@ model PushToken {
 model ModaUser {
   id             Int              @id @default(autoincrement())
   email          String           @unique
+  phone          String?          @unique
   password       String?
   googleId       String?          @unique
   name           String?

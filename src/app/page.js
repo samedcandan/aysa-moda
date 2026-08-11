@@ -726,8 +726,8 @@ function HomePageContent() {
           </p>
           <form onSubmit={authMode === 'login' ? handleLogin : handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' }}>
             <div>
-              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block', fontWeight: 500 }}>E-Posta Adresi</label>
-              <input type="email" required className="glass-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@butik.com" />
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block', fontWeight: 500 }}>E-Posta veya Telefon</label>
+              <input type="text" required className="glass-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@butik.com veya 05XX..." />
             </div>
             <div>
               <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', display: 'block', fontWeight: 500 }}>Şifre</label>

