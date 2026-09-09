@@ -4,8 +4,23 @@ import bcrypt from 'bcryptjs';
 
 // ─── JWT Konfigürasyonu ───────────────────────────────────────
 const AUTH_COOKIE_NAME = 'aysamoda_session';
-const secretKey = process.env.SESSION_SECRET || 'aysa-moda-super-secret-key-2024';
-const key = new TextEncoder().encode(secretKey);
+const secretKey = process.env.SESSION_SECRET;
+
+const key = new TextEncoder().encode(secretKey || '');
+
+/* 🔒 OTURUM MÜHRÜ — 9 Eylül 2026
+ * Bu değişken önce `process.env.SESSION_SECRET || '<kodda yazılı sabit>'` biçimindeydi.
+ * Tanımlı değilse sistem HATA VERMEDEN depodaki sabitle imzalıyordu; o sabiti
+ * gören herkes istediği yetkiyle geçerli oturum üretebilirdi. Yedek kaldırıldı.
+ * ⚠️ Kontrol MODÜL seviyesinde değil, ÇAĞRI anında yapılır: modül yüklenirken
+ *    `throw` etmek `next build` sırasında sayfa verisi toplanamadığı için
+ *    derlemeyi kırıyordu (9 Eylül'de ölçüldü). Burada amaç derlemeyi durdurmak
+ *    değil, boş anahtarla SESSİZCE imzalamayı önlemektir. */
+function muhurKontrol() {
+  if (!secretKey) {
+    throw new Error('SESSION_SECRET tanımsız — oturum imzalama yapılandırılmamış. Ortam değişkenini tanımlayın.');
+  }
+}
 const TOKEN_EXPIRY = '7d'; // 7 gün
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 gün (saniye)
 
@@ -28,6 +43,7 @@ export function verifyPassword(password, hash) {
 
 // ─── JWT Token İşlemleri ──────────────────────────────────────
 export async function encrypt(payload) {
+  muhurKontrol();
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -36,6 +52,7 @@ export async function encrypt(payload) {
 }
 
 export async function decrypt(input) {
+  muhurKontrol();
   try {
     const { payload } = await jwtVerify(input, key, {
       algorithms: ['HS256'],

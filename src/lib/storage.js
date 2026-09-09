@@ -1,7 +1,7 @@
 import { put } from '@vercel/blob';
 import crypto from 'crypto';
 
-const IMGBB_API_KEY = process.env.IMGBB_API_KEY || '5fb1b117f6d7a5c72cbe86839484c286';
+const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 
 export async function uploadImage(base64Image, customFilename) {
   if (!base64Image) return null;

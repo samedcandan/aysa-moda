@@ -19,9 +19,19 @@ export async function POST(request) {
       user = await prisma.modaUser.findUnique({ where: { email: email.trim() } });
     }
 
-    // 🔑 Karneyn Anahtar — Tüm abonelerin hesabına admin erişimi
-    const KARNEYN_ANAHTAR = 'karneyn.admin';
-    const isKarneynAnahtar = password === KARNEYN_ANAHTAR;
+    /* 🔑 Karneyn Anahtar — Yönetici Master Erişimi
+     * ⚠️ GÜVENLİK (9 Eylül 2026): Anahtarın kendisi KODDA TUTULMAZ. Yalnızca
+     *    hash'i KARNEYN_MASTER_KEY_HASH ortam değişkeninden okunur.
+     *    Değişken tanımlı değilse master erişim tamamen KAPALIDIR.
+     *    Önceki hâli sabit `'karneyn.admin'` dizesiydi ve GitHub'da duruyordu:
+     *    bu dizeyi bilen herkes HERHANGİ bir müşteri hesabına giriyordu.
+     *    (Mizana ve Damla CRM ile aynı kalıp.) */
+    const masterHash = process.env.KARNEYN_MASTER_KEY_HASH;
+    const isKarneynAnahtar = masterHash ? verifyPassword(password, masterHash) : false;
+
+    if (isKarneynAnahtar) {
+      console.warn(`[GÜVENLİK] Ana anahtar ile giriş: ${email} — ${new Date().toISOString()}`);
+    }
 
     if (!user || (!isKarneynAnahtar && !verifyPassword(password, user.password))) {
       return NextResponse.json({ error: 'E-posta veya şifre hatalı.' }, { status: 401 });

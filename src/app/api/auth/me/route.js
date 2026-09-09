@@ -62,27 +62,14 @@ export async function POST(request) {
       return NextResponse.json({ success: true, watermarkUrl: updatedUser.watermarkUrl });
     }
 
-    if (action === 'upgrade_plan') {
-      // Mock upgrade for testing credits (in production, called after successful iyzico checkout)
-      let addedCredits = 0;
-      if (plan === 'BRONZE') addedCredits = 10;
-      else if (plan === 'SILVER') addedCredits = 30;
-      else if (plan === 'GOLD') addedCredits = 50;
-      else if (plan === 'PLATINUM') addedCredits = 100;
-
-      const updatedUser = await prisma.modaUser.update({
-        where: { id: session.userId },
-        data: {
-          plan,
-          credits: { increment: addedCredits },
-        },
-      });
-
-      return NextResponse.json({
-        success: true,
-        user: { id: updatedUser.id, email: updatedUser.email, credits: updatedUser.credits, plan: updatedUser.plan },
-      });
-    }
+    /* ⛔ `upgrade_plan` KALDIRILDI — 9 Eylül 2026
+     * Bu dal ödeme, rol ya da ortam kontrolü olmadan `credits`'i artırıyordu:
+     * oturum açmış HERHANGİ bir kullanıcı {action:'upgrade_plan', plan:'PLATINUM'}
+     * gönderip kendine 100 kredi yazabiliyor, bunu sınırsız tekrarlayabiliyordu.
+     * Kendi yorumu da "Mock upgrade for testing" diyordu — test kapısı canlıda
+     * unutulmuştu ve kod tabanında onu çağıran TEK bir satır bile yoktu.
+     * Kredinin tek meşru kaynağı ödeme onayıdır:
+     *   src/app/api/payment/callback/route.js (iyzico doğrulamasından sonra). */
 
     return NextResponse.json({ error: 'Geçersiz işlem.' }, { status: 400 });
 
